@@ -760,15 +760,43 @@
                 </div>
 
                 <div v-if="billingTab==='claims'" class="panel">
-                    <h3>Claims Tracking &amp; Electronic Submissions</h3>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem">
+                        <h3 style="margin:0">Claims Tracking &amp; Electronic Submissions</h3>
+                        <span class="badge badge-blue">Availity EDI Gateway: CONNECTED 📶</span>
+                    </div>
                     <table>
-                        <thead><tr><th>Patient</th><th>CPT / Code</th><th>Charge Amt</th><th>Claim status</th></tr></thead>
+                        <thead>
+                            <tr>
+                                <th>Patient</th>
+                                <th>CPT Code</th>
+                                <th>Charge Amt</th>
+                                <th>Scrubbing Status</th>
+                                <th>EDI Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
                         <tbody>
                             <tr v-for="e in encounters.filter(x=>x.billing_sync_status==='synced')" :key="e.id">
-                                <td>{{ e.patient ? e.patient.full_name : '—' }}</td>
+                                <td><strong>{{ e.patient ? e.patient.full_name : '—' }}</strong></td>
                                 <td>CPT 99213</td>
                                 <td>$150.00</td>
-                                <td><span class="badge badge-green">EDI Acknowledged</span></td>
+                                <td>
+                                    <span v-if="claimScrubResults[e.id]==='scrubbing'" class="badge" style="background:#ecc94b; color:#744210">Scrubbing...</span>
+                                    <span v-else-if="claimScrubResults[e.id]" class="badge badge-green">{{ claimScrubResults[e.id] }}</span>
+                                    <span v-else class="badge" style="background:#e2e8f0; color:#4a5568">Ready to Scrub</span>
+                                </td>
+                                <td>
+                                    <span v-if="claimStatuses[e.id]==='submitting'" class="badge" style="background:#3182ce; color:white">Transmitting...</span>
+                                    <span v-else-if="claimStatuses[e.id]" class="badge badge-green">{{ claimStatuses[e.id] }}</span>
+                                    <span v-else class="badge" style="background:#edf2f7; color:#718096">EDI Ready</span>
+                                </td>
+                                <td>
+                                    <div style="display:flex; gap:0.25rem">
+                                        <button class="btn btn-xs" @click="scrubClaim(e.id)" style="padding:0.2rem 0.4rem; font-size:0.75rem">Scrub</button>
+                                        <button class="btn btn-xs btn-primary" @click="submitClaimEDI(e.id)" :disabled="!claimScrubResults[e.id]" style="padding:0.2rem 0.4rem; font-size:0.75rem">Submit EDI</button>
+                                        <button class="btn btn-xs btn-secondary" @click="openCMS1500Preview(e)" style="padding:0.2rem 0.4rem; font-size:0.75rem">CMS-1500</button>
+                                    </div>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -777,35 +805,100 @@
                 <div v-if="billingTab==='posting'" class="panel">
                     <h3>Payment Posting Log</h3>
                     <table>
-                        <thead><tr><th>Post Date</th><th>Patient</th><th>Method</th><th>Posted Amt</th></tr></thead>
+                        <thead><tr><th>Post Date</th><th>Patient</th><th>Method</th><th>Description</th><th>Posted Amt</th></tr></thead>
                         <tbody>
-                            <tr><td>2026-06-24</td><td>Jane Doe</td><td>Credit Card</td><td>$20.00</td></tr>
+                            <tr><td>2026-06-24</td><td>Jane Doe</td><td>Credit Card</td><td>Copay Payment</td><td>$20.00</td></tr>
+                            <tr><td>2026-06-24</td><td>John Smith</td><td>EFT Payer Check</td><td>Co-insurance posting</td><td>$110.00</td></tr>
                         </tbody>
                     </table>
                 </div>
 
                 <div v-if="billingTab==='era'" class="panel">
-                    <h3>Electronic Remittance Advice (ERA 835)</h3>
-                    <p style="color:#718096">Process ERA batches synced from clearinghouses automatically.</p>
+                    <h3>Electronic Remittance Advice (ERA 835) Clearinghouse Sync</h3>
+                    <p style="color:#4a5568; margin-bottom:1rem">Remittances fetched automatically from Availity/Change clearinghouses matching EFT deposits.</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Check Date</th>
+                                <th>Payer</th>
+                                <th>EFT Check #</th>
+                                <th>Paid Amount</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="era in eras" :key="era.id">
+                                <td>{{ era.date }}</td>
+                                <td><strong>{{ era.payer }}</strong></td>
+                                <td><code>{{ era.check_number }}</code></td>
+                                <td><strong>${{ era.amount.toFixed(2) }}</strong></td>
+                                <td>
+                                    <span v-if="era.status==='posting'" class="badge" style="background:#ecc94b; color:#744210">Posting...</span>
+                                    <span v-else-if="era.status==='posted'" class="badge badge-green">Auto-Posted ✅</span>
+                                    <span v-else class="badge badge-blue">Pending</span>
+                                </td>
+                                <td>
+                                    <button v-if="era.status==='pending'" class="btn btn-xs btn-primary" @click="autoPostERA(era)" style="padding:0.2rem 0.4rem; font-size:0.75rem">Process &amp; Auto-Post</button>
+                                    <span v-else style="font-size:0.8rem; color:#718096">Completed</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
 
                 <div v-if="billingTab==='denials'" class="panel">
-                    <h3>Clinical Denial Management</h3>
-                    <p style="color:#718096">No active clinical denials require attention.</p>
+                    <h3>Clinical Denial Management &amp; AI Appeal Generator</h3>
+                    <p style="color:#4a5568; margin-bottom:1rem">Track and generate appeal packets for claims denied during payer adjudication.</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Patient</th>
+                                <th>Carrier</th>
+                                <th>Denial Code</th>
+                                <th>Description</th>
+                                <th>Denied Amt</th>
+                                <th>Appeal Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="d in denials" :key="d.id">
+                                <td><strong>{{ d.patient }}</strong></td>
+                                <td>{{ d.payer }}</td>
+                                <td><span class="badge badge-yellow">{{ d.code }}</span></td>
+                                <td>{{ d.description }}</td>
+                                <td><strong>${{ d.amount.toFixed(2) }}</strong></td>
+                                <td>
+                                    <span v-if="d.appeal_status==='generating'" class="badge" style="background:#ecc94b; color:#744210">Generating Appeal...</span>
+                                    <span v-else-if="d.appeal_status!=='none'" class="badge badge-green">{{ d.appeal_status }}</span>
+                                    <span v-else class="badge">Open Denial</span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-xs btn-primary" @click="generateAIAppeal(d)" :disabled="d.appeal_status==='generating'" style="padding:0.2rem 0.4rem; font-size:0.75rem">Generate Appeal</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
 
                 <div v-if="billingTab==='statements'" class="panel">
                     <h3>Generate Patient Statements</h3>
-                    <button class="btn btn-sm btn-primary">Batch Print Statements</button>
+                    <p style="color:#4a5568; margin-bottom:1rem">Print or transmit digital patient ledger statements for remaining account balances.</p>
+                    <div style="display:flex; gap:1rem">
+                        <button class="btn btn-sm btn-primary"><i class="fas fa-print" style="margin-right:6px"></i>Batch Print Statements</button>
+                        <button class="btn btn-sm btn-secondary"><i class="fas fa-paper-plane" style="margin-right:6px"></i>Send Patient portal Statements</button>
+                    </div>
                 </div>
 
                 <div v-if="billingTab==='fee-schedule'" class="panel">
                     <h3>Practice Fee Schedules</h3>
                     <table>
-                        <thead><tr><th>CPT Code</th><th>Standard Fee</th><th>Allowed Medicare</th></tr></thead>
+                        <thead><tr><th>CPT Code</th><th>Standard Fee</th><th>Allowed Medicare</th><th>Allowed UHC</th></tr></thead>
                         <tbody>
-                            <tr><td>99213 (Outpatient Level 3)</td><td>$150.00</td><td>$110.00</td></tr>
-                            <tr><td>99214 (Outpatient Level 4)</td><td>$220.00</td><td>$160.00</td></tr>
+                            <tr><td>99213 (Outpatient Level 3)</td><td>$150.00</td><td>$110.00</td><td>$125.00</td></tr>
+                            <tr><td>99214 (Outpatient Level 4)</td><td>$220.00</td><td>$160.00</td><td>$182.00</td></tr>
+                            <tr><td>36415 (Venipuncture Draw)</td><td>$35.00</td><td>$12.00</td><td>$18.00</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -1107,6 +1200,74 @@
                         <button class="btn btn-sm" @click="selectedApptDetail=null" style="background:#edf2f7; color:#4a5568">Close</button>
                         <button class="btn btn-sm btn-primary" @click="updateApptDetails">Save Changes</button>
                     </div>
+                </div>
+            </div>
+        </div>
+        <!-- CMS-1500 Claim Form Preview Modal -->
+        <div v-if="selectedClaimForCMS1500" class="modal-overlay" style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.6); display:flex; justify-content:center; align-items:center; z-index:1050">
+            <div class="modal-card" style="background:#fdfaf7; padding:2rem; border-radius:8px; max-width:850px; width:95%; max-height:90vh; overflow-y:auto; box-shadow:0 15px 30px rgba(0,0,0,0.2); border: 2px solid #e53e3e">
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #e53e3e; padding-bottom:0.75rem; margin-bottom:1rem">
+                    <h3 style="margin:0; color:#e53e3e; font-family:monospace; font-weight:bold"><i class="fas fa-file-invoice" style="margin-right:6px"></i>HEALTH INSURANCE CLAIM FORM (CMS-1500) PREVIEW</h3>
+                    <button class="btn btn-sm" @click="selectedClaimForCMS1500=null" style="background:#e53e3e; color:white; border:none; padding:0.25rem 0.5rem; border-radius:4px; cursor:pointer">&times;</button>
+                </div>
+                
+                <div style="font-family:monospace; font-size:0.75rem; border:1px solid #e53e3e; padding:1rem; background:white; color:#333; line-height:1.4">
+                    <div style="display:grid; grid-template-columns: repeat(4, 1fr); border-bottom:1px solid #e53e3e; padding-bottom:0.5rem">
+                        <div style="border-right:1px solid #e53e3e; padding:0.25rem">1. MEDICARE / OTHER<br><strong>[ X ] OTHER</strong></div>
+                        <div style="border-right:1px solid #e53e3e; padding:0.25rem">1a. INSURED'S I.D. NUMBER<br><strong>UHC-@{{ selectedClaimForCMS1500.patient_id }}09876</strong></div>
+                        <div style="border-right:1px solid #e53e3e; padding:0.25rem">2. PATIENT'S NAME<br><strong>@{{ selectedClaimForCMS1500.patient ? selectedClaimForCMS1500.patient.last_name + ', ' + selectedClaimForCMS1500.patient.first_name : 'Jane Doe' }}</strong></div>
+                        <div style="padding:0.25rem">3. PATIENT'S DOB<br><strong>@{{ selectedClaimForCMS1500.patient ? selectedClaimForCMS1500.patient.date_of_birth : '1990-01-01' }}</strong></div>
+                    </div>
+                    
+                    <div style="display:grid; grid-template-columns: 2fr 1fr 1fr; border-bottom:1px solid #e53e3e">
+                        <div style="border-right:1px solid #e53e3e; padding:0.25rem">4. INSURED'S NAME<br><strong>@{{ selectedClaimForCMS1500.patient ? selectedClaimForCMS1500.patient.last_name + ', ' + selectedClaimForCMS1500.patient.first_name : 'Jane Doe' }}</strong></div>
+                        <div style="border-right:1px solid #e53e3e; padding:0.25rem">5. PATIENT'S ADDRESS<br><strong>123 Health St, City, ST 12345</strong></div>
+                        <div style="padding:0.25rem">6. RELATIONSHIP<br><strong>[ X ] SELF</strong></div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; border-bottom:1px solid #e53e3e">
+                        <div style="border-right:1px solid #e53e3e; padding:0.25rem">21. DIAGNOSIS (ICD-10-CM)<br><strong>A. J06.9 (Acute upper respiratory infection)</strong></div>
+                        <div style="padding:0.25rem">23. PRIOR AUTHORIZATION<br><strong>AUTH-@{{ selectedClaimForCMS1500.id }}889</strong></div>
+                    </div>
+
+                    <div style="border-bottom:1px solid #e53e3e; padding:0.25rem">
+                        24. DATE OF SERVICE | PLACE | PROCEDURES (CPT) | DIAG POINTER | CHARGES | DAYS | RENDERING PROVIDER
+                        <div style="display:grid; grid-template-columns: 2fr 1fr 3fr 1fr 1fr 1fr 2fr; background:#fff8f8; font-weight:bold; padding:0.25rem 0; margin-top:0.25rem; border-top:1px dashed #e53e3e">
+                            <div>@{{ selectedClaimForCMS1500.encounter_date ? selectedClaimForCMS1500.encounter_date.slice(0, 10) : '2026-06-24' }}</div>
+                            <div>11 (Office)</div>
+                            <div>99213 (Outpatient Visit)</div>
+                            <div>A</div>
+                            <div>$150.00</div>
+                            <div>1</div>
+                            <div>NPI: 1982736450</div>
+                        </div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns: repeat(3, 1fr); padding-top:0.5rem">
+                        <div style="border-right:1px solid #e53e3e; padding:0.25rem">25. FEDERAL TAX I.D.<br><strong>36-9081234 (EIN)</strong></div>
+                        <div style="border-right:1px solid #e53e3e; padding:0.25rem">31. SIGNATURE OF PHYSICIAN<br><strong>Dr. David Miller</strong></div>
+                        <div style="padding:0.25rem">33. BILLING PROVIDER INFO<br><strong>DocRev Practice, NPI: 1092837465</strong></div>
+                    </div>
+                </div>
+
+                <div style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:1.5rem">
+                    <button class="btn btn-sm" @click="selectedClaimForCMS1500=null">Close Preview</button>
+                    <button class="btn btn-sm btn-primary" @click="toast='Paper Claim Queue Simulated'; selectedClaimForCMS1500=null">Print Claim</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Appeal Letter Modal -->
+        <div v-if="showAppealModal" class="modal-overlay" style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.55); display:flex; justify-content:center; align-items:center; z-index:1060">
+            <div class="modal-card" style="background:white; padding:2rem; border-radius:12px; max-width:600px; width:90%; box-shadow:0 20px 25px rgba(0,0,0,0.15)">
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e2e8f0; padding-bottom:1rem; margin-bottom:1.5rem">
+                    <h3 style="margin:0; color:#2d3748"><i class="fas fa-file-signature" style="color:#38a169; margin-right:6px"></i>AI Ambient Appeal Letter</h3>
+                    <button class="btn btn-sm" @click="showAppealModal=false" style="background:#edf2f7; border:none; padding:0.25rem 0.5rem; border-radius:4px; cursor:pointer">&times;</button>
+                </div>
+                <textarea v-model="generatedAppealLetter" rows="12" style="width:100%; padding:0.75rem; border-radius:6px; border:1px solid #cbd5e0; font-family:monospace; font-size:0.85rem; line-height:1.5; color:#2d3748; background:#f7fafc"></textarea>
+                <div style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:1.5rem">
+                    <button class="btn btn-sm" @click="showAppealModal=false">Close</button>
+                    <button class="btn btn-sm btn-primary" @click="toast='Appeal Letter copied to clipboard'; showAppealModal=false">Copy to Clipboard</button>
                 </div>
             </div>
         </div>

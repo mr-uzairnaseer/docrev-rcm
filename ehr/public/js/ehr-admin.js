@@ -76,6 +76,19 @@ createApp({
             selectedApptDetail: null,
             isEligibilityChecking: false,
             eligibilityResult: null,
+            selectedClaimForCMS1500: null,
+            claimScrubResults: {},
+            claimStatuses: {},
+            eras: [
+                { id: 1, payer: 'UnitedHealthcare', check_number: 'UHC-835-90812', amount: 120.00, status: 'pending', date: '2026-06-24' },
+                { id: 2, payer: 'Medicare', check_number: 'CMS-835-11092', amount: 95.00, status: 'pending', date: '2026-06-23' }
+            ],
+            denials: [
+                { id: 1, patient: 'Jane Doe', payer: 'UnitedHealthcare', code: 'CO-97', description: 'Procedure code is bundling', amount: 150.00, appeal_status: 'none' },
+                { id: 2, patient: 'John Smith', payer: 'Blue Cross Blue Shield', code: 'PR-197', description: 'Pre-certification/authorization missing', amount: 280.00, appeal_status: 'none' }
+            ],
+            showAppealModal: false,
+            generatedAppealLetter: '',
         };
     },
     computed: {
@@ -595,6 +608,39 @@ createApp({
             return this.appointments.filter(a => {
                 return a.provider_id === providerId && new Date(a.scheduled_at).toDateString() === selDate;
             });
+        },
+        scrubClaim(encounterId) {
+            this.claimScrubResults[encounterId] = 'scrubbing';
+            setTimeout(() => {
+                this.claimScrubResults[encounterId] = 'PASS ✅';
+                this.toast = 'Claim scrubbing complete. No errors found.';
+            }, 1000);
+        },
+        submitClaimEDI(encounterId) {
+            this.claimStatuses[encounterId] = 'submitting';
+            setTimeout(() => {
+                this.claimStatuses[encounterId] = 'EDI Transmitted 🚀';
+                this.toast = 'EDI 837 Claim File transmitted successfully to clearinghouse.';
+            }, 1200);
+        },
+        openCMS1500Preview(encounter) {
+            this.selectedClaimForCMS1500 = encounter;
+        },
+        autoPostERA(era) {
+            era.status = 'posting';
+            setTimeout(() => {
+                era.status = 'posted';
+                this.toast = `Posted $${era.amount.toFixed(2)} to patient account balance. EOB applied.`;
+            }, 1000);
+        },
+        generateAIAppeal(denial) {
+            denial.appeal_status = 'generating';
+            setTimeout(() => {
+                denial.appeal_status = 'Appealed ✉️';
+                this.generatedAppealLetter = `TO: ${denial.payer} Claims Appeals Department\nDATE: ${new Date().toLocaleDateString()}\nRE: Claim Appeal for Patient ${denial.patient}\nDenial Code: ${denial.code} (${denial.description})\nClaim Amount: $${denial.amount.toFixed(2)}\n\nDear Appeals Committee,\n\nWe are formally appealing the denial of claim line CPT 99213 under denial code ${denial.code}. \nUpon reviewing the clinical documentation, the service was medically necessary and meets the criteria outlined in your policy guidelines. The clinical note details direct provider face-to-face time addressing chronic hypertension and diabetes management. \n\nWe request immediate re-adjudication and payment of the allowed amount.\n\nSincerely,\nDocRev Medical Billing Team`;
+                this.showAppealModal = true;
+                this.toast = 'AI Ambient Appeal Letter generated!';
+            }, 1500);
         },
         billingBadge(s) {
             if (s === 'synced') return 'badge badge-green';
