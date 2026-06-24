@@ -16,4 +16,6 @@ return [
         'patient',
     ],
 
+    'mfa_enabled' => env('DOCREV_MFA_ENABLED', false),
+
 ];

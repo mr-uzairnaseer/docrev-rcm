@@ -9,10 +9,15 @@ class DocRevRequirementsCommand extends Command
 {
     protected $signature = 'docrev:requirements';
 
-    protected $description = 'Show EHR integration requirements for Surescripts, lab, and HIE';
+    protected $description = 'Show EHR integration requirements and project plan status';
 
     public function handle(): int
     {
+        $plan = \App\Support\EhrProjectPlan::summary();
+
+        $this->info('DocRev EHR — Project Plan Summary');
+        $this->line('Functional: '.$plan['completion']['functional'].'% | Technical: '.$plan['completion']['technical'].'% | Compliance: '.$plan['completion']['compliance'].'%');
+        $this->newLine();
         $this->info('DocRev EHR — Integration Requirements');
         $this->newLine();
 

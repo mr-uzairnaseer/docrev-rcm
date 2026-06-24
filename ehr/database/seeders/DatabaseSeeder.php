@@ -102,5 +102,7 @@ class DatabaseSeeder extends Seeder
             'agreement_signed_at' => now(),
             'agreement_notes' => 'Demo HIE participation agreement.',
         ]);
+
+        $this->call(PatientChartSeeder::class);
     }
 }

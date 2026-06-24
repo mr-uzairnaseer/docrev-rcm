@@ -10,11 +10,24 @@ class HealthController extends Controller
 {
     public function __invoke(): JsonResponse
     {
+        $queue = config('queue.default');
         $checks = [
             'app' => config('app.name'),
             'type' => config('docrev.app_type'),
             'database' => $this->checkDatabase(),
             'redis' => $this->checkRedis(),
+            'queue' => [
+                'driver' => $queue,
+                'status' => $queue === 'sync' ? 'dev_only' : 'ok',
+            ],
+            'backup_dr' => [
+                'status' => 'documented',
+                'note' => 'Configure encrypted nightly backups before production go-live.',
+            ],
+            'mfa' => [
+                'enabled' => (bool) config('docrev.mfa_enabled', false),
+                'status' => 'ready',
+            ],
         ];
 
         $healthy = $checks['database'] === 'ok';

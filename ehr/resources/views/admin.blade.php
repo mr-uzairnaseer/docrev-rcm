@@ -153,22 +153,57 @@
                         <div><span style="font-weight:bold; color:#718096">Email:</span> <p style="font-size:1.1rem">{{ selectedPatient.email }}</p></div>
                         <div><span style="font-weight:bold; color:#718096">Phone:</span> <p style="font-size:1.1rem">{{ selectedPatient.phone || '—' }}</p></div>
                     </div>
+                    <div v-if="patientChart && patientChart.vitals && patientChart.vitals.length" style="margin-top:1.5rem">
+                        <h4 style="color:#2d3748; margin-bottom:0.5rem">Recent Vitals</h4>
+                        <table>
+                            <thead><tr><th>Recorded</th><th>BP</th><th>HR</th><th>Temp</th><th>Weight</th><th>SpO2</th></tr></thead>
+                            <tbody>
+                                <tr v-for="v in patientChart.vitals" :key="v.id">
+                                    <td>{{ formatDate(v.recorded_at) }}</td>
+                                    <td>{{ v.bp_systolic && v.bp_diastolic ? v.bp_systolic + '/' + v.bp_diastolic : '—' }}</td>
+                                    <td>{{ v.heart_rate || '—' }}</td>
+                                    <td>{{ v.temperature_f ? v.temperature_f + ' °F' : '—' }}</td>
+                                    <td>{{ v.weight_lb ? v.weight_lb + ' lb' : '—' }}</td>
+                                    <td>{{ v.spo2 ? v.spo2 + '%' : '—' }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div v-if="patientChart && patientChart.documents && patientChart.documents.length" style="margin-top:1.5rem">
+                        <h4 style="color:#2d3748; margin-bottom:0.5rem">Chart Documents</h4>
+                        <table>
+                            <thead><tr><th>Title</th><th>Type</th><th>File</th></tr></thead>
+                            <tbody>
+                                <tr v-for="d in patientChart.documents" :key="d.id">
+                                    <td>{{ d.title }}</td>
+                                    <td>{{ d.document_type }}</td>
+                                    <td>{{ d.file_name || '—' }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
                 <!-- Insurance & Eligibility Sub-tab -->
                 <div v-if="patientTab==='insurance' && selectedPatient" class="panel" style="background:#fff; border:1px solid #cbd5e0; padding:1.5rem">
                     <h3 style="color:#2d3748; border-bottom:1px solid #e2e8f0; padding-bottom:0.5rem">Insurance &amp; Eligibility: {{ selectedPatient.full_name }}</h3>
-                    <div style="margin-top:1rem; display:flex; gap:1.5rem; flex-wrap:wrap">
-                        <div style="flex:1; background:#f7fafc; padding:1rem; border-radius:6px; border:1px solid #e2e8f0">
-                            <h4 style="margin-top:0">Primary Insurance Policy</h4>
-                            <p style="margin:0.25rem 0"><strong>Payer:</strong> UnitedHealthcare (UHC)</p>
-                            <p style="margin:0.25rem 0"><strong>Member ID:</strong> UHC-{{ selectedPatient.id }}09876</p>
-                            <p style="margin:0.25rem 0"><strong>Group #:</strong> 9008127</p>
+                    <p v-if="patientChartLoading" style="margin-top:1rem;color:#718096">Loading insurance…</p>
+                    <div v-else style="margin-top:1rem; display:flex; gap:1.5rem; flex-wrap:wrap">
+                        <div v-for="ins in (patientChart && patientChart.insurances) || []" :key="ins.id" style="flex:1; min-width:260px; background:#f7fafc; padding:1rem; border-radius:6px; border:1px solid #e2e8f0">
+                            <h4 style="margin-top:0">{{ ins.plan_type === 'primary' ? 'Primary' : ins.plan_type }} — {{ ins.payer_name }}</h4>
+                            <p style="margin:0.25rem 0"><strong>Member ID:</strong> {{ ins.member_id || '—' }}</p>
+                            <p style="margin:0.25rem 0"><strong>Group #:</strong> {{ ins.group_number || '—' }}</p>
+                            <p style="margin:0.5rem 0 0">
+                                <span class="badge" :class="ins.coverage_status === 'active' ? 'badge-green' : 'badge-yellow'">
+                                    {{ ins.coverage_status || 'unknown' }}
+                                </span>
+                                <span v-if="ins.copay_amount != null" style="margin-left:0.5rem">Copay: ${{ ins.copay_amount }}</span>
+                            </p>
+                            <button class="btn btn-sm btn-primary" style="margin-top:0.75rem" :disabled="isEligibilityChecking" @click="checkPatientEligibility(ins)">
+                                {{ isEligibilityChecking ? 'Checking…' : 'Verify Eligibility' }}
+                            </button>
                         </div>
-                        <div style="flex:1; background:#ebf8ff; padding:1rem; border-radius:6px; border:1px solid #bee3f8; display:flex; flex-direction:column; justify-content:center; align-items:center">
-                            <span class="badge badge-green" style="font-size:1rem; padding:0.4rem 0.8rem; margin-bottom:0.5rem">Coverage Status: ACTIVE ✅</span>
-                            <span style="font-size:0.9rem; color:#4a5568">Copay Amount: $20.00</span>
-                        </div>
+                        <p v-if="!patientChart || !patientChart.insurances || !patientChart.insurances.length" style="color:#718096">No insurance policies on file.</p>
                     </div>
                 </div>
 
@@ -178,15 +213,13 @@
                     <table style="margin-top:1rem">
                         <thead><tr><th>Name</th><th>Role / Specialty</th><th>Contact</th></tr></thead>
                         <tbody>
-                            <tr>
-                                <td><strong>Dr. David Miller</strong></td>
-                                <td>Primary Care Physician (PCP)</td>
-                                <td>doctor.miller@demo-medical.test</td>
+                            <tr v-for="m in (patientChart && patientChart.care_team) || []" :key="m.id">
+                                <td><strong>{{ m.name }}</strong></td>
+                                <td>{{ m.role }}<span v-if="m.specialty"> — {{ m.specialty }}</span></td>
+                                <td>{{ m.contact || '—' }}</td>
                             </tr>
-                            <tr>
-                                <td><strong>Sarah Jenkins, NP</strong></td>
-                                <td>Nurse Practitioner</td>
-                                <td>np.jenkins@demo-medical.test</td>
+                            <tr v-if="!patientChart || !patientChart.care_team || !patientChart.care_team.length">
+                                <td colspan="3" style="color:#718096">No care team members on file.</td>
                             </tr>
                         </tbody>
                     </table>
@@ -198,17 +231,14 @@
                     <table style="margin-top:1rem">
                         <thead><tr><th>ICD-10</th><th>Problem Description</th><th>Onset Date</th><th>Status</th></tr></thead>
                         <tbody>
-                            <tr>
-                                <td><span class="badge badge-blue">I10</span></td>
-                                <td>Essential (primary) hypertension</td>
-                                <td>2025-03-12</td>
-                                <td><span class="badge badge-green">Active</span></td>
+                            <tr v-for="p in (patientChart && patientChart.problems) || []" :key="p.id">
+                                <td><span class="badge badge-blue">{{ p.icd10_code }}</span></td>
+                                <td>{{ p.description }}</td>
+                                <td>{{ p.onset_date || '—' }}</td>
+                                <td><span class="badge badge-green">{{ p.status }}</span></td>
                             </tr>
-                            <tr>
-                                <td><span class="badge badge-blue">E11.9</span></td>
-                                <td>Type 2 diabetes mellitus without complications</td>
-                                <td>2025-11-20</td>
-                                <td><span class="badge badge-green">Active</span></td>
+                            <tr v-if="!patientChart || !patientChart.problems || !patientChart.problems.length">
+                                <td colspan="4" style="color:#718096">No problems documented.</td>
                             </tr>
                         </tbody>
                     </table>
@@ -220,17 +250,14 @@
                     <table style="margin-top:1rem">
                         <thead><tr><th>Medication</th><th>Instructions</th><th>Prescriber</th><th>Refills Left</th></tr></thead>
                         <tbody>
-                            <tr>
-                                <td><strong>Lisinopril 10mg</strong></td>
-                                <td>Take 1 tablet by mouth daily</td>
-                                <td>Dr. David Miller</td>
-                                <td>3 refills</td>
+                            <tr v-for="rx in (patientChart && patientChart.medications) || []" :key="rx.id">
+                                <td><strong>{{ rx.drug_name }}</strong></td>
+                                <td>{{ rx.sig || '—' }}</td>
+                                <td>{{ rx.prescriber || '—' }}</td>
+                                <td>{{ rx.refills != null ? rx.refills + ' refills' : '—' }}</td>
                             </tr>
-                            <tr>
-                                <td><strong>Metformin 500mg</strong></td>
-                                <td>Take 1 tablet twice daily with meals</td>
-                                <td>Dr. David Miller</td>
-                                <td>5 refills</td>
+                            <tr v-if="!patientChart || !patientChart.medications || !patientChart.medications.length">
+                                <td colspan="4" style="color:#718096">No medications on file.</td>
                             </tr>
                         </tbody>
                     </table>
@@ -239,11 +266,22 @@
                 <!-- Allergies Sub-tab -->
                 <div v-if="patientTab==='allergies' && selectedPatient" class="panel" style="background:#fff; border:1px solid #cbd5e0; padding:1.5rem">
                     <h3 style="color:#2d3748; border-bottom:1px solid #e2e8f0; padding-bottom:0.5rem">Allergies &amp; Intolerances: {{ selectedPatient.full_name }}</h3>
+                    <table v-if="patientChart && patientChart.allergies && patientChart.allergies.length" style="margin-top:1rem">
+                        <thead><tr><th>Allergen</th><th>Reaction</th><th>Severity</th><th>Status</th></tr></thead>
+                        <tbody>
+                            <tr v-for="a in patientChart.allergies" :key="a.id">
+                                <td><strong>{{ a.allergen }}</strong></td>
+                                <td>{{ a.reaction || '—' }}</td>
+                                <td>{{ a.severity }}</td>
+                                <td><span class="badge badge-green">{{ a.status }}</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
                     <div style="margin-top:1rem">
-                        <label style="font-weight:bold; display:block">Active Allergies</label>
+                        <label style="font-weight:bold; display:block">Summary (synced to chart header)</label>
                         <div style="display:flex; gap:0.5rem; margin-top:0.5rem">
                             <input v-model="selectedPatient.allergies" style="padding:0.4rem 0.5rem; border-radius:4px; border:1px solid #cbd5e0; flex:1" placeholder="e.g. Penicillin, Peanuts">
-                            <button class="btn btn-sm btn-primary" @click="savePatientAllergies(selectedPatient)">Save Allergies</button>
+                            <button class="btn btn-sm btn-primary" @click="savePatientAllergies(selectedPatient)">Save Summary</button>
                         </div>
                     </div>
                 </div>
@@ -252,13 +290,16 @@
                 <div v-if="patientTab==='history' && selectedPatient" class="panel" style="background:#fff; border:1px solid #cbd5e0; padding:1.5rem">
                     <h3 style="color:#2d3748; border-bottom:1px solid #e2e8f0; padding-bottom:0.5rem">Visit History: {{ selectedPatient.full_name }}</h3>
                     <table style="margin-top:1rem">
-                        <thead><tr><th>Date</th><th>Encounter Type</th><th>Provider</th><th>Status</th></tr></thead>
+                        <thead><tr><th>Date</th><th>Provider</th><th>Status</th><th>Billing</th></tr></thead>
                         <tbody>
-                            <tr v-for="e in encounters.filter(enc => enc.patient_id === selectedPatient.id)" :key="e.id">
-                                <td>{{ formatDate(e.encounter_date) }}</td>
-                                <td>Standard Encounter (#{{ e.id }})</td>
-                                <td>{{ e.provider ? e.provider.first_name+' '+e.provider.last_name : '—' }}</td>
-                                <td><span class="badge badge-green">{{ e.status }}</span></td>
+                            <tr v-for="v in (patientChart && patientChart.visits) || []" :key="v.id">
+                                <td>{{ formatDate(v.encounter_date) }}</td>
+                                <td>{{ v.provider || '—' }}</td>
+                                <td><span class="badge badge-green">{{ v.status }}</span></td>
+                                <td><span class="badge badge-blue">{{ v.billing_sync_status || '—' }}</span></td>
+                            </tr>
+                            <tr v-if="!patientChart || !patientChart.visits || !patientChart.visits.length">
+                                <td colspan="4" style="color:#718096">No visits on file.</td>
                             </tr>
                         </tbody>
                     </table>
@@ -748,11 +789,66 @@
 
             <div v-if="view==='integrations'" class="card">
                 <div class="row-between">
-                    <h2>Integration Setup</h2>
+                    <h2>Integration Setup &amp; Project Plan</h2>
                     <div>
                         <button class="btn" @click="testSurescripts">Test Surescripts</button>
                         <button class="btn" @click="testLab">Test Lab</button>
                     </div>
+                </div>
+                <div v-if="opsStatus" class="panel" style="margin-bottom:1rem">
+                    <h3>Operations &amp; HIPAA Readiness</h3>
+                    <div class="stats" style="margin:0.75rem 0">
+                        <div class="stat"><div class="num">{{ opsStatus.queue.driver }}</div><div class="label">Queue Driver</div></div>
+                        <div class="stat"><div class="num">{{ opsStatus.database.connected ? 'OK' : '—' }}</div><div class="label">Database</div></div>
+                        <div class="stat"><div class="num">{{ opsStatus.mfa.enabled ? 'On' : 'Ready' }}</div><div class="label">MFA</div></div>
+                        <div class="stat"><div class="num">{{ opsStatus.hipaa_controls.rbac_enforced ? 'Yes' : '—' }}</div><div class="label">RBAC Enforced</div></div>
+                    </div>
+                    <p style="font-size:0.875rem;color:#4a5568">{{ opsStatus.backup_dr.recommendation }}</p>
+                </div>
+                <div v-if="trainingModules.length" class="panel" style="margin-bottom:1rem">
+                    <h3>Staff Training Modules</h3>
+                    <table>
+                        <thead><tr><th>Module</th><th>Audience</th><th>Duration</th><th>Topics</th></tr></thead>
+                        <tbody>
+                            <tr v-for="mod in trainingModules" :key="mod.id">
+                                <td><strong>{{ mod.title }}</strong></td>
+                                <td>{{ mod.audience }}</td>
+                                <td>{{ mod.duration_minutes }} min</td>
+                                <td>{{ mod.topics.join('; ') }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div v-if="projectPlan" class="panel" style="margin-bottom:1rem">
+                    <h3>{{ projectPlan.title }}</h3>
+                    <div class="stats" style="margin:1rem 0">
+                        <div class="stat"><div class="num">{{ projectPlan.metrics.functional_requirements }}</div><div class="label">Functional Reqs</div></div>
+                        <div class="stat"><div class="num">{{ projectPlan.metrics.technical_requirements }}</div><div class="label">Technical Reqs</div></div>
+                        <div class="stat"><div class="num">{{ projectPlan.metrics.compliance_controls }}</div><div class="label">Compliance</div></div>
+                        <div class="stat"><div class="num">{{ projectPlan.completion.functional }}%</div><div class="label">MVP Functional</div></div>
+                    </div>
+                    <table>
+                        <thead><tr><th>Phase</th><th>Start Week</th><th>Status</th></tr></thead>
+                        <tbody>
+                            <tr v-for="phase in projectPlan.phases" :key="phase.name">
+                                <td>{{ phase.name }}</td>
+                                <td>{{ phase.start_week }}</td>
+                                <td><span class="badge" :class="phase.status==='complete'?'badge-green':(phase.status==='in_progress'?'badge-blue':'badge-yellow')">{{ phase.status }}</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h4 style="margin-top:1.25rem">Functional requirements</h4>
+                    <table>
+                        <thead><tr><th>ID</th><th>Requirement</th><th>Priority</th><th>Status</th></tr></thead>
+                        <tbody>
+                            <tr v-for="req in projectPlan.functional_requirements" :key="req.id">
+                                <td>{{ req.id }}</td>
+                                <td>{{ req.name }}</td>
+                                <td>{{ req.priority }}</td>
+                                <td><span class="badge" :class="req.status==='complete'?'badge-green':(req.status==='partial'?'badge-blue':'badge-yellow')">{{ req.status }}</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
                 <div v-if="integrationTest" class="toast" role="status">
                     <span class="toast__text">{{ integrationTest }}</span>
@@ -1023,12 +1119,19 @@
             <!-- Reports & Analytics Tab View -->
             <div v-if="view==='reports'" class="card">
                 <h2>Reports &amp; Analytical Insights</h2>
+
+                <div v-if="reportMetrics" class="stats" style="margin:1rem 0">
+                    <div class="stat"><div class="num">{{ reportMetrics.patients }}</div><div class="label">Patients</div></div>
+                    <div class="stat"><div class="num">{{ reportMetrics.encounters }}</div><div class="label">Encounters</div></div>
+                    <div class="stat"><div class="num">{{ reportMetrics.billing_sync_rate }}%</div><div class="label">Billing Sync Rate</div></div>
+                    <div class="stat"><div class="num">{{ reportMetrics.audit_events_30d }}</div><div class="label">Audit Events (30d)</div></div>
+                </div>
                 
                 <div class="portal-nav" style="margin:1rem 0; display:flex; gap:0.5rem; background:#f7fafc; padding:0.5rem; border-radius:6px; border:1px solid #e2e8f0">
                     <button class="btn btn-sm" :class="reportTab==='financial'?'btn-primary':''" @click="reportTab='financial'">Financial Reports</button>
                     <button class="btn btn-sm" :class="reportTab==='quality'?'btn-primary':''" @click="reportTab='quality'">Clinical Quality Measures</button>
                     <button class="btn btn-sm" :class="reportTab==='productivity'?'btn-primary':''" @click="reportTab='productivity'">Provider Productivity</button>
-                    <button class="btn btn-sm" :class="reportTab==='custom'?'btn-primary':''" @click="reportTab='custom'">Custom Reports</button>
+                    <button class="btn btn-sm" :class="reportTab==='custom'?'btn-primary':''" @click="reportTab='custom'">Audit Log</button>
                 </div>
 
                 <div v-if="reportTab==='financial'" class="panel">
@@ -1178,17 +1281,54 @@
 
                 <div v-if="reportTab==='quality'" class="panel">
                     <h3>CQM Quality Dashboard</h3>
-                    <p>Hypertension Control Rate (CMS165): 88%</p>
+                    <table v-if="qualityMetrics && qualityMetrics.measures">
+                        <thead><tr><th>Measure</th><th>Name</th><th>Rate</th><th>Numerator</th><th>Denominator</th></tr></thead>
+                        <tbody>
+                            <tr v-for="m in qualityMetrics.measures" :key="m.id">
+                                <td>{{ m.id }}</td>
+                                <td>{{ m.name }}</td>
+                                <td><strong>{{ m.rate }}%</strong></td>
+                                <td>{{ m.numerator }}</td>
+                                <td>{{ m.denominator }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p v-else style="color:#718096">Loading quality measures…</p>
                 </div>
 
                 <div v-if="reportTab==='productivity'" class="panel">
                     <h3>Provider Productivity &amp; Charting Volume</h3>
-                    <p>Dr. David Miller: 12 Encounters Closed</p>
+                    <table v-if="productivityMetrics && productivityMetrics.providers">
+                        <thead><tr><th>Provider</th><th>Specialty</th><th>Signed Encounters</th><th>Total Encounters</th><th>Appointments</th><th>Rx Written</th></tr></thead>
+                        <tbody>
+                            <tr v-for="p in productivityMetrics.providers" :key="p.provider_id">
+                                <td><strong>{{ p.provider_name }}</strong></td>
+                                <td>{{ p.specialty }}</td>
+                                <td>{{ p.encounters_signed }}</td>
+                                <td>{{ p.encounters_total }}</td>
+                                <td>{{ p.appointments_completed }}</td>
+                                <td>{{ p.prescriptions_written }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p v-else style="color:#718096">Loading productivity data…</p>
                 </div>
 
                 <div v-if="reportTab==='custom'" class="panel">
-                    <h3>Custom Reporting Scribe</h3>
-                    <button class="btn btn-sm btn-primary">Build New Custom SQL Report</button>
+                    <h3>PHI Audit Log (recent activity)</h3>
+                    <table v-if="auditLogs.length">
+                        <thead><tr><th>When</th><th>User</th><th>Action</th><th>Resource</th><th>IP</th></tr></thead>
+                        <tbody>
+                            <tr v-for="log in auditLogs" :key="log.id">
+                                <td>{{ formatDate(log.created_at) }}</td>
+                                <td>{{ log.user ? log.user.name : 'System' }}</td>
+                                <td>{{ log.event }}</td>
+                                <td>{{ log.auditable_type ? log.auditable_type.split('\\').pop() : '—' }} #{{ log.auditable_id || '—' }}</td>
+                                <td>{{ log.ip_address || '—' }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p v-else style="color:#718096">No audit events recorded yet.</p>
                 </div>
             </div>
         </main>

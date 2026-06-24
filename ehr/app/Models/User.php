@@ -42,4 +42,9 @@ class User extends Authenticatable
     {
         return $this->role === $role;
     }
+
+    public function canPerform(string $ability): bool
+    {
+        return \App\Support\RolePermissions::allows($this, $ability);
+    }
 }

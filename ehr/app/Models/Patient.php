@@ -56,6 +56,41 @@ class Patient extends Model
         return $this->hasMany(Encounter::class);
     }
 
+    public function problems(): HasMany
+    {
+        return $this->hasMany(PatientProblem::class);
+    }
+
+    public function insurances(): HasMany
+    {
+        return $this->hasMany(PatientInsurance::class);
+    }
+
+    public function careTeamMembers(): HasMany
+    {
+        return $this->hasMany(PatientCareTeamMember::class);
+    }
+
+    public function vitals(): HasMany
+    {
+        return $this->hasMany(PatientVital::class);
+    }
+
+    public function documents(): HasMany
+    {
+        return $this->hasMany(PatientDocument::class);
+    }
+
+    public function allergyItems(): HasMany
+    {
+        return $this->hasMany(PatientAllergyItem::class);
+    }
+
+    public function prescriptions(): HasMany
+    {
+        return $this->hasMany(Prescription::class);
+    }
+
     public function getFullNameAttribute(): string
     {
         return trim("{$this->first_name} {$this->middle_name} {$this->last_name}");

@@ -47,6 +47,15 @@ createApp({
             // New view sub-tab states
             patientTab: 'directory',
             selectedPatient: null,
+            patientChart: null,
+            patientChartLoading: false,
+            projectPlan: null,
+            reportMetrics: null,
+            qualityMetrics: null,
+            productivityMetrics: null,
+            auditLogs: [],
+            trainingModules: [],
+            opsStatus: null,
             patientSubTabs: [
                 { id: 'directory', label: 'All Patients' },
                 { id: 'demographics', label: 'Patient Demographics', needsPatient: true },
@@ -227,6 +236,7 @@ createApp({
             else if (this.view === 'labs') await this.loadLabs();
             else if (this.view === 'hie') await this.loadHie();
             else if (this.view === 'integrations') await this.loadIntegrations();
+            else if (this.view === 'reports') await this.loadReports();
             else await this.load();
         },
         async load() {
@@ -243,11 +253,46 @@ createApp({
             this.view = 'patients';
             this.patientTab = tab;
             this.loadPatients();
+            if (this.selectedPatient && tab !== 'directory') {
+                this.loadPatientChart();
+            }
         },
         selectPatient(patient, tab = 'demographics') {
             this.selectedPatient = patient;
             this.patientTab = tab;
             this.view = 'patients';
+            this.loadPatientChart();
+        },
+        async loadPatientChart() {
+            if (!this.selectedPatient) {
+                this.patientChart = null;
+                return;
+            }
+            this.patientChartLoading = true;
+            try {
+                const { data } = await this.api().get('/patients/' + this.selectedPatient.id + '/chart');
+                this.patientChart = data.data;
+            } catch (e) {
+                this.patientChart = null;
+                this.toast = 'Unable to load patient chart.';
+            } finally {
+                this.patientChartLoading = false;
+            }
+        },
+        async checkPatientEligibility(insurance) {
+            if (!this.selectedPatient || !insurance) return;
+            this.isEligibilityChecking = true;
+            try {
+                const { data } = await this.api().post(
+                    '/patients/' + this.selectedPatient.id + '/insurances/' + insurance.id + '/check-eligibility'
+                );
+                this.toast = data.message || 'Eligibility verified.';
+                await this.loadPatientChart();
+            } catch (e) {
+                this.toast = (e.response && e.response.data && e.response.data.message) || 'Eligibility check failed.';
+            } finally {
+                this.isEligibilityChecking = false;
+            }
         },
         activePatientSubTab() {
             return this.patientSubTabs.find((t) => t.id === this.patientTab) || this.patientSubTabs[0];
@@ -315,8 +360,32 @@ createApp({
             if (this.patients.length && !this.hiePatientId) this.hiePatientId = this.patients[0].id;
         },
         async loadIntegrations() {
-            const { data } = await this.api().get('/integration/requirements');
-            this.requirements = data;
+            const [reqRes, planRes, trainingRes, opsRes] = await Promise.all([
+                this.api().get('/integration/requirements'),
+                this.api().get('/project-plan'),
+                this.api().get('/training/modules'),
+                this.api().get('/operations/status'),
+            ]);
+            this.requirements = reqRes.data;
+            this.projectPlan = planRes.data.data;
+            this.trainingModules = trainingRes.data.data || [];
+            this.opsStatus = opsRes.data.data || null;
+        },
+        async loadReports() {
+            const [dash, quality, productivity] = await Promise.all([
+                this.api().get('/reports/dashboard'),
+                this.api().get('/reports/quality'),
+                this.api().get('/reports/productivity'),
+            ]);
+            this.reportMetrics = dash.data.data;
+            this.qualityMetrics = quality.data.data;
+            this.productivityMetrics = productivity.data.data;
+            try {
+                const logs = await this.api().get('/audit-logs?per_page=15');
+                this.auditLogs = logs.data.data || [];
+            } catch (e) {
+                this.auditLogs = [];
+            }
         },
         async createPrescription() {
             await this.api().post('/prescriptions', {
