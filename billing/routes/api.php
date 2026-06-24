@@ -13,7 +13,7 @@ use App\Http\Controllers\Api\Internal\EncounterFormController;
 use App\Http\Controllers\Api\Internal\EncounterSyncController;
 use App\Http\Controllers\Api\Internal\PatientPaymentController;
 use App\Http\Controllers\Api\PayerController;
-use App\Http\Controllers\Api\PatientController;
+use App\Http\Controllers\Api\QaTrackerController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', HealthController::class);
@@ -54,6 +54,7 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
     Route::post('/integration/clearinghouse-test', [IntegrationController::class, 'testClearinghouse']);
     Route::post('/integration/eligibility-test', [IntegrationController::class, 'testEligibility']);
     Route::get('/dashboard', DashboardController::class);
+    Route::get('/qa-tracker', QaTrackerController::class);
 
     Route::get('/cms/summary', [CmsReferenceController::class, 'summary']);
     Route::get('/cms/states', [CmsReferenceController::class, 'states']);

@@ -34,7 +34,10 @@
             </div>
             <button class="btn btn-sm logout" @click="logout">Logout</button>
         </div>
-        <p v-if="toast" class="toast">{{ toast }}</p>
+        <div v-if="toast" class="toast" role="status">
+            <span class="toast__text">{{ toast }}</span>
+            <button type="button" class="toast__close" @click="toast = ''" aria-label="Dismiss notification">&times;</button>
+        </div>
         
         <div class="portal-nav" style="margin: 1.5rem 0; display:flex; gap:0.75rem; flex-wrap:wrap;">
             <button class="btn" :class="view==='dashboard'?'btn-primary':''" @click="view='dashboard'">Dashboard</button>

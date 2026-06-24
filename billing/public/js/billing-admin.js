@@ -1,6 +1,6 @@
 const API = '/api';
 const TOKEN_KEY = 'billing_token';
-const PREFS_KEY = 'docrev_rcm_prefs';
+const PREFS_KEY = 'docrev_clearinghouse_prefs';
 const { createApp } = Vue;
 
 function defaultPrefs() {
@@ -80,8 +80,13 @@ createApp({
             appealLetterText: '',
             ediPreview: '',
             eraImport: '',
+            qaTracker: null,
+            orgNpi: '1245319599',
+            dashLastUpdated: null,
+            realtimeTimer: null,
             error: '',
             toast: '',
+            setupReadyDismissed: false,
         };
     },
     computed: {
@@ -92,7 +97,15 @@ createApp({
             return ['payers', 'medicare-advantage', 'qhp', 'hcpcs', 'icd10', 'modifiers', 'carc', 'rarc', 'tob', 'revenue', 'taxonomy'].includes(this.cmsTab);
         },
     },
-    mounted() { if (this.token) this.refresh(); },
+    mounted() {
+        if (this.token) {
+            this.refresh();
+            this.startRealtimeSync();
+        }
+    },
+    beforeUnmount() {
+        this.stopRealtimeSync();
+    },
     methods: {
         api() { return axios.create({ baseURL: API, headers: { Authorization: 'Bearer ' + this.token } }); },
         async login() {
@@ -102,20 +115,72 @@ createApp({
                 this.token = data.token;
                 localStorage.setItem(TOKEN_KEY, data.token);
                 await this.refresh();
+                this.startRealtimeSync();
             } catch (e) {
                 this.error = (e.response && e.response.data && e.response.data.message) || 'Login failed';
             }
         },
-        logout() { this.token = ''; localStorage.removeItem(TOKEN_KEY); },
+        logout() {
+            this.stopRealtimeSync();
+            this.token = '';
+            localStorage.removeItem(TOKEN_KEY);
+        },
+        startRealtimeSync() {
+            this.stopRealtimeSync();
+            this.realtimeTimer = setInterval(() => {
+                if (!this.token) return;
+                if (['dashboard', 'eras', 'denials', 'qa'].includes(this.view)) {
+                    this.refreshViewData();
+                }
+            }, 20000);
+        },
+        stopRealtimeSync() {
+            if (this.realtimeTimer) {
+                clearInterval(this.realtimeTimer);
+                this.realtimeTimer = null;
+            }
+        },
+        agingBarPercent(bucket) {
+            const total = parseFloat(this.dash.aging && this.dash.aging.total) || 0;
+            const val = parseFloat(this.dash.aging && this.dash.aging[bucket]) || 0;
+            if (total <= 0) return 0;
+            return Math.min(100, (val / total) * 100);
+        },
+        qaStatusClass(status) {
+            return {
+                pass: 'badge-green',
+                fail: 'badge-red',
+                in_progress: 'badge-yellow',
+                untested: '',
+            }[status] || '';
+        },
         setView(v) { this.view = v; this.refresh(); },
         async refresh() {
+            if (this.token && !this.orgProfile) {
+                try {
+                    const { data } = await this.api().get('/integration/requirements');
+                    this.orgProfile = data.organization || null;
+                    if (this.orgProfile && this.orgProfile.npi) {
+                        this.orgNpi = this.orgProfile.npi;
+                    }
+                } catch (_) { /* ignore */ }
+            }
             await Promise.all([
                 this.refreshCoreDataIfNeeded(),
                 this.refreshViewData(),
             ]);
         },
         async refreshCoreDataIfNeeded() {
-            if (['setup', 'cms', 'dashboard', 'eras', 'denials'].includes(this.view)) {
+            if (['setup', 'cms', 'dashboard', 'eras', 'denials', 'qa'].includes(this.view)) {
+                if (this.view === 'setup' && !this.orgProfile) {
+                    try {
+                        const { data } = await this.api().get('/integration/requirements');
+                        this.orgProfile = data.organization || null;
+                        if (this.orgProfile && this.orgProfile.npi) {
+                            this.orgNpi = this.orgProfile.npi;
+                        }
+                    } catch (_) { /* ignore */ }
+                }
                 return;
             }
 
@@ -188,6 +253,12 @@ createApp({
             if (this.view === 'dashboard') {
                 const { data } = await this.api().get('/dashboard');
                 this.dash = data.data || {};
+                this.dashLastUpdated = this.dash.synced_at || new Date().toISOString();
+                return;
+            }
+            if (this.view === 'qa') {
+                const { data } = await this.api().get('/qa-tracker');
+                this.qaTracker = data.data || null;
                 return;
             }
             if (this.view === 'eras') {
@@ -257,8 +328,8 @@ createApp({
                 payer_id: parseInt(this.buildForm.payer_id),
                 charge_ids: this.buildForm.charge_ids.split(',').map(s => parseInt(s.trim())).filter(Boolean),
                 icd10_codes: this.buildForm.icd10.split(',').map(s => s.trim()).filter(Boolean),
-                rendering_provider_npi: '1987654321',
-                billing_provider_npi: '1234567890',
+                rendering_provider_npi: this.orgNpi,
+                billing_provider_npi: this.orgNpi,
                 place_of_service: this.buildForm.place_of_service || '11',
             };
             await this.api().post('/claims', payload);
@@ -447,8 +518,10 @@ createApp({
             const d = this.activeDenialForAppeal;
             const patientName = d.claim && d.claim.patient ? `${d.claim.patient.first_name} ${d.claim.patient.last_name}` : 'Patient';
             const claimNum = d.claim ? d.claim.claim_number : 'N/A';
-            const serviceDate = d.claim && d.claim.service_date ? d.claim.service_date : new Date().toLocaleDateString();
-            const cpt = d.claim && d.claim.cpt_code ? d.claim.cpt_code : '99213';
+            const serviceDate = (d.claim && (d.claim.service_date || d.claim.service_date_from))
+                ? (d.claim.service_date || d.claim.service_date_from)
+                : new Date().toLocaleDateString();
+            const cpt = (d.claim && d.claim.cpt_code) ? d.claim.cpt_code : '99213';
             const deniedAmt = d.denied_amount;
             const code = d.reason_code || 'CO-97';
             const desc = d.reason_description || 'Benefit maximum reached or service not covered.';
@@ -490,7 +563,10 @@ DocRev Medical Group`;
             if (!this.activeDenialForAppeal) return;
             try {
                 const notes = `Appealed using Appeal Letter Scribe (${this.appealTemplateType}):\n\n` + this.appealLetterText;
-                const { data } = await this.api().post('/denials/' + this.activeDenialForAppeal.id + '/appeal', { notes });
+                const { data } = await this.api().post('/denials/' + this.activeDenialForAppeal.id + '/appeal', {
+                    notes,
+                    template_type: this.appealTemplateType,
+                });
                 this.toast = data.message || 'Appeal letter submitted successfully!';
                 this.activeDenialForAppeal = null;
                 await this.refresh();

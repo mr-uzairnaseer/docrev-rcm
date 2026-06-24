@@ -1,10 +1,10 @@
-/* CMS-1500 & UB-04 print-ready claim forms — NUCC / CMS / AAPC layout */
+/* Official PDF claim form viewer — canvas render (no browser PDF chrome) */
 
 .claim-form-modal {
     background: #f0f4f8;
     padding: 1.25rem;
     border-radius: 8px;
-    max-width: 980px;
+    max-width: 920px;
     width: 98%;
     max-height: 92vh;
     overflow-y: auto;
@@ -28,210 +28,157 @@
 
 .claim-form-meta strong { color: #1e4d6b; }
 
-.claim-form-footnotes {
-    margin-top: 0.75rem;
-    padding: 0.65rem 0.85rem;
-    background: #fffbeb;
-    border: 1px solid #f6e05e;
+.claim-form-pdf-wrap {
+    background: #cbd5e0;
+    padding: 1rem;
     border-radius: 6px;
-    font-size: 0.68rem;
-    color: #744210;
-    line-height: 1.45;
-}
-
-.claim-form-footnotes p { margin: 0.2rem 0; }
-
-/* CMS-1500 (02/12) */
-.cms1500 {
-    --cms-red: #c53030;
-    --cms-ink: #1a1a1a;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 8px;
-    color: var(--cms-ink);
-    background: #fff;
-    border: 2px solid var(--cms-red);
-    padding: 4px;
-    line-height: 1.25;
-}
-
-.cms1500-header {
     display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    border-bottom: 1px solid var(--cms-red);
-    padding-bottom: 3px;
-    margin-bottom: 3px;
+    justify-content: center;
 }
 
-.cms1500-title {
-    color: var(--cms-red);
-    font-weight: 700;
-    font-size: 11px;
-    text-align: center;
-    flex: 1;
-}
-
-.cms1500-pica { font-size: 7px; color: var(--cms-red); width: 120px; }
-
-.cms1500-row { display: grid; border-bottom: 1px solid var(--cms-red); }
-
-.cms1500-cell {
-    border-right: 1px solid var(--cms-red);
-    padding: 2px 4px;
-    min-height: 22px;
-}
-
-.cms1500-cell:last-child { border-right: none; }
-
-.cms1500-label {
-    color: var(--cms-red);
-    font-size: 6.5px;
-    font-weight: 600;
-    text-transform: uppercase;
-    line-height: 1.1;
-    display: block;
-}
-
-.cms1500-value {
-    font-size: 9px;
-    font-weight: 600;
-    margin-top: 1px;
-    word-break: break-word;
-}
-
-.cms1500-checks {
+.claim-form-pages {
+    width: 100%;
+    max-width: 8.5in;
+    min-height: 200px;
     display: flex;
-    flex-wrap: wrap;
-    gap: 4px 8px;
-    margin-top: 2px;
-}
-
-.cms1500-check {
-    display: inline-flex;
+    flex-direction: column;
     align-items: center;
-    gap: 2px;
-    font-size: 7px;
-    white-space: nowrap;
+    gap: 0.75rem;
 }
 
-.cms1500-check input {
-    width: 8px;
-    height: 8px;
-    margin: 0;
-    accent-color: var(--cms-red);
+.claim-form-page-sheet {
+    background: #fff;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.18);
+    border-radius: 2px;
+    overflow: visible;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+
+.claim-form-page-inner {
+    position: relative;
+    line-height: 0;
+}
+
+.claim-form-page-sheet--editable .claim-form-page-canvas {
     pointer-events: none;
 }
 
-.cms1500-check.is-on { font-weight: 700; }
-
-.cms1500-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 7px;
+.claim-form-annotation-layer,
+.claim-form-overlay-layer {
+    position: absolute;
+    left: 0;
+    top: 0;
+    pointer-events: auto;
+    z-index: 2;
 }
 
-.cms1500-table th,
-.cms1500-table td {
-    border: 1px solid var(--cms-red);
-    padding: 2px 3px;
-    text-align: center;
-    vertical-align: middle;
+.claim-form-page-canvas {
+    position: relative;
+    z-index: 1;
 }
 
-.cms1500-table th {
-    color: var(--cms-red);
-    font-weight: 600;
-    font-size: 6px;
-    background: #fff5f5;
-}
-
-.cms1500-table td.val {
-    font-weight: 600;
-    font-size: 8px;
-    text-align: left;
-}
-
-.cms1500-dx-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 2px;
-}
-
-.cms1500-dx-item {
-    border: 1px solid #fed7d7;
-    padding: 2px 3px;
-    min-height: 28px;
-}
-
-.cms1500-dx-item .ptr { color: var(--cms-red); font-weight: 700; font-size: 7px; }
-.cms1500-dx-item .code { font-weight: 700; font-size: 8px; }
-.cms1500-dx-item .desc { font-size: 6.5px; color: #4a5568; }
-
-/* UB-04 (CMS-1450) */
-.ub04 {
-    --ub-ink: #1a1a1a;
-    --ub-border: #2d3748;
+.claim-form-overlay-input {
+    position: absolute;
+    box-sizing: border-box;
+    border: 1px solid rgba(49, 130, 206, 0.35);
+    background: rgba(255, 255, 255, 0.55);
+    color: #1a1a1a;
     font-family: Arial, Helvetica, sans-serif;
-    font-size: 8px;
-    color: var(--ub-ink);
-    background: #fff;
-    border: 2px solid var(--ub-border);
-    padding: 4px;
+    padding: 0 2px;
+    margin: 0;
+    z-index: 3;
+    cursor: text;
 }
 
-.ub04-header {
+.claim-form-overlay-input--check {
+    cursor: pointer;
+    padding: 0;
+    margin: 0;
+    accent-color: #2b6cb0;
+    background: rgba(255, 255, 255, 0.4);
+}
+
+.claim-form-overlay-input:hover,
+.claim-form-overlay-input:focus {
+    border-color: #3182ce;
+    background: rgba(255, 255, 255, 0.95);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(49, 130, 206, 0.25);
+}
+
+.annotationLayer section,
+.annotationLayer .textWidgetAnnotation input,
+.annotationLayer .textWidgetAnnotation textarea,
+.annotationLayer .choiceWidgetAnnotation select,
+.annotationLayer .buttonWidgetAnnotation input {
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 9px !important;
+}
+
+.annotationLayer .textWidgetAnnotation input,
+.annotationLayer .textWidgetAnnotation textarea,
+.annotationLayer .choiceWidgetAnnotation select {
+    opacity: 1 !important;
+    color: #1a1a1a !important;
+}
+
+.annotationLayer .textWidgetAnnotation input:focus,
+.annotationLayer .textWidgetAnnotation textarea:focus {
+    outline: 2px solid #3182ce !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+}
+
+.claim-form-page-canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.claim-form-page-hint {
+    margin: 0;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.68rem;
+    color: #718096;
     text-align: center;
-    font-weight: 700;
-    font-size: 11px;
-    border-bottom: 2px solid var(--ub-border);
-    padding: 4px;
-    margin-bottom: 3px;
+    border-top: 1px solid #e2e8f0;
+    width: 100%;
+    box-sizing: border-box;
 }
 
-.ub04-row { display: grid; border-bottom: 1px solid var(--ub-border); }
-
-.ub04-cell {
-    border-right: 1px solid var(--ub-border);
-    padding: 2px 4px;
-    min-height: 20px;
+.claim-form-page-hint--warn {
+    color: #c53030;
 }
 
-.ub04-cell:last-child { border-right: none; }
-
-.ub04-fl { font-size: 6px; font-weight: 700; color: #2b6cb0; }
-.ub04-label { font-size: 6px; text-transform: uppercase; color: #4a5568; display: block; }
-.ub04-value { font-size: 8px; font-weight: 600; }
-.ub04-select-hint { font-size: 6px; color: #718096; margin-top: 1px; }
-
-.ub04-checks { display: flex; flex-direction: column; gap: 1px; margin-top: 2px; }
-
-.ub04-check {
-    display: flex;
-    align-items: flex-start;
-    gap: 3px;
-    font-size: 6.5px;
+.claim-form-render-status {
+    margin: 2rem;
+    text-align: center;
+    color: #4a5568;
+    font-size: 0.875rem;
 }
 
-.ub04-check input { margin-top: 1px; pointer-events: none; }
-.ub04-check.is-on { font-weight: 700; background: #ebf8ff; }
-
-.ub04-table { width: 100%; border-collapse: collapse; font-size: 7px; }
-
-.ub04-table th,
-.ub04-table td { border: 1px solid var(--ub-border); padding: 2px 3px; }
-
-.ub04-table th { background: #edf2f7; font-size: 6px; text-align: center; }
-.ub04-table td { font-size: 7.5px; }
-
-.ub04-payer-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    border: 1px solid var(--ub-border);
+.claim-form-error {
+    text-align: center;
+    padding: 2rem;
+    color: #c53030;
+    margin: 0;
 }
 
-.ub04-payer-col {
-    border-right: 1px solid var(--ub-border);
-    padding: 3px;
+.claim-form-template-note {
+    margin: 0.65rem 0 0;
+    font-size: 0.68rem;
+    color: #718096;
+    text-align: center;
 }
 
-.ub04-payer-col:last-child { border-right: none; }
+@media print {
+    .claim-form-modal,
+    .claim-form-toolbar,
+    .claim-form-meta,
+    .claim-form-template-note,
+    .claim-form-page-hint,
+    .modal-overlay { display: none !important; }
+}

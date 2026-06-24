@@ -13,7 +13,7 @@ class DocRevRequirementsCommand extends Command
 
     public function handle(): int
     {
-        $this->info('DocRev RCM — Integration Requirements');
+        $this->info('DocRev Clearinghouse — Integration Requirements');
         $this->newLine();
 
         foreach (IntegrationRequirements::all() as $section) {

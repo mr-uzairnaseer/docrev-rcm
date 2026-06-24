@@ -25,6 +25,7 @@ class Edi837Builder
 
         $segments[] = $this->segment('HL', '1', '', '20', '1');
         $segments[] = $this->segment('NM1', '85', '2', $claim->organization->name, '', '', '', '', 'XX', $claim->billing_provider_npi);
+        $segments[] = $this->segment('NM1', '82', '1', $claim->organization->name, '', '', '', '', 'XX', $claim->rendering_provider_npi);
 
         $segments[] = $this->segment('HL', '2', '1', '22', '0');
         $segments[] = $this->segment('SBR', 'P', '18', '', '', '', '', '', 'CI');
@@ -45,7 +46,11 @@ class Edi837Builder
 
         foreach ($claim->claimLines as $line) {
             $segments[] = $this->segment('LX', (string) $line->line_number);
-            $segments[] = $this->segment('SV1', 'HC:'.($line->cpt_code ?? 'UNKNOWN'), $this->formatAmount($line->charge_amount), 'UN', (string) $line->units, '', '', '', '', '', '0');
+            $modComposite = 'HC:'.($line->cpt_code ?? 'UNKNOWN');
+            if ($line->modifier_1) {
+                $modComposite .= ':'.$line->modifier_1;
+            }
+            $segments[] = $this->segment('SV1', $modComposite, $this->formatAmount($line->charge_amount), 'UN', (string) $line->units, $claim->place_of_service ?? '11', '', '', '', '', '0');
             $segments[] = $this->segment('DTP', '472', 'D8', $claim->service_date_from->format('Ymd'));
         }
 

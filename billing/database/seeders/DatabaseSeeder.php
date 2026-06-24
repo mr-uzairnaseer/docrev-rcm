@@ -45,7 +45,7 @@ class DatabaseSeeder extends Seeder
 
         User::create([
             'organization_id' => $organization->id,
-            'name' => 'RCM Admin',
+            'name' => 'Clearinghouse Admin',
             'email' => 'billing@demo-medical.test',
             'password' => Hash::make('password'),
             'role' => 'biller',
@@ -74,5 +74,7 @@ class DatabaseSeeder extends Seeder
             'insurance_member_id' => 'BCBS-JDOE-001',
             'insurance_group_number' => 'GRP-10001',
         ]);
+
+        $this->call(DemoRcmSeeder::class);
     }
 }

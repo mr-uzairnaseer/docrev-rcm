@@ -18,7 +18,7 @@
         <div class="login-card">
             <div class="login-brand">
                 <img src="/img/logo.png" alt="DocRev" class="docrev-brand-logo">
-                <p class="docrev-brand-product">RCM</p>
+                <p class="docrev-brand-product">Clearinghouse</p>
             </div>
             <div class="form-group"><label>Email</label><input v-model="loginForm.email" type="email"></div>
             <div class="form-group"><label>Password</label><input v-model="loginForm.password" type="password"></div>
@@ -30,7 +30,7 @@
         <aside class="sidebar">
             <div class="sidebar-brand">
                 <img src="/img/logo-white.png" alt="DocRev" class="docrev-brand-logo">
-                <span class="docrev-brand-product">RCM</span>
+                <span class="docrev-brand-product">Clearinghouse</span>
             </div>
             <nav>
                 <a :class="{active: view==='dashboard'}" @click="setView('dashboard')">Dashboard</a>
@@ -39,6 +39,7 @@
                 <a :class="{active: view==='claims'}" @click="setView('claims')">Claims</a>
                 <a :class="{active: view==='eras'}" @click="setView('eras')">ERA / Payments</a>
                 <a :class="{active: view==='denials'}" @click="setView('denials')">Denials</a>
+                <a :class="{active: view==='qa'}" @click="setView('qa')">QA Tracker</a>
                 <a :class="{active: view==='cms'}" @click="setView('cms')">CMS Reference</a>
                 <a :class="{active: view==='setup'}" @click="setView('setup')">Setup</a>
             </nav>
@@ -47,9 +48,19 @@
             </div>
         </aside>
         <main class="main">
-            <p v-if="toast" class="toast">{{ toast }}</p>
+            <div v-if="toast" class="toast" role="status">
+                <span class="toast__text">{{ toast }}</span>
+                <button type="button" class="toast__close" @click="toast = ''" aria-label="Dismiss notification">&times;</button>
+            </div>
 
             <div v-if="view==='dashboard'">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem; flex-wrap:wrap; gap:0.5rem">
+                    <h2 style="margin:0; color:#1e4d6b">RCM Summary</h2>
+                    <span style="font-size:0.75rem; color:#718096">
+                        <span style="display:inline-block; width:8px; height:8px; background:#48bb78; border-radius:50%; margin-right:4px"></span>
+                        Live sync{{ dashLastUpdated ? ' · ' + formatDate(dashLastUpdated) : '' }}
+                    </span>
+                </div>
                 <div class="stats">
                     <div class="stat"><div class="num">${{ dash.ar ? dash.ar.patient_responsibility : '0' }}</div><div class="label">Patient A/R</div></div>
                     <div class="stat"><div class="num">${{ dash.claims ? dash.claims.total_paid : '0' }}</div><div class="label">Payer Paid</div></div>
@@ -57,7 +68,7 @@
                     <div class="stat"><div class="num">{{ dash.denials ? dash.denials.open : 0 }}</div><div class="label">Open Denials</div></div>
                 </div>
                 <div class="card">
-                    <h2>RCM Summary</h2>
+                    <h2>Clearinghouse Summary</h2>
                     <table>
                         <tbody>
                             <tr><td>Ready charges</td><td>{{ dash.charges ? dash.charges.ready : 0 }}</td></tr>
@@ -77,31 +88,32 @@
                             <div class="num" style="color:#2f855a">${{ dash.aging ? dash.aging['0_30'] : '0.00' }}</div>
                             <div class="label">0 - 30 Days</div>
                             <div style="background:#e2e8f0; height:8px; border-radius:4px; margin-top:0.5rem; overflow:hidden">
-                                <div :style="{ width: ((dash.aging && dash.ar && parseFloat(dash.ar.patient_responsibility) > 0) ? (parseFloat(dash.aging['0_30']) / parseFloat(dash.ar.patient_responsibility) * 100) : 0) + '%' }" style="background:#48bb78; height:100%"></div>
+                                <div :style="{ width: agingBarPercent('0_30') + '%' }" style="background:#48bb78; height:100%"></div>
                             </div>
                         </div>
                         <div class="stat" style="flex:1; min-width:140px; background:#f7fafc; border-bottom: 4px solid #ecc94b">
                             <div class="num" style="color:#b7791f">${{ dash.aging ? dash.aging['31_60'] : '0.00' }}</div>
                             <div class="label">31 - 60 Days</div>
                             <div style="background:#e2e8f0; height:8px; border-radius:4px; margin-top:0.5rem; overflow:hidden">
-                                <div :style="{ width: ((dash.aging && dash.ar && parseFloat(dash.ar.patient_responsibility) > 0) ? (parseFloat(dash.aging['31_60']) / parseFloat(dash.ar.patient_responsibility) * 100) : 0) + '%' }" style="background:#ecc94b; height:100%"></div>
+                                <div :style="{ width: agingBarPercent('31_60') + '%' }" style="background:#ecc94b; height:100%"></div>
                             </div>
                         </div>
                         <div class="stat" style="flex:1; min-width:140px; background:#f7fafc; border-bottom: 4px solid #ed8936">
                             <div class="num" style="color:#dd6b20">${{ dash.aging ? dash.aging['61_90'] : '0.00' }}</div>
                             <div class="label">61 - 90 Days</div>
                             <div style="background:#e2e8f0; height:8px; border-radius:4px; margin-top:0.5rem; overflow:hidden">
-                                <div :style="{ width: ((dash.aging && dash.ar && parseFloat(dash.ar.patient_responsibility) > 0) ? (parseFloat(dash.aging['61_90']) / parseFloat(dash.ar.patient_responsibility) * 100) : 0) + '%' }" style="background:#ed8936; height:100%"></div>
+                                <div :style="{ width: agingBarPercent('61_90') + '%' }" style="background:#ed8936; height:100%"></div>
                             </div>
                         </div>
                         <div class="stat" style="flex:1; min-width:140px; background:#f7fafc; border-bottom: 4px solid #f56565">
                             <div class="num" style="color:#c53030">${{ dash.aging ? dash.aging['91_plus'] : '0.00' }}</div>
                             <div class="label">90+ Days (Critical)</div>
                             <div style="background:#e2e8f0; height:8px; border-radius:4px; margin-top:0.5rem; overflow:hidden">
-                                <div :style="{ width: ((dash.aging && dash.ar && parseFloat(dash.ar.patient_responsibility) > 0) ? (parseFloat(dash.aging['91_plus']) / parseFloat(dash.ar.patient_responsibility) * 100) : 0) + '%' }" style="background:#f56565; height:100%"></div>
+                                <div :style="{ width: agingBarPercent('91_plus') + '%' }" style="background:#f56565; height:100%"></div>
                             </div>
                         </div>
                     </div>
+                    <p v-if="dash.aging" style="font-size:0.75rem; color:#718096; margin-top:0.75rem">Total outstanding A/R: <strong>${{ dash.aging.total || '0.00' }}</strong></p>
                 </div>
             </div>
 
@@ -201,7 +213,7 @@
                 </table>
 
                 <div v-if="ediPreview" class="panel">
-                    <h3>EDI 837 Preview</h3>
+                    <h3>EDI 837P Professional Claim Preview (HIPAA 5010)</h3>
                     <pre class="edi-box">{{ ediPreview }}</pre>
                 </div>
             </div>
@@ -346,6 +358,69 @@
                             <button class="btn btn-sm" @click="copyAppealLetterText" style="background:#edf2f7">Copy</button>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <div v-if="view==='qa'" class="card">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:1rem">
+                    <div>
+                        <h2 style="margin:0">Clearinghouse QA Test Tracker</h2>
+                        <p style="margin:0.35rem 0 0; font-size:0.875rem; color:#4a5568">Revenue Cycle Management · EHR/EMR Integration · USA Clearinghouse Ready</p>
+                    </div>
+                    <button class="btn btn-sm" @click="refresh">Refresh</button>
+                </div>
+                <div v-if="qaTracker && qaTracker.summary" class="stats" style="margin-bottom:1rem">
+                    <div class="stat"><div class="num">{{ qaTracker.summary.total }}</div><div class="label">Total Tests</div></div>
+                    <div class="stat"><div class="num" style="color:#2f855a">{{ qaTracker.summary.pass }}</div><div class="label">Pass</div></div>
+                    <div class="stat"><div class="num" style="color:#c53030">{{ qaTracker.summary.fail }}</div><div class="label">Fail</div></div>
+                    <div class="stat"><div class="num">{{ qaTracker.summary.untested }}</div><div class="label">Untested</div></div>
+                </div>
+                <p v-if="qaTracker" style="font-size:0.75rem; color:#718096; margin-bottom:1rem">
+                    Driver: <strong>{{ qaTracker.clearinghouse_driver }}</strong>
+                    <span v-if="qaTracker.last_submission_at"> · Last 837 submission: {{ formatDate(qaTracker.last_submission_at) }}</span>
+                    · Updated {{ formatDate(qaTracker.generated_at) }}
+                </p>
+                <table v-if="qaTracker && qaTracker.tests">
+                    <thead>
+                        <tr>
+                            <th>Test ID</th>
+                            <th>Module</th>
+                            <th>Scenario / Step</th>
+                            <th>Expected Result</th>
+                            <th>Clearinghouse</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="t in qaTracker.tests" :key="t.id">
+                            <td><strong>{{ t.id }}</strong></td>
+                            <td>{{ t.module }}</td>
+                            <td style="max-width:200px">{{ t.scenario }}</td>
+                            <td style="max-width:220px; font-size:0.85rem">{{ t.expected }}</td>
+                            <td style="font-size:0.8rem">{{ t.clearinghouse }}</td>
+                            <td>{{ t.priority }}</td>
+                            <td><span class="badge" :class="qaStatusClass(t.status)">{{ t.status }}</span></td>
+                            <td style="font-size:0.8rem; max-width:240px">{{ t.notes }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="panel" style="margin-top:2rem">
+                    <h3>EDI Transaction Set Reference — HIPAA 5010</h3>
+                    <p style="font-size:0.8rem; color:#718096">Standard ANSI ASC X12N EDI transactions used in US healthcare RCM workflows.</p>
+                    <table style="font-size:0.8rem">
+                        <thead><tr><th>Transaction</th><th>Name</th><th>Direction</th><th>RCM Stage</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td>837P</td><td>Professional Claim</td><td>Provider → Payer</td><td>Claim Submission</td><td>CMS-1500 equivalent outpatient claims</td></tr>
+                            <tr><td>837I</td><td>Institutional Claim</td><td>Provider → Payer</td><td>Claim Submission</td><td>UB-04 equivalent facility claims</td></tr>
+                            <tr><td>835</td><td>Electronic Remittance</td><td>Payer → Provider</td><td>Payment Posting</td><td>ERA / EOB payment data</td></tr>
+                            <tr><td>270/271</td><td>Eligibility</td><td>Provider ↔ Payer</td><td>Registration</td><td>Real-time benefits verification</td></tr>
+                            <tr><td>276/277</td><td>Claim Status</td><td>Provider ↔ Payer</td><td>AR Follow-Up</td><td>Status inquiry and response</td></tr>
+                            <tr><td>999</td><td>Functional Ack</td><td>Payer ↔ Provider</td><td>All Stages</td><td>Syntactic acceptance/rejection</td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
@@ -694,10 +769,19 @@
                     </div>
                 </div>
                 <p v-if="onboardingGuide" style="font-size:0.9rem;color:#4a5568;margin-bottom:1rem">{{ onboardingGuide.intro }}</p>
-                <p v-if="clearinghouseTest" class="toast">{{ clearinghouseTest }}</p>
-                <p v-if="eligibilityTest" class="toast">{{ eligibilityTest }}</p>
+                <div v-if="clearinghouseTest" class="toast" role="status">
+                    <span class="toast__text">{{ clearinghouseTest }}</span>
+                    <button type="button" class="toast__close" @click="clearinghouseTest = ''" aria-label="Dismiss notification">&times;</button>
+                </div>
+                <div v-if="eligibilityTest" class="toast" role="status">
+                    <span class="toast__text">{{ eligibilityTest }}</span>
+                    <button type="button" class="toast__close" @click="eligibilityTest = ''" aria-label="Dismiss notification">&times;</button>
+                </div>
                 <p v-if="setupLoading" class="panel" style="color:#4a5568;font-size:0.875rem">Loading integration checklist…</p>
-                <p v-if="requirements && requirements.all_ready_for_production" class="toast">All integration checks passing for current configuration.</p>
+                <div v-if="requirements && requirements.all_ready_for_production && !setupReadyDismissed" class="toast" role="status">
+                    <span class="toast__text">All integration checks passing for current configuration.</span>
+                    <button type="button" class="toast__close" @click="setupReadyDismissed = true" aria-label="Dismiss notification">&times;</button>
+                </div>
 
                 <div v-if="orgProfile" class="panel">
                     <h3>Your Organization</h3>

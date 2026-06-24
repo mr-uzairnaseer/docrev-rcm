@@ -14,7 +14,7 @@ class DenialController extends ApiController
     public function index(Request $request): AnonymousResourceCollection
     {
         $query = ClaimDenial::forOrganization($this->organizationId())
-            ->with(['claim.patient'])
+            ->with(['claim.patient', 'claim.claimLines'])
             ->orderByDesc('created_at');
 
         if ($status = $request->query('status')) {
@@ -28,17 +28,20 @@ class DenialController extends ApiController
     {
         $this->ensureBelongsToOrganization($denial);
 
-        $request->validate(['notes' => ['required', 'string', 'max:2000']]);
+        $request->validate([
+            'notes' => ['required', 'string', 'max:8000'],
+            'template_type' => ['nullable', 'string', 'max:64'],
+        ]);
 
         try {
-            $denial = $service->appeal($denial, $request->notes);
+            $denial = $service->appeal($denial, $request->notes, $request->template_type);
         } catch (\RuntimeException $e) {
             return response()->json(['message' => $e->getMessage()], 422);
         }
 
         return response()->json([
-            'message' => 'Denial appealed. Claim returned to submitted status for rework.',
-            'denial' => new ClaimDenialResource($denial->load(['claim.patient'])),
+            'message' => 'Appeal submitted. Denial marked Appealed; claim re-scrubbed and resubmitted to clearinghouse.',
+            'denial' => new ClaimDenialResource($denial->load(['claim.patient', 'claim.claimLines'])),
         ]);
     }
 

@@ -8,6 +8,8 @@ class ClaimResource extends JsonResource
 {
     public function toArray($request): array
     {
+        $firstLine = $this->relationLoaded('claimLines') ? $this->claimLines->first() : null;
+
         return [
             'id' => $this->id,
             'uuid' => $this->uuid,
@@ -34,6 +36,8 @@ class ClaimResource extends JsonResource
             'scrub_errors' => $this->scrub_errors,
             'edi_generated_at' => $this->edi_generated_at?->toIso8601String(),
             'has_edi' => ! empty($this->edi_837_content),
+            'service_date' => $this->service_date_from?->format('Y-m-d'),
+            'cpt_code' => $firstLine?->cpt_code,
             'created_at' => $this->created_at?->toIso8601String(),
         ];
     }

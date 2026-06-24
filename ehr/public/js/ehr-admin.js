@@ -78,7 +78,11 @@ createApp({
             eligibilityResult: null,
             selectedClaimForCMS1500: null,
             claimFormPreview: null,
+            claimFormPdfUrl: null,
             claimFormLoading: false,
+            claimFormEncounterId: null,
+            claimFormType: null,
+            claimFormSaving: false,
             claimScrubResults: {},
             claimStatuses: {},
             eras: [
@@ -725,51 +729,193 @@ createApp({
         },
         async openClaimForm(encounter, formType) {
             this.claimFormLoading = true;
-            this.claimFormPreview = null;
+            this.claimFormEncounterId = encounter.id;
+            this.claimFormType = formType;
+            this.claimFormPreview = {
+                title: formType === 'ub04' ? 'UB-04 (CMS-1450)' : 'CMS-1500 (02/12)',
+                standard: formType === 'ub04'
+                    ? 'Official CMS-1450 (UB-04) PDF template — click fields to edit'
+                    : 'Official NUCC/CMS PDF template — click fields to edit',
+                claim_number: '…',
+                encounter_uuid: encounter.uuid || '',
+                generated_at: new Date().toISOString(),
+            };
+            this.revokeClaimFormPdf();
             this.error = '';
             try {
                 const { data } = await this.api().get(`/encounters/${encounter.id}/claim-form/${formType}`);
                 this.claimFormPreview = data.data;
+
+                const usesBlankTemplate = formType === 'hcfa' || formType === 'ub04';
+
+                if (usesBlankTemplate) {
+                    this.claimFormLoading = false;
+                    await this.$nextTick();
+                    await this.renderClaimFormPdfView();
+                }
+
+                const pdfResponse = await this.api().get(
+                    `/encounters/${encounter.id}/claim-form/${formType}/pdf`,
+                    { responseType: 'blob', timeout: 120000 }
+                );
+                const blob = pdfResponse.data;
+                if (!(blob instanceof Blob) || blob.size < 100) {
+                    if (!usesBlankTemplate) {
+                        throw new Error('Empty PDF response.');
+                    }
+                } else if (blob.type && blob.type.includes('json')) {
+                    const errText = await blob.text();
+                    let msg = 'Unable to render claim form PDF.';
+                    try {
+                        const parsed = JSON.parse(errText);
+                        msg = parsed.message || msg;
+                    } catch (_) {
+                        if (errText) msg = errText.slice(0, 200);
+                    }
+                    if (!usesBlankTemplate) {
+                        throw new Error(msg);
+                    }
+                } else {
+                    this.claimFormPdfUrl = URL.createObjectURL(new Blob([blob], { type: 'application/pdf' }));
+                }
+
+                if (usesBlankTemplate) {
+                    const container = document.getElementById('claim-form-pdf-pages');
+                    const selector = formType === 'hcfa' ? '[data-acro-name]' : '[data-ub04-key]';
+                    const hasFields = container && container.querySelector(selector);
+                    if (!hasFields) {
+                        await this.$nextTick();
+                        await this.renderClaimFormPdfView();
+                    }
+                }
             } catch (e) {
-                const msg = (e.response && e.response.data && e.response.data.message) || 'Unable to load claim form.';
+                let msg = e.message || 'Unable to load claim form.';
+                if (e.response && e.response.data instanceof Blob) {
+                    try {
+                        const parsed = JSON.parse(await e.response.data.text());
+                        msg = parsed.message || msg;
+                    } catch (_) { /* keep msg */ }
+                }
                 this.error = msg;
                 this.toast = msg;
             }
             this.claimFormLoading = false;
         },
-        closeClaimForm() {
-            this.claimFormPreview = null;
-            this.selectedClaimForCMS1500 = null;
+        buildClaimFormPayload() {
+            const payload = JSON.parse(JSON.stringify(this.claimFormPreview || {}));
+            const container = document.getElementById('claim-form-pdf-pages');
+            if (!container) {
+                return payload;
+            }
+            if (this.claimFormType === 'hcfa' && window.ClaimFormViewer) {
+                payload.acro_overrides = window.ClaimFormViewer.collectAcroFields(container);
+            }
+            if (this.claimFormType === 'ub04' && window.Ub04Overlays && payload.ub04) {
+                payload.ub04 = window.Ub04Overlays.applyToModel(payload.ub04, container);
+            }
+            return payload;
         },
-        printClaimForm() {
-            if (!this.claimFormPreview) return;
-            const el = document.getElementById('claim-form-printable');
-            if (!el) {
-                this.toast = 'Nothing to print.';
+        async regenerateClaimFormPdf() {
+            if (!this.claimFormEncounterId || !this.claimFormType) {
+                return false;
+            }
+            this.claimFormSaving = true;
+            try {
+                const payload = this.buildClaimFormPayload();
+                const pdfResponse = await this.api().post(
+                    `/encounters/${this.claimFormEncounterId}/claim-form/${this.claimFormType}/pdf`,
+                    payload,
+                    { responseType: 'blob', timeout: 120000 }
+                );
+                const blob = pdfResponse.data;
+                if (!(blob instanceof Blob) || blob.size < 100) {
+                    throw new Error('Failed to apply edits to PDF.');
+                }
+                this.revokeClaimFormPdf();
+                this.claimFormPdfUrl = URL.createObjectURL(new Blob([blob], { type: 'application/pdf' }));
+                if (payload.ub04) {
+                    this.claimFormPreview.ub04 = payload.ub04;
+                }
+                if (payload.acro_overrides) {
+                    this.claimFormPreview.acro_overrides = payload.acro_overrides;
+                }
+                await this.$nextTick();
+                await this.renderClaimFormPdfView();
+                return true;
+            } catch (e) {
+                const msg = e.message || 'Could not save form edits.';
+                this.toast = msg;
+                return false;
+            } finally {
+                this.claimFormSaving = false;
+            }
+        },
+        async renderClaimFormPdfView() {
+            if (!window.ClaimFormViewer) {
+                this.error = 'Claim form viewer failed to load.';
                 return;
             }
-            const win = window.open('', '_blank');
+            const container = document.getElementById('claim-form-pdf-pages');
+            if (!container) {
+                return;
+            }
+            if (this.claimFormType !== 'hcfa' && this.claimFormType !== 'ub04' && !this.claimFormPdfUrl) {
+                return;
+            }
+            try {
+                await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+                await window.ClaimFormViewer.render(this.claimFormPdfUrl, container, {
+                    onlyFirstPage: true,
+                    formType: this.claimFormType || 'hcfa',
+                    ub04: this.claimFormPreview && this.claimFormPreview.ub04,
+                    hcfa: this.claimFormPreview && this.claimFormPreview.hcfa,
+                    acroOverrides: this.claimFormPreview && this.claimFormPreview.acro_overrides,
+                });
+            } catch (e) {
+                this.error = e.message || 'Unable to display PDF.';
+                this.toast = this.error;
+                if (container) {
+                    container.innerHTML = '<p class="claim-form-error">' + this.error + '</p>';
+                }
+            }
+        },
+        revokeClaimFormPdf() {
+            const container = document.getElementById('claim-form-pdf-pages');
+            if (container) {
+                container.innerHTML = '';
+            }
+            if (this.claimFormPdfUrl) {
+                URL.revokeObjectURL(this.claimFormPdfUrl);
+                this.claimFormPdfUrl = null;
+            }
+        },
+        closeClaimForm() {
+            this.revokeClaimFormPdf();
+            this.claimFormPreview = null;
+            this.claimFormEncounterId = null;
+            this.claimFormType = null;
+            this.selectedClaimForCMS1500 = null;
+        },
+        async printClaimForm() {
+            if (!this.claimFormEncounterId || !this.claimFormType) {
+                this.toast = this.error || 'Nothing to print.';
+                return;
+            }
+            const ok = await this.regenerateClaimFormPdf();
+            if (!ok) {
+                this.toast = 'Could not apply edits before printing.';
+                return;
+            }
+            const printUrl = this.claimFormPdfUrl;
+            const win = window.open(printUrl, '_blank');
             if (!win) {
                 this.toast = 'Allow pop-ups to print the claim form.';
                 return;
             }
-            const title = this.claimFormPreview.title || 'Claim Form';
-            win.document.write('<!DOCTYPE html><html><head><title>' + title + '</title>');
-            win.document.write('<link rel="stylesheet" href="' + window.location.origin + '/css/claim-forms.css">');
-            win.document.write('<style>body{margin:0;padding:12px;background:#fff}@page{size:letter;margin:0.35in}</style>');
-            win.document.write('</head><body>');
-            win.document.write(el.innerHTML);
-            if (this.claimFormPreview.footnotes) {
-                win.document.write('<div class="claim-form-footnotes">');
-                this.claimFormPreview.footnotes.forEach(n => {
-                    win.document.write('<p>' + n + '</p>');
-                });
-                win.document.write('</div>');
-            }
-            win.document.write('</body></html>');
-            win.document.close();
-            win.focus();
-            setTimeout(() => { win.print(); }, 400);
+            win.addEventListener('load', () => {
+                win.focus();
+                win.print();
+            });
             this.toast = 'Claim form sent to printer.';
         },
         encounterPrimaryCpt(encounter) {

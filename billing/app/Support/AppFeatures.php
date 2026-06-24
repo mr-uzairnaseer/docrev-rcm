@@ -7,7 +7,7 @@ class AppFeatures
     public static function modules(): array
     {
         return [
-            ['id' => 'dashboard', 'label' => 'RCM Dashboard', 'enabled' => true],
+            ['id' => 'dashboard', 'label' => 'Clearinghouse Dashboard', 'enabled' => true],
             ['id' => 'eligibility', 'label' => 'Eligibility (270/271)', 'enabled' => true],
             ['id' => 'charges', 'label' => 'Charge Capture', 'enabled' => true],
             ['id' => 'claims', 'label' => 'Claims & 837', 'enabled' => true],

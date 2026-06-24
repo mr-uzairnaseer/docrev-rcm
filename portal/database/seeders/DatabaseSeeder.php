@@ -56,12 +56,13 @@ class DatabaseSeeder extends Seeder
             'patient_account_id' => $patient->id,
             'statement_date' => now()->toDateString(),
             'due_date' => now()->addDays(30)->toDateString(),
-            'total_amount' => 150.00,
+            'total_amount' => 50.00,
             'paid_amount' => 0,
-            'balance_due' => 150.00,
+            'balance_due' => 50.00,
             'status' => 'open',
+            'external_claim_uuid' => 'a47ac10b-58cc-4372-a567-0e02b2c3d481',
             'line_items' => [
-                ['description' => 'Office visit co-pay', 'amount' => 150.00],
+                ['description' => 'Patient responsibility — office visit (CLM-PART01)', 'amount' => 50.00],
             ],
         ]);
     }

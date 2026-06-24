@@ -41,7 +41,11 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
     Route::apiResource('locations', LocationController::class)->only(['index', 'store', 'show']);
     Route::apiResource('encounters', EncounterController::class);
     Route::post('encounters/{encounter}/sign', [EncounterController::class, 'sign']);
-    Route::get('encounters/{encounter}/claim-form/{form}', EncounterClaimFormController::class)
+    Route::get('encounters/{encounter}/claim-form/{form}', [EncounterClaimFormController::class, 'show'])
+        ->where('form', 'hcfa|ub04');
+    Route::get('encounters/{encounter}/claim-form/{form}/pdf', [EncounterClaimFormController::class, 'pdf'])
+        ->where('form', 'hcfa|ub04');
+    Route::post('encounters/{encounter}/claim-form/{form}/pdf', [EncounterClaimFormController::class, 'pdfWithEdits'])
         ->where('form', 'hcfa|ub04');
     Route::post('encounters/{encounter}/charges', [EncounterChargeController::class, 'store']);
     Route::post('encounters/{encounter}/diagnoses', [EncounterChargeController::class, 'storeDiagnosis']);

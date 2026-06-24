@@ -51,21 +51,37 @@ class RcmDashboardService
                 'open' => ClaimDenial::forOrganization($organizationId)->where('status', ClaimDenial::STATUS_OPEN)->count(),
                 'appealed' => ClaimDenial::forOrganization($organizationId)->where('status', ClaimDenial::STATUS_APPEALED)->count(),
             ],
-            'aging' => (function() use ($claims) {
+            'aging' => (function () use ($claims) {
                 $aging = ['0_30' => 0.0, '31_60' => 0.0, '61_90' => 0.0, '91_plus' => 0.0];
-                $outstandingClaims = (clone $claims)->whereIn('status', ['submitted', 'partial', 'denied'])->get();
+                $outstandingClaims = (clone $claims)->whereIn('status', [
+                    Claim::STATUS_SUBMITTED,
+                    Claim::STATUS_PARTIAL,
+                    Claim::STATUS_DENIED,
+                    Claim::STATUS_ACCEPTED,
+                ])->get();
                 foreach ($outstandingClaims as $claim) {
                     $date = $claim->submitted_at ?? $claim->created_at;
                     $days = $date->diffInDays(now());
                     $outstanding = (float) $claim->total_charge_amount - (float) $claim->paid_amount;
-                    if ($outstanding <= 0) continue;
-                    if ($days <= 30) $aging['0_30'] += $outstanding;
-                    elseif ($days <= 60) $aging['31_60'] += $outstanding;
-                    elseif ($days <= 90) $aging['61_90'] += $outstanding;
-                    else $aging['91_plus'] += $outstanding;
+                    if ($outstanding <= 0) {
+                        continue;
+                    }
+                    if ($days <= 30) {
+                        $aging['0_30'] += $outstanding;
+                    } elseif ($days <= 60) {
+                        $aging['31_60'] += $outstanding;
+                    } elseif ($days <= 90) {
+                        $aging['61_90'] += $outstanding;
+                    } else {
+                        $aging['91_plus'] += $outstanding;
+                    }
                 }
-                return array_map(function($v) { return round($v, 2); }, $aging);
+                $rounded = array_map(fn ($v) => round($v, 2), $aging);
+                $rounded['total'] = round(array_sum($rounded), 2);
+
+                return $rounded;
             })(),
+            'synced_at' => now()->toIso8601String(),
         ];
     }
 }

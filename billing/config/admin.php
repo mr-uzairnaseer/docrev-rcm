@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'title' => 'DocRev RCM',
+    'title' => 'DocRev Clearinghouse',
     'theme' => '#0ea5e9',
     'api_prefix' => '/api',
     'token_key' => 'billing_token',

@@ -20,7 +20,7 @@ class OnboardingSyncCommand extends Command
     {
         $orgId = (int) $this->option('org');
 
-        $this->info('DocRev RCM — What You Need & How to Get It');
+        $this->info('DocRev Clearinghouse — What You Need & How to Get It');
         $this->line(OnboardingGuide::intro());
         $this->newLine();
 
