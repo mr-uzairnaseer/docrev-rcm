@@ -374,9 +374,91 @@
                     </div>
                 </div>
 
-                <div class="portal-nav" style="margin: 1rem 0; display:flex; gap:0.5rem">
-                    <button class="btn btn-sm" :class="apptTab==='scheduled'?'btn-primary':''" @click="apptTab='scheduled'">Scheduled Appointments</button>
-                    <button class="btn btn-sm" :class="apptTab==='requested'?'btn-primary':''" @click="apptTab='requested'">Patient Requests ({{ appointments.filter(a=>a.status==='requested').length }})</button>
+                <!-- Calendar Navigation Sub-tabs -->
+                <div class="portal-nav" style="margin: 1rem 0; display:flex; gap:0.5rem; justify-content: space-between; align-items: center; flex-wrap:wrap">
+                    <div style="display:flex; gap:0.5rem">
+                        <button class="btn btn-sm" :class="apptTab==='calendar'?'btn-primary':''" @click="apptTab='calendar'"><i class="fas fa-calendar-alt" style="margin-right:4px"></i>Calendar Grid View</button>
+                        <button class="btn btn-sm" :class="apptTab==='scheduled'?'btn-primary':''" @click="apptTab='scheduled'"><i class="fas fa-list" style="margin-right:4px"></i>Scheduled Appointments</button>
+                        <button class="btn btn-sm" :class="apptTab==='requested'?'btn-primary':''" @click="apptTab='requested'"><i class="fas fa-envelope-open-text" style="margin-right:4px"></i>Patient Requests ({{ appointments.filter(a=>a.status==='requested').length }})</button>
+                    </div>
+                    
+                    <!-- Calendar Legend (RichiBillings Statuses) -->
+                    <div v-if="apptTab==='calendar'" style="display:flex; gap:0.25rem; flex-wrap:wrap; font-size:0.75rem">
+                        <span class="badge" style="background:#48bb78; color:white">office_visit</span>
+                        <span class="badge" style="background:#3182ce; color:white">telehealth</span>
+                        <span class="badge" style="background:#ecc94b; color:#744210">requested</span>
+                    </div>
+                </div>
+
+                <!-- Interactive Timeline Calendar Grid (RichiBillings Style) -->
+                <div v-if="apptTab==='calendar'" class="panel" style="background:#fff; border:1px solid #cbd5e0; padding:1.5rem; overflow-x:auto">
+                    <!-- Calendar Header Controls -->
+                    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #e2e8f0; padding-bottom:0.75rem; margin-bottom:1rem">
+                        <div style="display:flex; align-items:center; gap:0.5rem">
+                            <button class="btn btn-sm" style="background:#edf2f7"><i class="fas fa-chevron-left"></i></button>
+                            <button class="btn btn-sm" style="background:#edf2f7"><i class="fas fa-chevron-right"></i></button>
+                            <span style="font-weight:bold; font-size:1.1rem; color:#2d3748">June 1 to 30, 2026</span>
+                        </div>
+                        <div style="display:flex; gap:0.25rem">
+                            <button class="btn btn-sm btn-primary">Timeline Day</button>
+                            <button class="btn btn-sm" style="background:#edf2f7">Timeline Week</button>
+                        </div>
+                    </div>
+
+                    <!-- Timeline Sheet Grid -->
+                    <div style="min-width: 800px">
+                        <!-- Hour Row Header -->
+                        <div style="display:flex; background:#edf2f7; font-weight:bold; border-bottom:1px solid #cbd5e0">
+                            <div style="width:150px; padding:0.5rem; border-right:1px solid #cbd5e0">Providers</div>
+                            <div style="flex:1; padding:0.5rem; border-right:1px solid #cbd5e0; text-align:center">8:00 AM</div>
+                            <div style="flex:1; padding:0.5rem; border-right:1px solid #cbd5e0; text-align:center">9:00 AM</div>
+                            <div style="flex:1; padding:0.5rem; border-right:1px solid #cbd5e0; text-align:center">10:00 AM</div>
+                            <div style="flex:1; padding:0.5rem; border-right:1px solid #cbd5e0; text-align:center">11:00 AM</div>
+                            <div style="flex:1; padding:0.5rem; border-right:1px solid #cbd5e0; text-align:center">12:00 PM</div>
+                            <div style="flex:1; padding:0.5rem; border-right:1px solid #cbd5e0; text-align:center">1:00 PM</div>
+                            <div style="flex:1; padding:0.5rem; border-right:1px solid #cbd5e0; text-align:center">2:00 PM</div>
+                            <div style="flex:1; padding:0.5rem; border-right:1px solid #cbd5e0; text-align:center">3:00 PM</div>
+                            <div style="flex:1; padding:0.5rem; border-right:1px solid #cbd5e0; text-align:center">4:00 PM</div>
+                            <div style="flex:1; padding:0.5rem; text-align:center">5:00 PM</div>
+                        </div>
+
+                        <!-- Provider Row & Scheduled Events -->
+                        <div v-for="pr in providers" :key="pr.id" style="display:flex; border-bottom:1px solid #e2e8f0; height:80px; position:relative; background:#fff">
+                            <!-- Provider Name Label -->
+                            <div style="width:150px; padding:0.5rem; border-right:1px solid #cbd5e0; display:flex; flex-direction:column; justify-content:center; background:#f7fafc; font-weight:bold; font-size:0.9rem">
+                                <span>Dr. {{ pr.last_name }}</span>
+                                <span style="font-weight:normal; font-size:0.75rem; color:#718096">{{ pr.specialty || 'Clinical Care' }}</span>
+                            </div>
+
+                            <!-- Hour columns placeholders -->
+                            <div style="flex:10; display:flex; position:relative; height:100%">
+                                <div style="flex:1; border-right:1px solid #f0f4f8"></div>
+                                <div style="flex:1; border-right:1px solid #f0f4f8"></div>
+                                <div style="flex:1; border-right:1px solid #f0f4f8"></div>
+                                <div style="flex:1; border-right:1px solid #f0f4f8"></div>
+                                <div style="flex:1; border-right:1px solid #f0f4f8; background:#edf2f7; display:flex; justify-content:center; align-items:center; color:#a0aec0; font-size:0.8rem">Lunch Break</div>
+                                <div style="flex:1; border-right:1px solid #f0f4f8"></div>
+                                <div style="flex:1; border-right:1px solid #f0f4f8"></div>
+                                <div style="flex:1; border-right:1px solid #f0f4f8"></div>
+                                <div style="flex:1; border-right:1px solid #f0f4f8"></div>
+                                <div style="flex:1;"></div>
+
+                                <!-- Dynamically Rendered Calendar Blocks -->
+                                <div v-for="appt in appointments.filter(a => a.provider_id === pr.id)" :key="appt.id"
+                                     style="position:absolute; top:10px; height:55px; border-radius:4px; padding:0.4rem; color:white; font-size:0.8rem; overflow:hidden; box-shadow:0 2px 4px rgba(0,0,0,0.1); cursor:pointer; display:flex; flex-direction:column; justify-content:space-between"
+                                     :style="appt.appointment_type === 'telehealth' ? 'left:12%; width:24%; background:#3182ce' : (appt.status === 'requested' ? 'left:45%; width:18%; background:#ecc94b; color:#744210' : 'left:65%; width:22%; background:#48bb78')"
+                                     @click="appt.appointment_type==='telehealth' ? startTelehealthMeeting(appt) : ''">
+                                    <div style="font-weight:bold; text-overflow:ellipsis; white-space:nowrap; overflow:hidden">
+                                        {{ appt.patient ? appt.patient.first_name + ' ' + appt.patient.last_name : 'Patient Encounter' }}
+                                    </div>
+                                    <div style="display:flex; justify-content:space-between; font-size:0.7rem; opacity:0.9">
+                                        <span>{{ appt.appointment_type }}</span>
+                                        <span>{{ appt.status }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div v-if="apptTab==='scheduled'">

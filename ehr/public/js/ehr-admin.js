@@ -34,7 +34,7 @@ createApp({
             hiePatientId: '',
             dxForm: { icd10_code: 'Z00.00', description: '' },
             chargeForm: { cpt_code: '99213', charge_amount: '150.00', units: 1, diagnosis_pointers: [1] },
-            apptTab: 'scheduled',
+            apptTab: 'calendar',
             patientPrescriptions: [],
             patientForms: [],
             selectedFormTemplate: '',
