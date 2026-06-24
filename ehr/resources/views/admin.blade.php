@@ -9,6 +9,7 @@
     <link rel="apple-touch-icon" href="/img/logo.png">
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/docrev-theme.css">
 </head>
 <body>
@@ -40,27 +41,41 @@
                 <span class="docrev-brand-product">EHR</span>
             </div>
             <nav>
-                <a :class="{active: view==='dashboard'}" @click="view='dashboard';load()">Dashboard</a>
-                <a :class="{active: view==='patients'}" @click="view='patients';loadPatients()">Patients</a>
-                <a :class="{active: view==='encounters'}" @click="view='encounters';loadEncounters()">Encounters</a>
-                <a :class="{active: view==='appointments'}" @click="view='appointments';loadAppointments()">Appointments</a>
-                <a :class="{active: view==='prescriptions'}" @click="setView('prescriptions')">E-Prescribing</a>
-                <a :class="{active: view==='labs'}" @click="setView('labs')">Labs</a>
-                <a :class="{active: view==='hie'}" @click="setView('hie')">HIE / FHIR</a>
-                <a :class="{active: view==='billing-rcm'}" @click="setView('billing-rcm')">Billing / RCM</a>
-                <a :class="{active: view==='messages'}" @click="setView('messages')">Messages &amp; Inbox</a>
-                <a :class="{active: view==='reports'}" @click="setView('reports')">Reports &amp; Analytics</a>
-                <a :class="{active: view==='integrations'}" @click="setView('integrations')">Integrations</a>
-                <a :class="{active: view==='new-patient'}" @click="view='new-patient'">+ Patient</a>
-                <a :class="{active: view==='new-encounter'}" @click="openNewEncounter()">+ Encounter</a>
+                <a :class="{active: view==='dashboard'}" @click="view='dashboard';load()"><i class="fas fa-chart-line" style="margin-right:8px; width:16px"></i>Dashboard</a>
+                <a :class="{active: view==='patients'}" @click="view='patients';loadPatients()"><i class="fas fa-user-injured" style="margin-right:8px; width:16px"></i>Patients</a>
+                <a :class="{active: view==='encounters'}" @click="view='encounters';loadEncounters()"><i class="fas fa-stethoscope" style="margin-right:8px; width:16px"></i>Encounters</a>
+                <a :class="{active: view==='appointments'}" @click="view='appointments';loadAppointments()"><i class="fas fa-calendar-check" style="margin-right:8px; width:16px"></i>Appointments</a>
+                <a :class="{active: view==='prescriptions'}" @click="setView('prescriptions')"><i class="fas fa-prescription-bottle-alt" style="margin-right:8px; width:16px"></i>E-Prescribing</a>
+                <a :class="{active: view==='labs'}" @click="setView('labs')"><i class="fas fa-flask" style="margin-right:8px; width:16px"></i>Labs</a>
+                <a :class="{active: view==='hie'}" @click="setView('hie')"><i class="fas fa-network-wired" style="margin-right:8px; width:16px"></i>HIE / FHIR</a>
+                <a :class="{active: view==='billing-rcm'}" @click="setView('billing-rcm')"><i class="fas fa-file-invoice-dollar" style="margin-right:8px; width:16px"></i>Billing / RCM</a>
+                <a :class="{active: view==='messages'}" @click="setView('messages')"><i class="fas fa-envelope-open-text" style="margin-right:8px; width:16px"></i>Messages &amp; Inbox</a>
+                <a :class="{active: view==='reports'}" @click="setView('reports')"><i class="fas fa-chart-bar" style="margin-right:8px; width:16px"></i>Reports &amp; Analytics</a>
+                <a :class="{active: view==='integrations'}" @click="setView('integrations')"><i class="fas fa-puzzle-piece" style="margin-right:8px; width:16px"></i>Integrations</a>
+                <a :class="{active: view==='new-patient'}" @click="view='new-patient'"><i class="fas fa-user-plus" style="margin-right:8px; width:16px"></i>+ Patient</a>
+                <a :class="{active: view==='new-encounter'}" @click="openNewEncounter()"><i class="fas fa-notes-medical" style="margin-right:8px; width:16px"></i>+ Encounter</a>
             </nav>
             <div class="sidebar-footer">
-                <a @click="logout" class="logout">Logout</a>
+                <a @click="logout" class="logout"><i class="fas fa-sign-out-alt" style="margin-right:8px"></i>Logout</a>
             </div>
         </aside>
         <main class="main">
             <p v-if="toast" class="toast">{{ toast }}</p>
-            <div v-if="view==='dashboard'">
+
+            <!-- Dynamic Tab Skeleton Loader -->
+            <div v-if="tabLoading" class="card animate-pulse" style="padding: 2rem; margin-bottom: 1.5rem; background: #fff; border-radius: 8px">
+                <div style="height: 24px; background: #e2e8f0; width: 40%; border-radius: 4px; margin-bottom: 1.5rem"></div>
+                <div style="height: 12px; background: #e2e8f0; width: 85%; border-radius: 4px; margin-bottom: 0.75rem"></div>
+                <div style="height: 12px; background: #e2e8f0; width: 70%; border-radius: 4px; margin-bottom: 0.75rem"></div>
+                <div style="height: 12px; background: #e2e8f0; width: 90%; border-radius: 4px; margin-bottom: 1.5rem"></div>
+                <div style="display: flex; gap: 1rem">
+                    <div style="flex:1; height: 80px; background: #edf2f7; border-radius: 6px"></div>
+                    <div style="flex:1; height: 80px; background: #edf2f7; border-radius: 6px"></div>
+                    <div style="flex:1; height: 80px; background: #edf2f7; border-radius: 6px"></div>
+                </div>
+            </div>
+
+            <div v-if="!tabLoading && view==='dashboard'">
                 <div class="stats">
                     <div class="stat"><div class="num">{{ patients.length }}</div><div class="label">Patients</div></div>
                     <div class="stat"><div class="num">{{ encounters.length }}</div><div class="label">Encounters</div></div>

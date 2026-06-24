@@ -66,6 +66,7 @@ createApp({
             isLocalMicOn: true,
             isPatientCameraOn: true,
             meetingSeconds: 0,
+            tabLoading: false,
             loading: false,
             error: '',
             toast: '',
@@ -90,7 +91,14 @@ createApp({
             this.loading = false;
         },
         logout() { this.token = ''; localStorage.removeItem(TOKEN_KEY); },
-        setView(v) { this.view = v; this.refreshView(); },
+        setView(v) { 
+            this.tabLoading = true;
+            this.view = v; 
+            setTimeout(async () => {
+                await this.refreshView();
+                this.tabLoading = false;
+            }, 350);
+        },
         async refreshView() {
             if (this.view === 'prescriptions') await this.loadPrescriptions();
             else if (this.view === 'labs') await this.loadLabs();
