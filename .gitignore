@@ -12,3 +12,7 @@ _extracted/
 
 # Env overrides
 .env.local
+
+__pycache__/
+*.pyc
+
