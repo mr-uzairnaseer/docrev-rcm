@@ -1,0 +1,297 @@
+[
+    {
+        "code": "22",
+        "description": "Increased Procedural Services",
+        "level": "cpt"
+    },
+    {
+        "code": "23",
+        "description": "Unusual Anesthesia",
+        "level": "cpt"
+    },
+    {
+        "code": "24",
+        "description": "Unrelated E\/M Service During Postoperative Period",
+        "level": "cpt"
+    },
+    {
+        "code": "25",
+        "description": "Significant, Separately Identifiable E\/M Service",
+        "level": "cpt"
+    },
+    {
+        "code": "26",
+        "description": "Professional Component",
+        "level": "cpt"
+    },
+    {
+        "code": "27",
+        "description": "Multiple Outpatient Hospital E\/M Encounters Same Date",
+        "level": "cpt"
+    },
+    {
+        "code": "32",
+        "description": "Mandated Services",
+        "level": "cpt"
+    },
+    {
+        "code": "33",
+        "description": "Preventive Services",
+        "level": "cpt"
+    },
+    {
+        "code": "47",
+        "description": "Anesthesia by Surgeon",
+        "level": "cpt"
+    },
+    {
+        "code": "50",
+        "description": "Bilateral Procedure",
+        "level": "cpt"
+    },
+    {
+        "code": "51",
+        "description": "Multiple Procedures",
+        "level": "cpt"
+    },
+    {
+        "code": "52",
+        "description": "Reduced Services",
+        "level": "cpt"
+    },
+    {
+        "code": "53",
+        "description": "Discontinued Procedure",
+        "level": "cpt"
+    },
+    {
+        "code": "54",
+        "description": "Surgical Care Only",
+        "level": "cpt"
+    },
+    {
+        "code": "55",
+        "description": "Postoperative Management Only",
+        "level": "cpt"
+    },
+    {
+        "code": "56",
+        "description": "Preoperative Management Only",
+        "level": "cpt"
+    },
+    {
+        "code": "57",
+        "description": "Decision for Surgery",
+        "level": "cpt"
+    },
+    {
+        "code": "58",
+        "description": "Staged or Related Procedure During Postoperative Period",
+        "level": "cpt"
+    },
+    {
+        "code": "59",
+        "description": "Distinct Procedural Service",
+        "level": "cpt"
+    },
+    {
+        "code": "62",
+        "description": "Two Surgeons",
+        "level": "cpt"
+    },
+    {
+        "code": "63",
+        "description": "Procedure Performed on Infants",
+        "level": "cpt"
+    },
+    {
+        "code": "66",
+        "description": "Surgical Team",
+        "level": "cpt"
+    },
+    {
+        "code": "73",
+        "description": "Discontinued Outpatient Procedure Prior to Anesthesia",
+        "level": "cpt"
+    },
+    {
+        "code": "74",
+        "description": "Discontinued Outpatient Procedure After Anesthesia",
+        "level": "cpt"
+    },
+    {
+        "code": "76",
+        "description": "Repeat Procedure by Same Physician",
+        "level": "cpt"
+    },
+    {
+        "code": "77",
+        "description": "Repeat Procedure by Another Physician",
+        "level": "cpt"
+    },
+    {
+        "code": "78",
+        "description": "Unplanned Return to Operating Room",
+        "level": "cpt"
+    },
+    {
+        "code": "79",
+        "description": "Unrelated Procedure During Postoperative Period",
+        "level": "cpt"
+    },
+    {
+        "code": "80",
+        "description": "Assistant Surgeon",
+        "level": "cpt"
+    },
+    {
+        "code": "81",
+        "description": "Minimum Assistant Surgeon",
+        "level": "cpt"
+    },
+    {
+        "code": "82",
+        "description": "Assistant Surgeon (qualified resident not available)",
+        "level": "cpt"
+    },
+    {
+        "code": "90",
+        "description": "Reference (Outside) Laboratory",
+        "level": "cpt"
+    },
+    {
+        "code": "91",
+        "description": "Repeat Clinical Diagnostic Laboratory Test",
+        "level": "cpt"
+    },
+    {
+        "code": "92",
+        "description": "Alternative Laboratory Platform Testing",
+        "level": "cpt"
+    },
+    {
+        "code": "95",
+        "description": "Synchronous Telemedicine via Real-Time Audio and Video",
+        "level": "cpt"
+    },
+    {
+        "code": "96",
+        "description": "Habilitative Services",
+        "level": "cpt"
+    },
+    {
+        "code": "97",
+        "description": "Rehabilitative Services",
+        "level": "cpt"
+    },
+    {
+        "code": "99",
+        "description": "Multiple Modifiers",
+        "level": "cpt"
+    },
+    {
+        "code": "TC",
+        "description": "Technical Component",
+        "level": "cpt"
+    },
+    {
+        "code": "XE",
+        "description": "Separate Encounter",
+        "level": "cpt"
+    },
+    {
+        "code": "XP",
+        "description": "Separate Practitioner",
+        "level": "cpt"
+    },
+    {
+        "code": "XS",
+        "description": "Separate Structure",
+        "level": "cpt"
+    },
+    {
+        "code": "XU",
+        "description": "Unusual Non-Overlapping Service",
+        "level": "cpt"
+    },
+    {
+        "code": "LT",
+        "description": "Left Side",
+        "level": "hcpcs"
+    },
+    {
+        "code": "RT",
+        "description": "Right Side",
+        "level": "hcpcs"
+    },
+    {
+        "code": "GA",
+        "description": "Waiver of Liability Statement Issued as Required by Payer Policy",
+        "level": "hcpcs"
+    },
+    {
+        "code": "GC",
+        "description": "Service Performed in Part by Resident Under Teaching Physician",
+        "level": "hcpcs"
+    },
+    {
+        "code": "GE",
+        "description": "Service Performed by Resident Without Teaching Physician Present",
+        "level": "hcpcs"
+    },
+    {
+        "code": "GF",
+        "description": "Non-physician Service in Critical Access or Rural Health Clinic",
+        "level": "hcpcs"
+    },
+    {
+        "code": "GN",
+        "description": "Services Under Outpatient Speech Language Pathology Plan of Care",
+        "level": "hcpcs"
+    },
+    {
+        "code": "GO",
+        "description": "Services Under Outpatient Occupational Therapy Plan of Care",
+        "level": "hcpcs"
+    },
+    {
+        "code": "GP",
+        "description": "Services Under Outpatient Physical Therapy Plan of Care",
+        "level": "hcpcs"
+    },
+    {
+        "code": "GT",
+        "description": "Via Interactive Audio and Video Telecommunications Systems",
+        "level": "hcpcs"
+    },
+    {
+        "code": "GV",
+        "description": "Attending Physician Not Employed or Paid Under Arrangement by Hospital",
+        "level": "hcpcs"
+    },
+    {
+        "code": "GW",
+        "description": "Service Not Related to Hospice Patient Terminal Condition",
+        "level": "hcpcs"
+    },
+    {
+        "code": "GY",
+        "description": "Item or Service Statutorily Excluded",
+        "level": "hcpcs"
+    },
+    {
+        "code": "GZ",
+        "description": "Item or Service Expected to be Denied as Not Reasonable and Necessary",
+        "level": "hcpcs"
+    },
+    {
+        "code": "AQ",
+        "description": "Physician Service in Health Professional Shortage Area",
+        "level": "hcpcs"
+    },
+    {
+        "code": "AS",
+        "description": "PA, NP, or Clinical Nurse Specialist Services for Assistant at Surgery",
+        "level": "hcpcs"
+    }
+]

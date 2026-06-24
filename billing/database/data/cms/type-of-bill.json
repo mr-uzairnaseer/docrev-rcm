@@ -1,0 +1,266 @@
+[
+    {
+        "code": "0111",
+        "description": "Hospital Inpatient (including Medicare Part A)",
+        "facility_type": "Hospital",
+        "care_type": "Inpatient"
+    },
+    {
+        "code": "0112",
+        "description": "Hospital Inpatient - Medicare Part B only",
+        "facility_type": "Hospital",
+        "care_type": "Inpatient Part B"
+    },
+    {
+        "code": "0113",
+        "description": "Hospital Inpatient - Medicare Part A only",
+        "facility_type": "Hospital",
+        "care_type": "Inpatient Part A"
+    },
+    {
+        "code": "0114",
+        "description": "Hospital Inpatient - Medicare Part A and Part B",
+        "facility_type": "Hospital",
+        "care_type": "Inpatient"
+    },
+    {
+        "code": "0121",
+        "description": "Hospital Inpatient (Part A) - Admit through discharge claim",
+        "facility_type": "Hospital",
+        "care_type": "Inpatient Admit-Discharge"
+    },
+    {
+        "code": "0122",
+        "description": "Hospital Inpatient (Part A) - Interim - first claim",
+        "facility_type": "Hospital",
+        "care_type": "Inpatient Interim First"
+    },
+    {
+        "code": "0123",
+        "description": "Hospital Inpatient (Part A) - Interim - continuing claim",
+        "facility_type": "Hospital",
+        "care_type": "Inpatient Interim Continuing"
+    },
+    {
+        "code": "0124",
+        "description": "Hospital Inpatient (Part A) - Interim - last claim",
+        "facility_type": "Hospital",
+        "care_type": "Inpatient Interim Last"
+    },
+    {
+        "code": "0131",
+        "description": "Hospital Outpatient",
+        "facility_type": "Hospital",
+        "care_type": "Outpatient"
+    },
+    {
+        "code": "0132",
+        "description": "Hospital Outpatient - Medicare Part B only",
+        "facility_type": "Hospital",
+        "care_type": "Outpatient Part B"
+    },
+    {
+        "code": "0141",
+        "description": "Hospital Other (Part B)",
+        "facility_type": "Hospital",
+        "care_type": "Other Part B"
+    },
+    {
+        "code": "0181",
+        "description": "Hospital Swing Bed",
+        "facility_type": "Hospital",
+        "care_type": "Swing Bed"
+    },
+    {
+        "code": "0211",
+        "description": "Skilled Nursing Inpatient (Part A)",
+        "facility_type": "Skilled Nursing Facility",
+        "care_type": "Inpatient"
+    },
+    {
+        "code": "0212",
+        "description": "Skilled Nursing Inpatient (Part B)",
+        "facility_type": "Skilled Nursing Facility",
+        "care_type": "Inpatient Part B"
+    },
+    {
+        "code": "0213",
+        "description": "Skilled Nursing Inpatient (Part A and B)",
+        "facility_type": "Skilled Nursing Facility",
+        "care_type": "Inpatient"
+    },
+    {
+        "code": "0221",
+        "description": "Skilled Nursing Inpatient (Part A) - Admit through discharge",
+        "facility_type": "Skilled Nursing Facility",
+        "care_type": "Inpatient Admit-Discharge"
+    },
+    {
+        "code": "0231",
+        "description": "Skilled Nursing Outpatient",
+        "facility_type": "Skilled Nursing Facility",
+        "care_type": "Outpatient"
+    },
+    {
+        "code": "0281",
+        "description": "Skilled Nursing Swing Bed",
+        "facility_type": "Skilled Nursing Facility",
+        "care_type": "Swing Bed"
+    },
+    {
+        "code": "0311",
+        "description": "Home Health (Part A)",
+        "facility_type": "Home Health Agency",
+        "care_type": "Inpatient\/Periodic"
+    },
+    {
+        "code": "0321",
+        "description": "Home Health (Part B)",
+        "facility_type": "Home Health Agency",
+        "care_type": "Outpatient\/Periodic"
+    },
+    {
+        "code": "0322",
+        "description": "Home Health (Part B) - Interim first claim",
+        "facility_type": "Home Health Agency",
+        "care_type": "Outpatient Interim First"
+    },
+    {
+        "code": "0323",
+        "description": "Home Health (Part B) - Interim continuing claim",
+        "facility_type": "Home Health Agency",
+        "care_type": "Outpatient Interim Continuing"
+    },
+    {
+        "code": "0324",
+        "description": "Home Health (Part B) - Interim last claim",
+        "facility_type": "Home Health Agency",
+        "care_type": "Outpatient Interim Last"
+    },
+    {
+        "code": "0327",
+        "description": "Home Health (Part B) - Replacement of prior claim",
+        "facility_type": "Home Health Agency",
+        "care_type": "Outpatient Replacement"
+    },
+    {
+        "code": "0328",
+        "description": "Home Health (Part B) - Void\/cancel prior claim",
+        "facility_type": "Home Health Agency",
+        "care_type": "Outpatient Void"
+    },
+    {
+        "code": "0411",
+        "description": "Religious Nonmedical Health Care Inpatient",
+        "facility_type": "Religious Nonmedical",
+        "care_type": "Inpatient"
+    },
+    {
+        "code": "0711",
+        "description": "Clinic Rural Health",
+        "facility_type": "Clinic",
+        "care_type": "Rural Health"
+    },
+    {
+        "code": "0713",
+        "description": "Clinic Rural Health - Medicare Part B only",
+        "facility_type": "Clinic",
+        "care_type": "Rural Health Part B"
+    },
+    {
+        "code": "0721",
+        "description": "Clinic Hospital Based or Independent Renal Dialysis Center",
+        "facility_type": "Clinic",
+        "care_type": "Dialysis"
+    },
+    {
+        "code": "0731",
+        "description": "Clinic Freestanding",
+        "facility_type": "Clinic",
+        "care_type": "Freestanding"
+    },
+    {
+        "code": "0741",
+        "description": "Clinic Outpatient Rehabilitation Facility (ORF)",
+        "facility_type": "Clinic",
+        "care_type": "ORF"
+    },
+    {
+        "code": "0751",
+        "description": "Clinic Comprehensive Outpatient Rehabilitation Facility (CORF)",
+        "facility_type": "Clinic",
+        "care_type": "CORF"
+    },
+    {
+        "code": "0761",
+        "description": "Clinic Community Mental Health Center",
+        "facility_type": "Clinic",
+        "care_type": "CMHC"
+    },
+    {
+        "code": "0811",
+        "description": "Special Facility Hospice (Nonhospital based)",
+        "facility_type": "Hospice",
+        "care_type": "Nonhospital"
+    },
+    {
+        "code": "0821",
+        "description": "Special Facility Hospice (Hospital based)",
+        "facility_type": "Hospice",
+        "care_type": "Hospital based"
+    },
+    {
+        "code": "0831",
+        "description": "Special Facility Ambulatory Surgery Center",
+        "facility_type": "ASC",
+        "care_type": "Outpatient Surgery"
+    },
+    {
+        "code": "0841",
+        "description": "Special Facility Free Standing Birthing Center",
+        "facility_type": "Birthing Center",
+        "care_type": "Outpatient"
+    },
+    {
+        "code": "0851",
+        "description": "Special Facility Critical Access Hospital",
+        "facility_type": "Critical Access Hospital",
+        "care_type": "Inpatient\/Outpatient"
+    },
+    {
+        "code": "0861",
+        "description": "Special Facility Residential Facility",
+        "facility_type": "Residential Facility",
+        "care_type": "Residential"
+    },
+    {
+        "code": "1311",
+        "description": "Hospital Outpatient - Laboratory services provided to non-patients",
+        "facility_type": "Hospital",
+        "care_type": "Outpatient Lab Non-patient"
+    },
+    {
+        "code": "8511",
+        "description": "Critical Access Hospital (CAH) - Admit through discharge",
+        "facility_type": "Critical Access Hospital",
+        "care_type": "Inpatient Admit-Discharge"
+    },
+    {
+        "code": "8512",
+        "description": "Critical Access Hospital (CAH) - Interim first claim",
+        "facility_type": "Critical Access Hospital",
+        "care_type": "Inpatient Interim First"
+    },
+    {
+        "code": "8513",
+        "description": "Critical Access Hospital (CAH) - Interim continuing claim",
+        "facility_type": "Critical Access Hospital",
+        "care_type": "Inpatient Interim Continuing"
+    },
+    {
+        "code": "8514",
+        "description": "Critical Access Hospital (CAH) - Interim last claim",
+        "facility_type": "Critical Access Hospital",
+        "care_type": "Inpatient Interim Last"
+    }
+]

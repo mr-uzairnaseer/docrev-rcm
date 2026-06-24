@@ -1,0 +1,872 @@
+[
+    {
+        "code": "1",
+        "group_code": "CO",
+        "description": "Deductible Amount"
+    },
+    {
+        "code": "2",
+        "group_code": "CO",
+        "description": "Coinsurance Amount"
+    },
+    {
+        "code": "3",
+        "group_code": "CO",
+        "description": "Co-payment Amount"
+    },
+    {
+        "code": "4",
+        "group_code": "OA",
+        "description": "The procedure code is inconsistent with the modifier used or a required modifier is missing"
+    },
+    {
+        "code": "5",
+        "group_code": "CO",
+        "description": "The procedure code\/type of bill is inconsistent with the place of service"
+    },
+    {
+        "code": "6",
+        "group_code": "CO",
+        "description": "The procedure\/revenue code is inconsistent with the patient's age"
+    },
+    {
+        "code": "7",
+        "group_code": "CO",
+        "description": "The procedure\/revenue code is inconsistent with the patient's gender"
+    },
+    {
+        "code": "8",
+        "group_code": "CO",
+        "description": "The procedure code is inconsistent with the provider type\/specialty"
+    },
+    {
+        "code": "9",
+        "group_code": "CO",
+        "description": "The diagnosis is inconsistent with the patient's age"
+    },
+    {
+        "code": "10",
+        "group_code": "CO",
+        "description": "The diagnosis is inconsistent with the patient's gender"
+    },
+    {
+        "code": "11",
+        "group_code": "CO",
+        "description": "The diagnosis is inconsistent with the procedure"
+    },
+    {
+        "code": "12",
+        "group_code": "CO",
+        "description": "The diagnosis is inconsistent with the provider type"
+    },
+    {
+        "code": "13",
+        "group_code": "CO",
+        "description": "The date of death precedes the date of service"
+    },
+    {
+        "code": "14",
+        "group_code": "CO",
+        "description": "The date of birth follows the date of service"
+    },
+    {
+        "code": "15",
+        "group_code": "CO",
+        "description": "The authorization number is missing, invalid, or does not apply"
+    },
+    {
+        "code": "16",
+        "group_code": "CO",
+        "description": "Claim\/service lacks information or has submission\/billing error(s)"
+    },
+    {
+        "code": "18",
+        "group_code": "CO",
+        "description": "Duplicate claim\/service"
+    },
+    {
+        "code": "22",
+        "group_code": "CO",
+        "description": "This care may be covered by another payer per coordination of benefits"
+    },
+    {
+        "code": "23",
+        "group_code": "CO",
+        "description": "The impact of prior payer(s) adjudication including payments and\/or adjustments"
+    },
+    {
+        "code": "24",
+        "group_code": "CO",
+        "description": "Charges are covered under a capitation agreement\/managed care plan"
+    },
+    {
+        "code": "26",
+        "group_code": "CO",
+        "description": "Expenses incurred prior to coverage"
+    },
+    {
+        "code": "27",
+        "group_code": "CO",
+        "description": "Expenses incurred after coverage terminated"
+    },
+    {
+        "code": "29",
+        "group_code": "CO",
+        "description": "The time limit for filing has expired"
+    },
+    {
+        "code": "31",
+        "group_code": "CO",
+        "description": "Patient cannot be identified as our insured"
+    },
+    {
+        "code": "32",
+        "group_code": "CO",
+        "description": "Our records indicate that this dependent is not an eligible dependent as defined"
+    },
+    {
+        "code": "33",
+        "group_code": "CO",
+        "description": "Insured has no dependent coverage"
+    },
+    {
+        "code": "34",
+        "group_code": "CO",
+        "description": "Insured has no coverage for newborns"
+    },
+    {
+        "code": "35",
+        "group_code": "CO",
+        "description": "Lifetime benefit maximum has been reached"
+    },
+    {
+        "code": "39",
+        "group_code": "CO",
+        "description": "Services denied at the time authorization\/pre-certification was requested"
+    },
+    {
+        "code": "40",
+        "group_code": "CO",
+        "description": "Charges do not meet qualifications for emergent\/urgent care"
+    },
+    {
+        "code": "45",
+        "group_code": "CO",
+        "description": "Charge exceeds fee schedule\/maximum allowable or contracted\/legislated fee arrangement"
+    },
+    {
+        "code": "49",
+        "group_code": "CO",
+        "description": "This is a non-covered service because it is a routine\/preventive exam or a diagnostic\/screening procedure"
+    },
+    {
+        "code": "50",
+        "group_code": "CO",
+        "description": "These are non-covered services because this is not deemed a medical necessity"
+    },
+    {
+        "code": "51",
+        "group_code": "CO",
+        "description": "These are non-covered services because this is a pre-existing condition"
+    },
+    {
+        "code": "53",
+        "group_code": "CO",
+        "description": "Services by an immediate relative or a member of the same household are not covered"
+    },
+    {
+        "code": "54",
+        "group_code": "CO",
+        "description": "Multiple physicians\/assistants are not covered in this case"
+    },
+    {
+        "code": "55",
+        "group_code": "CO",
+        "description": "Procedure\/treatment\/drug is deemed experimental\/investigational by the payer"
+    },
+    {
+        "code": "56",
+        "group_code": "CO",
+        "description": "Procedure\/treatment has not been deemed proven to be effective by the payer"
+    },
+    {
+        "code": "58",
+        "group_code": "CO",
+        "description": "Treatment was deemed by the payer to have been rendered in an inappropriate or invalid place of service"
+    },
+    {
+        "code": "59",
+        "group_code": "CO",
+        "description": "Processed based on multiple or concurrent procedure rules"
+    },
+    {
+        "code": "60",
+        "group_code": "CO",
+        "description": "Charges for outpatient services are not covered when performed within a period prior to or after inpatient stay"
+    },
+    {
+        "code": "66",
+        "group_code": "CO",
+        "description": "Blood Deductible"
+    },
+    {
+        "code": "89",
+        "group_code": "CO",
+        "description": "Professional fees removed from charges because included in facility payment"
+    },
+    {
+        "code": "90",
+        "group_code": "CO",
+        "description": "Ingredient cost adjustment"
+    },
+    {
+        "code": "91",
+        "group_code": "CO",
+        "description": "Dispensing fee adjustment"
+    },
+    {
+        "code": "94",
+        "group_code": "CO",
+        "description": "Processed in Excess of charges"
+    },
+    {
+        "code": "96",
+        "group_code": "CO",
+        "description": "Non-covered charge(s)"
+    },
+    {
+        "code": "97",
+        "group_code": "CO",
+        "description": "The benefit for this service is included in the payment\/allowance for another service\/procedure"
+    },
+    {
+        "code": "100",
+        "group_code": "PI",
+        "description": "Payment made to patient\/insured\/responsible party\/employer"
+    },
+    {
+        "code": "101",
+        "group_code": "PI",
+        "description": "Predetermination: anticipated payment upon completion of services or claim adjudication"
+    },
+    {
+        "code": "102",
+        "group_code": "PI",
+        "description": "Major Medical Adjustment"
+    },
+    {
+        "code": "103",
+        "group_code": "PI",
+        "description": "Provider promotional discount"
+    },
+    {
+        "code": "104",
+        "group_code": "PI",
+        "description": "Managed care withholding"
+    },
+    {
+        "code": "105",
+        "group_code": "PI",
+        "description": "Tax withholding"
+    },
+    {
+        "code": "109",
+        "group_code": "CO",
+        "description": "Claim not covered by this payer\/contractor. You must send the claim to the correct payer\/contractor"
+    },
+    {
+        "code": "110",
+        "group_code": "CO",
+        "description": "Billing date predates service date"
+    },
+    {
+        "code": "111",
+        "group_code": "CO",
+        "description": "Not covered unless the provider accepts assignment"
+    },
+    {
+        "code": "112",
+        "group_code": "CO",
+        "description": "Service not furnished directly to the patient and\/or not documented"
+    },
+    {
+        "code": "114",
+        "group_code": "CO",
+        "description": "Procedure\/product not approved by the Food and Drug Administration"
+    },
+    {
+        "code": "119",
+        "group_code": "CO",
+        "description": "Benefit maximum for this time period or occurrence has been reached"
+    },
+    {
+        "code": "121",
+        "group_code": "CO",
+        "description": "Indemnification adjustment - compensation for outstanding member responsibility"
+    },
+    {
+        "code": "125",
+        "group_code": "CO",
+        "description": "Submission\/billing error(s). At least one Remark Code must be provided"
+    },
+    {
+        "code": "128",
+        "group_code": "CO",
+        "description": "Newborn's services are covered in the mother's Allowance"
+    },
+    {
+        "code": "129",
+        "group_code": "CO",
+        "description": "Prior processing information appears incorrect. If you disagree, contact payer"
+    },
+    {
+        "code": "130",
+        "group_code": "CO",
+        "description": "Claim submission fee"
+    },
+    {
+        "code": "131",
+        "group_code": "CO",
+        "description": "Claim specific negotiated discount"
+    },
+    {
+        "code": "132",
+        "group_code": "CO",
+        "description": "Prearranged demonstration project adjustment"
+    },
+    {
+        "code": "133",
+        "group_code": "CO",
+        "description": "The disposition of this claim\/service is pending further review"
+    },
+    {
+        "code": "134",
+        "group_code": "CO",
+        "description": "Technical fees removed from charges"
+    },
+    {
+        "code": "135",
+        "group_code": "CO",
+        "description": "Interim bills cannot be processed"
+    },
+    {
+        "code": "136",
+        "group_code": "CO",
+        "description": "Failure to follow prior payer's coverage rules"
+    },
+    {
+        "code": "137",
+        "group_code": "CO",
+        "description": "Regulatory Surcharges, Assessments, Allowances or Health Related Taxes"
+    },
+    {
+        "code": "139",
+        "group_code": "CO",
+        "description": "Contracted funding agreement - Subscriber is employed by the provider of services"
+    },
+    {
+        "code": "140",
+        "group_code": "CO",
+        "description": "Patient\/Insured health identification number and name do not match"
+    },
+    {
+        "code": "142",
+        "group_code": "CO",
+        "description": "Monthly Medicaid patient liability amount"
+    },
+    {
+        "code": "143",
+        "group_code": "CO",
+        "description": "Portion of payment deferred"
+    },
+    {
+        "code": "144",
+        "group_code": "CO",
+        "description": "Incentive adjustment, e.g. preferred product\/service"
+    },
+    {
+        "code": "146",
+        "group_code": "CO",
+        "description": "Diagnosis was invalid for the date(s) of service reported"
+    },
+    {
+        "code": "147",
+        "group_code": "CO",
+        "description": "Provider contracted\/negotiated rate expired or not on file"
+    },
+    {
+        "code": "148",
+        "group_code": "CO",
+        "description": "Information from another provider was not provided or was insufficient\/incomplete"
+    },
+    {
+        "code": "149",
+        "group_code": "CO",
+        "description": "Lifetime benefit maximum has been reached for this service\/benefit category"
+    },
+    {
+        "code": "150",
+        "group_code": "CO",
+        "description": "Payer deems the information submitted does not support this level of service"
+    },
+    {
+        "code": "151",
+        "group_code": "CO",
+        "description": "Payment adjusted because the payer deems the information submitted does not support this many\/frequency of services"
+    },
+    {
+        "code": "152",
+        "group_code": "CO",
+        "description": "Payer deems the information submitted does not support this length of service"
+    },
+    {
+        "code": "153",
+        "group_code": "CO",
+        "description": "Payer deems the information submitted does not support this dosage"
+    },
+    {
+        "code": "154",
+        "group_code": "CO",
+        "description": "Payer deems the information submitted does not support this day's supply"
+    },
+    {
+        "code": "155",
+        "group_code": "CO",
+        "description": "Patient refused the service\/procedure"
+    },
+    {
+        "code": "157",
+        "group_code": "CO",
+        "description": "Service\/procedure was provided as a result of an act of war"
+    },
+    {
+        "code": "158",
+        "group_code": "CO",
+        "description": "Service\/procedure was provided outside of the United States"
+    },
+    {
+        "code": "159",
+        "group_code": "CO",
+        "description": "Service\/procedure was provided as a result of terrorism"
+    },
+    {
+        "code": "160",
+        "group_code": "CO",
+        "description": "Injury\/illness was the result of an activity that is a benefit exclusion"
+    },
+    {
+        "code": "161",
+        "group_code": "CO",
+        "description": "Provider performance\/bonus\/penalty adjustment"
+    },
+    {
+        "code": "163",
+        "group_code": "CO",
+        "description": "Attachment\/other documentation referenced on the claim was not received"
+    },
+    {
+        "code": "164",
+        "group_code": "CO",
+        "description": "Attachment\/other documentation referenced on the claim was not received in a timely fashion"
+    },
+    {
+        "code": "166",
+        "group_code": "CO",
+        "description": "These services were submitted after this payers responsibility for processing claims under this plan ended"
+    },
+    {
+        "code": "167",
+        "group_code": "CO",
+        "description": "This (these) diagnosis(es) is (are) not covered"
+    },
+    {
+        "code": "169",
+        "group_code": "CO",
+        "description": "Alternate benefit has been provided"
+    },
+    {
+        "code": "170",
+        "group_code": "CO",
+        "description": "Payment is denied when performed\/billed by this type of provider"
+    },
+    {
+        "code": "171",
+        "group_code": "CO",
+        "description": "Payment is denied when performed\/billed by this type of provider in this type of facility"
+    },
+    {
+        "code": "172",
+        "group_code": "CO",
+        "description": "Payment is adjusted when performed\/billed by a provider of this specialty"
+    },
+    {
+        "code": "173",
+        "group_code": "CO",
+        "description": "Service\/equipment\/drug is not covered when performed\/billed by this type of provider"
+    },
+    {
+        "code": "174",
+        "group_code": "CO",
+        "description": "Service was not prescribed by a physician"
+    },
+    {
+        "code": "175",
+        "group_code": "CO",
+        "description": "Prescription is incomplete"
+    },
+    {
+        "code": "176",
+        "group_code": "CO",
+        "description": "Prescription is not current"
+    },
+    {
+        "code": "177",
+        "group_code": "CO",
+        "description": "Patient has not met the required eligibility requirements"
+    },
+    {
+        "code": "178",
+        "group_code": "CO",
+        "description": "Patient has not met the required spend down requirements"
+    },
+    {
+        "code": "179",
+        "group_code": "CO",
+        "description": "Patient has not met the required waiting requirements"
+    },
+    {
+        "code": "180",
+        "group_code": "CO",
+        "description": "Patient has not met the required residency requirements"
+    },
+    {
+        "code": "181",
+        "group_code": "CO",
+        "description": "Procedure code was invalid on the date of service"
+    },
+    {
+        "code": "182",
+        "group_code": "CO",
+        "description": "Procedure modifier was invalid on the date of service"
+    },
+    {
+        "code": "183",
+        "group_code": "CO",
+        "description": "The referring provider is not eligible to refer the service billed"
+    },
+    {
+        "code": "184",
+        "group_code": "CO",
+        "description": "The prescribing\/ordering provider is not eligible to prescribe\/order the service billed"
+    },
+    {
+        "code": "185",
+        "group_code": "CO",
+        "description": "The rendering provider is not eligible to perform the service billed"
+    },
+    {
+        "code": "186",
+        "group_code": "CO",
+        "description": "Level of care change adjustment"
+    },
+    {
+        "code": "187",
+        "group_code": "CO",
+        "description": "Consumer Spending Account payments (includes but is not limited to Health FSA, HRA, HSA)"
+    },
+    {
+        "code": "188",
+        "group_code": "CO",
+        "description": "This product\/procedure is only covered when used according to FDA recommendations"
+    },
+    {
+        "code": "189",
+        "group_code": "CO",
+        "description": "Not otherwise classified or unlisted procedure code was billed when there is a specific procedure code for this procedure\/service"
+    },
+    {
+        "code": "190",
+        "group_code": "CO",
+        "description": "Payment is included in the allowance for a Skilled Nursing Facility (SNF) qualified stay"
+    },
+    {
+        "code": "192",
+        "group_code": "CO",
+        "description": "Non standard adjustment code from paper remittance"
+    },
+    {
+        "code": "193",
+        "group_code": "CO",
+        "description": "Original payment decision is being maintained. Upon review, it was determined that this claim was processed properly"
+    },
+    {
+        "code": "194",
+        "group_code": "CO",
+        "description": "Anesthesia performed by the operating physician, the assistant surgeon or the attending physician"
+    },
+    {
+        "code": "195",
+        "group_code": "CO",
+        "description": "Refund issued to an erroneous priority payer for this claim\/service"
+    },
+    {
+        "code": "197",
+        "group_code": "CO",
+        "description": "Precertification\/authorization\/notification\/pre-treatment absent"
+    },
+    {
+        "code": "198",
+        "group_code": "CO",
+        "description": "Precertification\/authorization exceeded"
+    },
+    {
+        "code": "199",
+        "group_code": "CO",
+        "description": "Revenue code and Procedure code do not match"
+    },
+    {
+        "code": "200",
+        "group_code": "CO",
+        "description": "Expenses incurred during lapse in coverage"
+    },
+    {
+        "code": "201",
+        "group_code": "CO",
+        "description": "Patient is responsible for amount of this claim\/service through set aside arrangement or other agreement"
+    },
+    {
+        "code": "202",
+        "group_code": "CO",
+        "description": "Non-covered personal comfort or convenience services"
+    },
+    {
+        "code": "203",
+        "group_code": "CO",
+        "description": "Discontinued or reduced service"
+    },
+    {
+        "code": "204",
+        "group_code": "CO",
+        "description": "This service\/equipment\/drug is not covered under the patient's current benefit plan"
+    },
+    {
+        "code": "205",
+        "group_code": "CO",
+        "description": "Pharmacy discount card processing fee"
+    },
+    {
+        "code": "206",
+        "group_code": "CO",
+        "description": "National Provider Identifier - missing"
+    },
+    {
+        "code": "207",
+        "group_code": "CO",
+        "description": "National Provider Identifier - Invalid format"
+    },
+    {
+        "code": "208",
+        "group_code": "CO",
+        "description": "National Provider Identifier - Not matched"
+    },
+    {
+        "code": "209",
+        "group_code": "CO",
+        "description": "Per regulatory or other agreement. The provider cannot collect this amount from the patient"
+    },
+    {
+        "code": "210",
+        "group_code": "CO",
+        "description": "Payment adjusted because pre-certification\/authorization not received in a timely fashion"
+    },
+    {
+        "code": "211",
+        "group_code": "CO",
+        "description": "National Drug Codes (NDC) not eligible for rebate, are not covered"
+    },
+    {
+        "code": "212",
+        "group_code": "CO",
+        "description": "Administrative surcharges are not covered"
+    },
+    {
+        "code": "213",
+        "group_code": "CO",
+        "description": "Non-compliance with the physician self referral prohibition legislation or payer policy"
+    },
+    {
+        "code": "214",
+        "group_code": "CO",
+        "description": "Workers' Compensation claim adjudicated as non-compensable"
+    },
+    {
+        "code": "215",
+        "group_code": "CO",
+        "description": "Based on subrogation of a third party settlement"
+    },
+    {
+        "code": "216",
+        "group_code": "CO",
+        "description": "Based on the findings of a review organization"
+    },
+    {
+        "code": "219",
+        "group_code": "CO",
+        "description": "Based on extent of injury. Adjustment based on the findings of a review organization"
+    },
+    {
+        "code": "222",
+        "group_code": "CO",
+        "description": "Exceeds the contracted maximum number of hours\/days\/units by this provider for this period"
+    },
+    {
+        "code": "223",
+        "group_code": "CO",
+        "description": "Adjustment code for mandated federal, state or local law\/regulation that is not already covered by another code"
+    },
+    {
+        "code": "224",
+        "group_code": "CO",
+        "description": "Patient identification compromised by identity theft. Identity verification required for processing this and future claims"
+    },
+    {
+        "code": "225",
+        "group_code": "CO",
+        "description": "Penalty or Interest Payment by Payer"
+    },
+    {
+        "code": "226",
+        "group_code": "CO",
+        "description": "Information requested from the Billing\/Rendering Provider was not provided or not provided timely or was insufficient\/incomplete"
+    },
+    {
+        "code": "227",
+        "group_code": "CO",
+        "description": "Information requested from the patient\/insured\/responsible party was not provided or was insufficient\/incomplete"
+    },
+    {
+        "code": "228",
+        "group_code": "CO",
+        "description": "Denied for failure of this provider, another provider or the subscriber to supply requested information"
+    },
+    {
+        "code": "229",
+        "group_code": "CO",
+        "description": "Partial charge amount not considered by Medicare due to the initial claim Type of Bill being 12X"
+    },
+    {
+        "code": "231",
+        "group_code": "CO",
+        "description": "Mutually exclusive procedures cannot be done in the same day\/setting"
+    },
+    {
+        "code": "232",
+        "group_code": "CO",
+        "description": "Institutional Transfer Amount"
+    },
+    {
+        "code": "233",
+        "group_code": "CO",
+        "description": "Services\/charges related to the treatment of a hospital-acquired condition or preventable medical error"
+    },
+    {
+        "code": "234",
+        "group_code": "CO",
+        "description": "This procedure is not paid separately when the patient is an inpatient"
+    },
+    {
+        "code": "235",
+        "group_code": "CO",
+        "description": "Sales Tax"
+    },
+    {
+        "code": "236",
+        "group_code": "CO",
+        "description": "This procedure or procedure\/modifier combination is not compatible with another procedure or procedure\/modifier combination already paid"
+    },
+    {
+        "code": "237",
+        "group_code": "CO",
+        "description": "Legislated\/Regulatory Penalty. At least one Remark Code must be provided"
+    },
+    {
+        "code": "238",
+        "group_code": "CO",
+        "description": "Standard X12 835 claim adjustment reason code 238"
+    },
+    {
+        "code": "239",
+        "group_code": "CO",
+        "description": "Standard X12 835 claim adjustment reason code 239"
+    },
+    {
+        "code": "240",
+        "group_code": "CO",
+        "description": "Standard X12 835 claim adjustment reason code 240"
+    },
+    {
+        "code": "241",
+        "group_code": "CO",
+        "description": "Standard X12 835 claim adjustment reason code 241"
+    },
+    {
+        "code": "242",
+        "group_code": "CO",
+        "description": "Standard X12 835 claim adjustment reason code 242"
+    },
+    {
+        "code": "243",
+        "group_code": "CO",
+        "description": "Standard X12 835 claim adjustment reason code 243"
+    },
+    {
+        "code": "244",
+        "group_code": "CO",
+        "description": "Standard X12 835 claim adjustment reason code 244"
+    },
+    {
+        "code": "245",
+        "group_code": "CO",
+        "description": "Standard X12 835 claim adjustment reason code 245"
+    },
+    {
+        "code": "246",
+        "group_code": "CO",
+        "description": "Standard X12 835 claim adjustment reason code 246"
+    },
+    {
+        "code": "247",
+        "group_code": "CO",
+        "description": "Standard X12 835 claim adjustment reason code 247"
+    },
+    {
+        "code": "248",
+        "group_code": "CO",
+        "description": "Standard X12 835 claim adjustment reason code 248"
+    },
+    {
+        "code": "249",
+        "group_code": "CO",
+        "description": "Standard X12 835 claim adjustment reason code 249"
+    },
+    {
+        "code": "250",
+        "group_code": "CO",
+        "description": "Standard X12 835 claim adjustment reason code 250"
+    },
+    {
+        "code": "251",
+        "group_code": "CO",
+        "description": "Standard X12 835 claim adjustment reason code 251"
+    },
+    {
+        "code": "252",
+        "group_code": "CO",
+        "description": "Standard X12 835 claim adjustment reason code 252"
+    },
+    {
+        "code": "253",
+        "group_code": "CO",
+        "description": "Standard X12 835 claim adjustment reason code 253"
+    }
+]

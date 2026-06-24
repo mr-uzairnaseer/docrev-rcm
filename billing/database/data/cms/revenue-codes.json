@@ -1,0 +1,612 @@
+[
+    {
+        "code": "0022",
+        "description": "Intensive Care Unit",
+        "category": "Room and Board"
+    },
+    {
+        "code": "0023",
+        "description": "Coronary Care Unit",
+        "category": "Room and Board"
+    },
+    {
+        "code": "0024",
+        "description": "Medical\/Surgical\/GyN",
+        "category": "Room and Board"
+    },
+    {
+        "code": "0110",
+        "description": "Private Room - General Classification",
+        "category": "Room and Board"
+    },
+    {
+        "code": "0120",
+        "description": "Semi-Private Room - General Classification",
+        "category": "Room and Board"
+    },
+    {
+        "code": "0121",
+        "description": "Semi-Private Room - Medical\/Surgical\/GyN",
+        "category": "Room and Board"
+    },
+    {
+        "code": "0122",
+        "description": "Semi-Private Room - Obstetrics",
+        "category": "Room and Board"
+    },
+    {
+        "code": "0123",
+        "description": "Semi-Private Room - Pediatric",
+        "category": "Room and Board"
+    },
+    {
+        "code": "0124",
+        "description": "Semi-Private Room - Psychiatric",
+        "category": "Room and Board"
+    },
+    {
+        "code": "0125",
+        "description": "Semi-Private Room - Hospice",
+        "category": "Room and Board"
+    },
+    {
+        "code": "0126",
+        "description": "Semi-Private Room - Detoxification",
+        "category": "Room and Board"
+    },
+    {
+        "code": "0127",
+        "description": "Semi-Private Room - Oncology",
+        "category": "Room and Board"
+    },
+    {
+        "code": "0128",
+        "description": "Semi-Private Room - Rehabilitation",
+        "category": "Room and Board"
+    },
+    {
+        "code": "0130",
+        "description": "Private Room - General Classification",
+        "category": "Room and Board"
+    },
+    {
+        "code": "0140",
+        "description": "Private Room - General Classification",
+        "category": "Room and Board"
+    },
+    {
+        "code": "0150",
+        "description": "Ward Room - General Classification",
+        "category": "Room and Board"
+    },
+    {
+        "code": "0160",
+        "description": "Other Room and Board",
+        "category": "Room and Board"
+    },
+    {
+        "code": "0170",
+        "description": "Nursery - General Classification",
+        "category": "Room and Board"
+    },
+    {
+        "code": "0180",
+        "description": "Leave of Absence - General Classification",
+        "category": "Room and Board"
+    },
+    {
+        "code": "0190",
+        "description": "Subacute Care - General Classification",
+        "category": "Room and Board"
+    },
+    {
+        "code": "0200",
+        "description": "Intensive Care Unit - General Classification",
+        "category": "Room and Board"
+    },
+    {
+        "code": "0210",
+        "description": "Coronary Care Unit - General Classification",
+        "category": "Room and Board"
+    },
+    {
+        "code": "0220",
+        "description": "Surgical ICU - General Classification",
+        "category": "Room and Board"
+    },
+    {
+        "code": "0230",
+        "description": "Other ICU - General Classification",
+        "category": "Room and Board"
+    },
+    {
+        "code": "0250",
+        "description": "Pharmacy - General Classification",
+        "category": "Pharmacy"
+    },
+    {
+        "code": "0251",
+        "description": "Pharmacy - Generic Drugs",
+        "category": "Pharmacy"
+    },
+    {
+        "code": "0252",
+        "description": "Pharmacy - Non-Generic Drugs",
+        "category": "Pharmacy"
+    },
+    {
+        "code": "0253",
+        "description": "Pharmacy - Take Home Drugs",
+        "category": "Pharmacy"
+    },
+    {
+        "code": "0254",
+        "description": "Pharmacy - Drugs Incident to Diagnostic or Therapeutic Radiology",
+        "category": "Pharmacy"
+    },
+    {
+        "code": "0255",
+        "description": "Pharmacy - Drugs requiring detailed coding",
+        "category": "Pharmacy"
+    },
+    {
+        "code": "0260",
+        "description": "IV Therapy - General Classification",
+        "category": "IV Therapy"
+    },
+    {
+        "code": "0270",
+        "description": "Medical\/Surgical Supplies - General Classification",
+        "category": "Supplies"
+    },
+    {
+        "code": "0271",
+        "description": "Medical\/Surgical Supplies - Non-Sterile Supply",
+        "category": "Supplies"
+    },
+    {
+        "code": "0272",
+        "description": "Medical\/Surgical Supplies - Sterile Supply",
+        "category": "Supplies"
+    },
+    {
+        "code": "0274",
+        "description": "Medical\/Surgical Supplies - Prosthetic\/Orthotic Devices",
+        "category": "Supplies"
+    },
+    {
+        "code": "0275",
+        "description": "Medical\/Surgical Supplies - Pacemaker",
+        "category": "Supplies"
+    },
+    {
+        "code": "0276",
+        "description": "Medical\/Surgical Supplies - Other Implants",
+        "category": "Supplies"
+    },
+    {
+        "code": "0280",
+        "description": "Oncology - General Classification",
+        "category": "Oncology"
+    },
+    {
+        "code": "0290",
+        "description": "Durable Medical Equipment (Other than Renal) - General Classification",
+        "category": "DME"
+    },
+    {
+        "code": "0300",
+        "description": "Laboratory - General Classification",
+        "category": "Laboratory"
+    },
+    {
+        "code": "0301",
+        "description": "Laboratory - Chemistry",
+        "category": "Laboratory"
+    },
+    {
+        "code": "0302",
+        "description": "Laboratory - Immunology",
+        "category": "Laboratory"
+    },
+    {
+        "code": "0305",
+        "description": "Laboratory - Hematology",
+        "category": "Laboratory"
+    },
+    {
+        "code": "0306",
+        "description": "Laboratory - Bacteriology & Microbiology",
+        "category": "Laboratory"
+    },
+    {
+        "code": "0307",
+        "description": "Laboratory - Urology",
+        "category": "Laboratory"
+    },
+    {
+        "code": "0310",
+        "description": "Laboratory - Pathology",
+        "category": "Laboratory"
+    },
+    {
+        "code": "0311",
+        "description": "Laboratory - Cytology",
+        "category": "Laboratory"
+    },
+    {
+        "code": "0312",
+        "description": "Laboratory - Histology",
+        "category": "Laboratory"
+    },
+    {
+        "code": "0320",
+        "description": "Radiology - Diagnostic - General Classification",
+        "category": "Radiology"
+    },
+    {
+        "code": "0321",
+        "description": "Radiology - Diagnostic - Angiocardiography",
+        "category": "Radiology"
+    },
+    {
+        "code": "0322",
+        "description": "Radiology - Diagnostic - Arthrography",
+        "category": "Radiology"
+    },
+    {
+        "code": "0323",
+        "description": "Radiology - Diagnostic - Arteriography",
+        "category": "Radiology"
+    },
+    {
+        "code": "0324",
+        "description": "Radiology - Diagnostic - Chest X-Ray",
+        "category": "Radiology"
+    },
+    {
+        "code": "0330",
+        "description": "Radiology - Therapeutic and\/or Chemotherapy Administration",
+        "category": "Radiology"
+    },
+    {
+        "code": "0340",
+        "description": "Nuclear Medicine - General Classification",
+        "category": "Nuclear Medicine"
+    },
+    {
+        "code": "0350",
+        "description": "CT Scan - General Classification",
+        "category": "Radiology"
+    },
+    {
+        "code": "0351",
+        "description": "CT Scan - Head Scan",
+        "category": "Radiology"
+    },
+    {
+        "code": "0352",
+        "description": "CT Scan - Body Scan",
+        "category": "Radiology"
+    },
+    {
+        "code": "0360",
+        "description": "Operating Room Services - General Classification",
+        "category": "Operating Room"
+    },
+    {
+        "code": "0370",
+        "description": "Anesthesia - General Classification",
+        "category": "Anesthesia"
+    },
+    {
+        "code": "0380",
+        "description": "Blood - General Classification",
+        "category": "Blood"
+    },
+    {
+        "code": "0390",
+        "description": "Blood Storage and Processing - General Classification",
+        "category": "Blood"
+    },
+    {
+        "code": "0400",
+        "description": "Other Imaging Services - General Classification",
+        "category": "Imaging"
+    },
+    {
+        "code": "0410",
+        "description": "Respiratory Services - General Classification",
+        "category": "Respiratory"
+    },
+    {
+        "code": "0420",
+        "description": "Physical Therapy - General Classification",
+        "category": "Therapy"
+    },
+    {
+        "code": "0430",
+        "description": "Occupational Therapy - General Classification",
+        "category": "Therapy"
+    },
+    {
+        "code": "0440",
+        "description": "Speech-Language Pathology - General Classification",
+        "category": "Therapy"
+    },
+    {
+        "code": "0450",
+        "description": "Emergency Room - General Classification",
+        "category": "Emergency"
+    },
+    {
+        "code": "0451",
+        "description": "Emergency Room - EM Triage\/Fee",
+        "category": "Emergency"
+    },
+    {
+        "code": "0452",
+        "description": "Emergency Room - EM Visit",
+        "category": "Emergency"
+    },
+    {
+        "code": "0456",
+        "description": "Emergency Room - Urgent Care",
+        "category": "Emergency"
+    },
+    {
+        "code": "0460",
+        "description": "Pulmonary Function - General Classification",
+        "category": "Respiratory"
+    },
+    {
+        "code": "0470",
+        "description": "Audiology - General Classification",
+        "category": "Therapy"
+    },
+    {
+        "code": "0480",
+        "description": "Cardiology - General Classification",
+        "category": "Cardiology"
+    },
+    {
+        "code": "0481",
+        "description": "Cardiology - Cardiac Cath Lab",
+        "category": "Cardiology"
+    },
+    {
+        "code": "0482",
+        "description": "Cardiology - Stress Test",
+        "category": "Cardiology"
+    },
+    {
+        "code": "0483",
+        "description": "Cardiology - Echocardiology",
+        "category": "Cardiology"
+    },
+    {
+        "code": "0490",
+        "description": "Ambulatory Surgical Care - General Classification",
+        "category": "Surgery"
+    },
+    {
+        "code": "0500",
+        "description": "Outpatient Services - General Classification",
+        "category": "Outpatient"
+    },
+    {
+        "code": "0510",
+        "description": "Clinic - General Classification",
+        "category": "Clinic"
+    },
+    {
+        "code": "0520",
+        "description": "Freestanding Clinic - General Classification",
+        "category": "Clinic"
+    },
+    {
+        "code": "0530",
+        "description": "Osteopathic Services - General Classification",
+        "category": "Osteopathic"
+    },
+    {
+        "code": "0540",
+        "description": "Ambulance - General Classification",
+        "category": "Ambulance"
+    },
+    {
+        "code": "0550",
+        "description": "Skilled Nursing - General Classification",
+        "category": "Skilled Nursing"
+    },
+    {
+        "code": "0560",
+        "description": "Home Health - General Classification",
+        "category": "Home Health"
+    },
+    {
+        "code": "0570",
+        "description": "Hospice - General Classification",
+        "category": "Hospice"
+    },
+    {
+        "code": "0580",
+        "description": "Respite Care - General Classification",
+        "category": "Respite"
+    },
+    {
+        "code": "0590",
+        "description": "Reserved",
+        "category": "Other"
+    },
+    {
+        "code": "0600",
+        "description": "Radiation Therapy - General Classification",
+        "category": "Radiation Therapy"
+    },
+    {
+        "code": "0610",
+        "description": "Magnetic Resonance Technology (MRT) - General Classification",
+        "category": "Imaging"
+    },
+    {
+        "code": "0621",
+        "description": "Medical\/Surgical Supplies - General Classification",
+        "category": "Supplies"
+    },
+    {
+        "code": "0630",
+        "description": "Pharmacy - Extension of 025X - General Classification",
+        "category": "Pharmacy"
+    },
+    {
+        "code": "0640",
+        "description": "Home IV Therapy Services - General Classification",
+        "category": "Home Health"
+    },
+    {
+        "code": "0650",
+        "description": "Hospice Service - General Classification",
+        "category": "Hospice"
+    },
+    {
+        "code": "0660",
+        "description": "Respite Care - General Classification",
+        "category": "Respite"
+    },
+    {
+        "code": "0710",
+        "description": "Recovery Room - General Classification",
+        "category": "Operating Room"
+    },
+    {
+        "code": "0720",
+        "description": "Labor Room\/Delivery - General Classification",
+        "category": "Labor and Delivery"
+    },
+    {
+        "code": "0730",
+        "description": "EKG\/ECG - General Classification",
+        "category": "Cardiology"
+    },
+    {
+        "code": "0740",
+        "description": "EEG - General Classification",
+        "category": "Neurology"
+    },
+    {
+        "code": "0750",
+        "description": "Gastro-Intestinal Services - General Classification",
+        "category": "GI"
+    },
+    {
+        "code": "0760",
+        "description": "Specialty Services - General Classification",
+        "category": "Specialty"
+    },
+    {
+        "code": "0770",
+        "description": "Preventive Services - General Classification",
+        "category": "Preventive"
+    },
+    {
+        "code": "0780",
+        "description": "Telemedicine - General Classification",
+        "category": "Telemedicine"
+    },
+    {
+        "code": "0790",
+        "description": "Extra-Corporeal Shock Wave Therapy (ESWT) - General Classification",
+        "category": "Therapy"
+    },
+    {
+        "code": "0800",
+        "description": "Inpatient Renal Dialysis - General Classification",
+        "category": "Dialysis"
+    },
+    {
+        "code": "0810",
+        "description": "Acquisition of Body Components - General Classification",
+        "category": "Organ Acquisition"
+    },
+    {
+        "code": "0900",
+        "description": "Psychiatric\/Psychological Services - General Classification",
+        "category": "Behavioral Health"
+    },
+    {
+        "code": "0910",
+        "description": "Psychiatric\/Psychological Services - General Classification",
+        "category": "Behavioral Health"
+    },
+    {
+        "code": "0920",
+        "description": "Other Diagnostic Services - General Classification",
+        "category": "Diagnostic"
+    },
+    {
+        "code": "0930",
+        "description": "Medical Rehabilitation Day Program - General Classification",
+        "category": "Rehabilitation"
+    },
+    {
+        "code": "0940",
+        "description": "Other Therapeutic Services - General Classification",
+        "category": "Therapy"
+    },
+    {
+        "code": "0950",
+        "description": "Other Outpatient Services - General Classification",
+        "category": "Outpatient"
+    },
+    {
+        "code": "0960",
+        "description": "Professional Fees - General Classification",
+        "category": "Professional Fees"
+    },
+    {
+        "code": "0970",
+        "description": "Professional Fees - General Classification",
+        "category": "Professional Fees"
+    },
+    {
+        "code": "0980",
+        "description": "Professional Fees - General Classification",
+        "category": "Professional Fees"
+    },
+    {
+        "code": "0990",
+        "description": "Professional Fees - General Classification",
+        "category": "Professional Fees"
+    },
+    {
+        "code": "1000",
+        "description": "Behavioral Health Accommodations - General Classification",
+        "category": "Behavioral Health"
+    },
+    {
+        "code": "1001",
+        "description": "Behavioral Health Residential Treatment - General Classification",
+        "category": "Behavioral Health"
+    },
+    {
+        "code": "1002",
+        "description": "Behavioral Health Partial Hospitalization - General Classification",
+        "category": "Behavioral Health"
+    },
+    {
+        "code": "1003",
+        "description": "Behavioral Health Intensive Outpatient - General Classification",
+        "category": "Behavioral Health"
+    },
+    {
+        "code": "1004",
+        "description": "Behavioral Health Community Residential - General Classification",
+        "category": "Behavioral Health"
+    },
+    {
+        "code": "1005",
+        "description": "Behavioral Health Substance Abuse - General Classification",
+        "category": "Behavioral Health"
+    }
+]

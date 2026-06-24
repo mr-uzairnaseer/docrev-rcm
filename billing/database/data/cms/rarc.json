@@ -1,0 +1,342 @@
+[
+    {
+        "code": "MA01",
+        "description": "Alert: If you do not agree with what we approved for these services, you may appeal our decision"
+    },
+    {
+        "code": "MA02",
+        "description": "Alert: This is a duplicate claim for services previously processed"
+    },
+    {
+        "code": "MA03",
+        "description": "Alert: This is a split service and represents a portion of the units from the originally submitted service"
+    },
+    {
+        "code": "MA04",
+        "description": "Alert: This is a split service and represents a portion of the units from the originally submitted service"
+    },
+    {
+        "code": "MA05",
+        "description": "Alert: This is a split service and represents a portion of the units from the originally submitted service"
+    },
+    {
+        "code": "MA06",
+        "description": "Alert: This is a split service and represents a portion of the units from the originally submitted service"
+    },
+    {
+        "code": "MA07",
+        "description": "Alert: The claim information has also been forwarded to Medicaid for review"
+    },
+    {
+        "code": "MA08",
+        "description": "Alert: Claim information was not forwarded to the patient's supplemental insurer because the supplemental insurer does not participate in the Medicare crossover program"
+    },
+    {
+        "code": "MA09",
+        "description": "Alert: Claim submitted as unassigned but processed as assigned per the patient's request for payment to be made directly to the provider"
+    },
+    {
+        "code": "MA10",
+        "description": "Alert: The patient's payment was in excess of the amount owed. You must refund the overpayment to the patient"
+    },
+    {
+        "code": "MA11",
+        "description": "Alert: Payment for this service is included in the payment for another service that has already been adjudicated"
+    },
+    {
+        "code": "MA12",
+        "description": "Alert: You have not established that you are the patient's representative for purposes of filing an appeal"
+    },
+    {
+        "code": "MA13",
+        "description": "Alert: You may be subject to penalties if you bill the patient for amounts not reported with this notice"
+    },
+    {
+        "code": "MA14",
+        "description": "Alert: The patient is a member of an employer-sponsored prepaid health plan. Services are subject to that plan's payment rules"
+    },
+    {
+        "code": "MA15",
+        "description": "Alert: Your claim has been separated to expedite handling. You will receive a separate notice for the other services reported"
+    },
+    {
+        "code": "MA16",
+        "description": "Alert: The patient is a member of an employer-sponsored prepaid health plan. Services are subject to that plan's payment rules"
+    },
+    {
+        "code": "MA17",
+        "description": "Alert: Payment is based on a reasonable charge because the provider does not accept assignment and the charge exceeds the reasonable charge"
+    },
+    {
+        "code": "MA18",
+        "description": "Alert: The claim information is also being forwarded to the patient's supplemental insurer"
+    },
+    {
+        "code": "MA19",
+        "description": "Alert: Information was not sent to the Medicaid program because the supplemental insurer does not participate in the Medicare crossover program"
+    },
+    {
+        "code": "MA20",
+        "description": "Alert: Skilled Nursing Facility (SNF) stay not covered when care is primarily related to the use of an urethral catheter for convenience or the control of incontinence"
+    },
+    {
+        "code": "MA21",
+        "description": "Alert: Missing\/incomplete\/invalid information, but claim was processed in accordance with Medicare policy"
+    },
+    {
+        "code": "MA22",
+        "description": "Alert: Payment adjusted based on the Medicare Physician Fee Schedule for the place of service where the service was rendered"
+    },
+    {
+        "code": "MA23",
+        "description": "Alert: Payment adjusted based on the Medicare Ambulatory Surgical Center Fee Schedule for the place of service where the service was rendered"
+    },
+    {
+        "code": "MA24",
+        "description": "Alert: Payment adjusted based on the Medicare Clinical Laboratory Fee Schedule for the place of service where the service was rendered"
+    },
+    {
+        "code": "MA25",
+        "description": "Alert: Payment adjusted based on the Medicare DMEPOS Fee Schedule for the place of service where the service was rendered"
+    },
+    {
+        "code": "MA26",
+        "description": "Alert: Payment adjusted based on the Medicare Part B Drug Fee Schedule for the place of service where the service was rendered"
+    },
+    {
+        "code": "MA27",
+        "description": "Alert: Payment adjusted based on the Medicare Part B Drug Fee Schedule for the place of service where the service was rendered"
+    },
+    {
+        "code": "MA28",
+        "description": "Alert: Payment adjusted based on the Medicare Part B DrugView Fee Schedule for the place of service where the service was rendered"
+    },
+    {
+        "code": "MA29",
+        "description": "Alert: Payment adjusted based on the Medicare Part B InView Fee Schedule for the place of service where the service was rendered"
+    },
+    {
+        "code": "MA30",
+        "description": "Alert: Payment adjusted based on the Medicare Part B InView Fee Schedule for the place of service where the service was rendered"
+    },
+    {
+        "code": "N1",
+        "description": "Alert: You may appeal this decision in writing within the required time limits following receipt of this notice"
+    },
+    {
+        "code": "N2",
+        "description": "Alert: This allowance has been made in accordance with the most appropriate course of treatment provision of your plan"
+    },
+    {
+        "code": "N3",
+        "description": "Alert: Missing\/incomplete\/invalid prior insurance carrier EOB"
+    },
+    {
+        "code": "N4",
+        "description": "Alert: Missing\/incomplete\/invalid prior insurance carrier EOB"
+    },
+    {
+        "code": "N5",
+        "description": "Alert: Missing\/incomplete\/invalid prior insurance carrier EOB"
+    },
+    {
+        "code": "N6",
+        "description": "Alert: Under FEHB, the approved amount is the lower of the billed amount or the prevailing community rate"
+    },
+    {
+        "code": "N7",
+        "description": "Alert: Processing of this claim\/service has included consideration under Major Medical provisions"
+    },
+    {
+        "code": "N8",
+        "description": "Alert: Crossover claim denied by previous payer and complete claim data not forwarded. Resubmit this claim to this payer for consideration"
+    },
+    {
+        "code": "N9",
+        "description": "Alert: Adjustment represents the change in patient responsibility based on the reprocessing of a claim\/service"
+    },
+    {
+        "code": "N10",
+        "description": "Alert: Payment based on the findings of a review organization\/professional consult\/manual adjudication\/medical advisor"
+    },
+    {
+        "code": "N11",
+        "description": "Alert: Payment based on the findings of a review organization\/professional consult\/manual adjudication\/medical advisor"
+    },
+    {
+        "code": "N12",
+        "description": "Alert: Payment based on the findings of a review organization\/professional consult\/manual adjudication\/medical advisor"
+    },
+    {
+        "code": "N13",
+        "description": "Alert: Payment based on the findings of a review organization\/professional consult\/manual adjudication\/medical advisor"
+    },
+    {
+        "code": "N14",
+        "description": "Alert: Payment based on the findings of a review organization\/professional consult\/manual adjudication\/medical advisor"
+    },
+    {
+        "code": "N15",
+        "description": "Alert: Services for a newborn must be billed separately and cannot be included on the mother's claim"
+    },
+    {
+        "code": "N16",
+        "description": "Alert: Family member cannot act as the patient's representative for purposes of filing an appeal"
+    },
+    {
+        "code": "N17",
+        "description": "Alert: Payment adjusted based on the Medicare Part B Drug Fee Schedule for the place of service where the service was rendered"
+    },
+    {
+        "code": "N18",
+        "description": "Alert: Payment adjusted based on the Medicare Part B Drug Fee Schedule for the place of service where the service was rendered"
+    },
+    {
+        "code": "N19",
+        "description": "Alert: Procedure code incidental to primary procedure"
+    },
+    {
+        "code": "N20",
+        "description": "Alert: Service not payable with other service rendered on the same date"
+    },
+    {
+        "code": "N21",
+        "description": "Alert: Alert: Your line item has been separated into multiple lines to expedite processing"
+    },
+    {
+        "code": "N22",
+        "description": "Alert: This procedure code was added\/changed because it more accurately describes the services rendered"
+    },
+    {
+        "code": "N23",
+        "description": "Alert: Patient liability may be affected due to coordination of benefits with other carriers"
+    },
+    {
+        "code": "N24",
+        "description": "Alert: Missing\/incomplete\/invalid Electronic Health Record (EHR) incentive program information"
+    },
+    {
+        "code": "N25",
+        "description": "Alert: This company has been contracted by your benefit plan to provide administrative claims payment services only"
+    },
+    {
+        "code": "N26",
+        "description": "Alert: Missing\/incomplete\/invalid diagnosis information"
+    },
+    {
+        "code": "N27",
+        "description": "Alert: Missing\/incomplete\/invalid procedure information"
+    },
+    {
+        "code": "N28",
+        "description": "Alert: Missing\/incomplete\/invalid revenue code information"
+    },
+    {
+        "code": "N29",
+        "description": "Alert: Missing\/incomplete\/invalid type of bill information"
+    },
+    {
+        "code": "N30",
+        "description": "Alert: Patient cannot be identified as our insured"
+    },
+    {
+        "code": "M1",
+        "description": "Alert: X-ray not taken within the past 12 months or near a comparable timeframe"
+    },
+    {
+        "code": "M2",
+        "description": "Alert: Not paid separately when the patient is an inpatient"
+    },
+    {
+        "code": "M3",
+        "description": "Alert: Equipment is the same or similar to equipment already being used"
+    },
+    {
+        "code": "M4",
+        "description": "Alert: Alert: Equipment is the same or similar to equipment already being used"
+    },
+    {
+        "code": "M5",
+        "description": "Alert: Equipment is the same or similar to equipment already being used"
+    },
+    {
+        "code": "M6",
+        "description": "Alert: Equipment is the same or similar to equipment already being used"
+    },
+    {
+        "code": "M7",
+        "description": "Alert: Equipment is the same or similar to equipment already being used"
+    },
+    {
+        "code": "M8",
+        "description": "Alert: Equipment is the same or similar to equipment already being used"
+    },
+    {
+        "code": "M9",
+        "description": "Alert: Equipment is the same or similar to equipment already being used"
+    },
+    {
+        "code": "M10",
+        "description": "Alert: Equipment is the same or similar to equipment already being used"
+    },
+    {
+        "code": "M11",
+        "description": "Alert: Equipment is the same or similar to equipment already being used"
+    },
+    {
+        "code": "M12",
+        "description": "Alert: Equipment is the same or similar to equipment already being used"
+    },
+    {
+        "code": "M13",
+        "description": "Alert: Equipment is the same or similar to equipment already being used"
+    },
+    {
+        "code": "M14",
+        "description": "Alert: Equipment is the same or similar to equipment already being used"
+    },
+    {
+        "code": "M15",
+        "description": "Alert: Separately billed services\/tests have been bundled as they are considered components of the same procedure"
+    },
+    {
+        "code": "M16",
+        "description": "Alert: Redundant services"
+    },
+    {
+        "code": "M17",
+        "description": "Alert: Payment adjusted because this service was not prescribed by a physician"
+    },
+    {
+        "code": "M18",
+        "description": "Alert: Payment adjusted because this service was not prescribed by a physician"
+    },
+    {
+        "code": "M19",
+        "description": "Alert: Missing\/incomplete\/invalid place of service"
+    },
+    {
+        "code": "M20",
+        "description": "Alert: Missing\/incomplete\/invalid HCPCS"
+    },
+    {
+        "code": "M21",
+        "description": "Alert: Missing\/incomplete\/invalid ICD-10"
+    },
+    {
+        "code": "M22",
+        "description": "Alert: Missing\/incomplete\/invalid modifier"
+    },
+    {
+        "code": "M23",
+        "description": "Alert: Missing\/incomplete\/invalid revenue code"
+    },
+    {
+        "code": "M24",
+        "description": "Alert: Missing\/incomplete\/invalid type of bill"
+    },
+    {
+        "code": "M25",
+        "description": "Alert: Payment adjusted because medical necessity not established"
+    }
+]

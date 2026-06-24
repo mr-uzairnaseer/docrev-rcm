@@ -1,0 +1,612 @@
+/* DocRev — clinical white, soft blue, mint green */
+:root {
+    --docrev-white: #ffffff;
+    --docrev-bg: #eef6fa;
+    --docrev-blue-50: #e8f4fa;
+    --docrev-blue-100: #cce7f5;
+    --docrev-blue-200: #93c9e8;
+    --docrev-blue-500: #3a8fbf;
+    --docrev-blue-600: #256d85;
+    --docrev-blue-700: #1e4d6b;
+    --docrev-green-50: #edf8f3;
+    --docrev-green-100: #c8ead9;
+    --docrev-green-200: #8fd4b4;
+    --docrev-green-500: #3d9970;
+    --docrev-green-600: #2d7a58;
+    --docrev-text: #2c3e50;
+    --docrev-text-muted: #5a7184;
+    --docrev-border: #d4e8f2;
+    --docrev-sidebar-top: #1e4d6b;
+    --docrev-sidebar-bottom: #2a7a8c;
+    --docrev-sidebar-accent: #5ec4a8;
+    --docrev-shadow: 0 1px 2px rgba(30, 77, 107, 0.06);
+    --docrev-shadow-lg: 0 8px 30px rgba(30, 77, 107, 0.1);
+    --docrev-radius: 10px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--docrev-bg);
+    color: var(--docrev-text);
+    min-height: 100vh;
+    line-height: 1.5;
+}
+
+/* Layout — EHR & Billing */
+.layout { min-height: 100vh; }
+
+.sidebar {
+    width: 240px;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    background: linear-gradient(175deg, var(--docrev-sidebar-top) 0%, #245f78 42%, var(--docrev-sidebar-bottom) 100%);
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 4px 0 24px rgba(30, 77, 107, 0.18);
+    overflow: hidden;
+}
+
+.sidebar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--docrev-sidebar-accent) 0%, #7ddfc4 50%, var(--docrev-blue-200) 100%);
+}
+
+.sidebar h1 {
+    padding: 1.75rem 1.35rem 1.25rem;
+    color: #ffffff;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    opacity: 0.95;
+}
+
+.sidebar-brand,
+.login-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.sidebar-brand {
+    padding: 1.25rem 1rem 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.login-brand {
+    margin-bottom: 1.5rem;
+}
+
+.docrev-brand-logo {
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+
+.login-brand .docrev-brand-logo {
+    max-width: 220px;
+}
+
+.sidebar-brand .docrev-brand-logo {
+    max-width: 168px;
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 0.45rem 0.65rem;
+}
+
+.docrev-brand-product {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin: 0;
+}
+
+.sidebar-brand .docrev-brand-product {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.login-brand .docrev-brand-product {
+    color: var(--docrev-blue-700);
+}
+
+.sidebar nav {
+    flex: 1;
+    min-height: 0;
+    padding: 0.5rem 0.75rem 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.sidebar-footer {
+    flex-shrink: 0;
+    padding: 0.75rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.sidebar-footer .logout {
+    display: block;
+    padding: 0.65rem 1rem;
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    cursor: pointer;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-align: center;
+    transition: background 0.18s ease, color 0.18s ease;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.sidebar-footer .logout:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.35);
+}
+
+.sidebar nav a {
+    display: block;
+    padding: 0.65rem 1rem;
+    color: rgba(255, 255, 255, 0.82);
+    text-decoration: none;
+    cursor: pointer;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background 0.18s ease, color 0.18s ease, transform 0.12s ease;
+    border: 1px solid transparent;
+}
+
+.sidebar nav a:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+.sidebar nav a.active {
+    display: flex;
+    align-items: center;
+    background: #ffffff;
+    color: var(--docrev-blue-700);
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    border-color: transparent;
+}
+
+.sidebar nav a.active::before {
+    content: '';
+    display: inline-block;
+    width: 3px;
+    height: 1em;
+    background: var(--docrev-green-500);
+    border-radius: 2px;
+    margin-right: 0.5rem;
+    vertical-align: -0.1em;
+}
+
+.main {
+    margin-left: 240px;
+    min-height: 100vh;
+    padding: 2rem 2.25rem;
+    min-width: 0;
+}
+
+/* Portal */
+.wrap {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.portal-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: linear-gradient(135deg, var(--docrev-sidebar-top) 0%, var(--docrev-sidebar-bottom) 100%);
+    color: #ffffff;
+    padding: 1.35rem 1.75rem;
+    border-radius: var(--docrev-radius);
+    margin-bottom: 1.5rem;
+    box-shadow: var(--docrev-shadow-lg);
+    border-bottom: 3px solid var(--docrev-sidebar-accent);
+}
+
+.portal-header .docrev-brand-logo {
+    max-width: 180px;
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 0.35rem 0.55rem;
+}
+
+.portal-header .docrev-brand-product {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #ffffff;
+    letter-spacing: 0.04em;
+    text-transform: none;
+}
+
+/* Cards & panels */
+.card {
+    background: var(--docrev-white);
+    border-radius: var(--docrev-radius);
+    padding: 1.5rem;
+    box-shadow: var(--docrev-shadow), 0 4px 20px rgba(30, 77, 107, 0.04);
+    border: 1px solid var(--docrev-border);
+    margin-bottom: 1.5rem;
+}
+
+.panel {
+    background: var(--docrev-green-50);
+    border: 1px solid var(--docrev-green-100);
+    border-radius: 8px;
+    padding: 1.15rem;
+    margin: 1rem 0;
+}
+
+h2 {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    color: var(--docrev-blue-700);
+    font-weight: 600;
+}
+h3 {
+    font-size: 0.95rem;
+    margin-bottom: 0.75rem;
+    color: var(--docrev-text);
+    font-weight: 600;
+}
+
+/* Tables */
+table { width: 100%; border-collapse: collapse; margin-top: 0.75rem; }
+th, td {
+    text-align: left;
+    padding: 0.65rem 0.85rem;
+    border-bottom: 1px solid var(--docrev-border);
+    font-size: 0.875rem;
+}
+tbody tr:hover { background: var(--docrev-blue-50); }
+th {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--docrev-blue-700);
+    background: var(--docrev-blue-50);
+    font-weight: 600;
+    border-bottom: 2px solid var(--docrev-blue-100);
+}
+
+/* Badges */
+.badge {
+    display: inline-block;
+    padding: 0.22rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    background: var(--docrev-blue-100);
+    color: var(--docrev-blue-700);
+}
+.badge-green { background: var(--docrev-green-100); color: var(--docrev-green-600); }
+.badge-yellow { background: #fef3c7; color: #b45309; }
+.badge-blue { background: var(--docrev-blue-100); color: var(--docrev-blue-700); }
+
+/* Buttons */
+.btn {
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    background: var(--docrev-white);
+    color: var(--docrev-blue-700);
+    border: 1px solid var(--docrev-blue-200);
+    transition: all 0.15s ease;
+}
+.btn:hover {
+    background: var(--docrev-blue-50);
+    border-color: var(--docrev-blue-500);
+}
+.btn-sm { padding: 0.32rem 0.7rem; font-size: 0.78rem; }
+.btn-primary {
+    background: var(--docrev-blue-600);
+    color: var(--docrev-white);
+    border-color: var(--docrev-blue-600);
+}
+.btn-primary:hover {
+    background: var(--docrev-blue-700);
+    border-color: var(--docrev-blue-700);
+}
+.btn-success {
+    background: var(--docrev-green-500);
+    color: var(--docrev-white);
+    border-color: var(--docrev-green-500);
+}
+.btn-success:hover {
+    background: var(--docrev-green-600);
+    border-color: var(--docrev-green-600);
+}
+
+/* Login */
+.login-wrap,
+.portal-login-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background:
+        radial-gradient(ellipse at 20% 50%, rgba(94, 196, 168, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(58, 143, 191, 0.12) 0%, transparent 45%),
+        var(--docrev-bg);
+}
+.login-card {
+    background: var(--docrev-white);
+    padding: 2.25rem;
+    border-radius: 14px;
+    width: 380px;
+    box-shadow: var(--docrev-shadow-lg);
+    border: 1px solid var(--docrev-border);
+    border-top: 4px solid var(--docrev-sidebar-accent);
+}
+.login-card h2 {
+    margin-bottom: 1.5rem;
+    text-align: center;
+    color: var(--docrev-blue-700);
+}
+
+.login-card .login-brand + .form-group {
+    margin-top: 0;
+}
+
+/* Forms */
+.form-group { margin-bottom: 1rem; }
+.form-group label {
+    display: block;
+    font-size: 0.82rem;
+    margin-bottom: 0.35rem;
+    color: var(--docrev-text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 0.55rem 0.85rem;
+    border: 1px solid var(--docrev-border);
+    border-radius: 8px;
+    background: var(--docrev-white);
+    font-size: 0.9rem;
+    font-family: inherit;
+    color: var(--docrev-text);
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+.form-group select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding-right: 2.35rem;
+    min-height: 2.45rem;
+    line-height: 1.35;
+    cursor: pointer;
+    background-color: var(--docrev-white);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23256d85' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.7rem center;
+    background-size: 0.95rem;
+}
+.form-group select:hover {
+    border-color: var(--docrev-blue-200);
+}
+.form-group select:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+    background-color: var(--docrev-blue-50);
+}
+.form-group select[multiple],
+.form-group select[size]:not([size="1"]) {
+    appearance: auto;
+    -webkit-appearance: auto;
+    -moz-appearance: auto;
+    background-image: none;
+    padding: 0.45rem 0.65rem;
+    min-height: 7.5rem;
+    line-height: 1.45;
+    cursor: default;
+}
+.form-group select option {
+    color: var(--docrev-text);
+    background: var(--docrev-white);
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--docrev-blue-500);
+    box-shadow: 0 0 0 3px rgba(58, 143, 191, 0.18);
+}
+.form-group input[type="checkbox"] {
+    width: auto;
+    min-height: auto;
+    accent-color: var(--docrev-blue-600);
+    cursor: pointer;
+}
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1rem;
+}
+
+/* Inline filter toolbars */
+.filter-bar {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    align-items: flex-end;
+}
+.filter-bar .form-group {
+    margin-bottom: 0;
+    flex: 0 1 auto;
+}
+.filter-bar .form-group select,
+.filter-bar .form-group input:not([type="checkbox"]) {
+    width: auto;
+    min-width: 9rem;
+    max-width: 100%;
+}
+.filter-bar .form-group--wide select {
+    min-width: 11.5rem;
+}
+.filter-bar .form-group--state select {
+    min-width: 13.5rem;
+}
+.filter-bar .form-group--search input {
+    min-width: 14rem;
+}
+.filter-bar .form-group--multi select {
+    min-width: 17.5rem;
+    width: 100%;
+}
+.filter-bar .checkbox-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.875rem;
+    color: var(--docrev-text);
+    font-weight: 500;
+    text-transform: none;
+    letter-spacing: normal;
+    margin-bottom: 0.35rem;
+    cursor: pointer;
+    user-select: none;
+}
+.filter-bar .checkbox-inline input {
+    margin: 0;
+}
+
+.error { color: #c0392b; font-size: 0.875rem; margin-top: 0.5rem; }
+
+.toast {
+    background: var(--docrev-green-50);
+    color: var(--docrev-green-600);
+    padding: 0.8rem 1.1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    border: 1px solid var(--docrev-green-100);
+    border-left: 4px solid var(--docrev-green-500);
+}
+
+/* Stats */
+.stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+.stat {
+    background: var(--docrev-white);
+    padding: 1.25rem 1.35rem;
+    border-radius: var(--docrev-radius);
+    box-shadow: var(--docrev-shadow);
+    border: 1px solid var(--docrev-border);
+    position: relative;
+    overflow: hidden;
+}
+.stat::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--docrev-blue-500), var(--docrev-green-500));
+}
+.stat .num {
+    font-size: 1.85rem;
+    font-weight: 700;
+    color: var(--docrev-blue-700);
+    line-height: 1.2;
+}
+.stat .label {
+    font-size: 0.8rem;
+    color: var(--docrev-text-muted);
+    margin-top: 0.25rem;
+    font-weight: 500;
+}
+
+.row-between { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.actions { display: flex; gap: 0.45rem; flex-wrap: wrap; }
+
+.detail-panel {
+    background: var(--docrev-white);
+    border: 1px solid var(--docrev-blue-200);
+    border-radius: 8px;
+    padding: 1rem 1.15rem;
+    margin-top: 1rem;
+    box-shadow: var(--docrev-shadow);
+}
+
+.driver-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.driver-chip {
+    display: inline-block;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    background: var(--docrev-blue-50);
+    color: var(--docrev-blue-700);
+    border: 1px solid var(--docrev-blue-100);
+}
+
+.guide-table th,
+.guide-table td {
+    font-size: 0.8rem;
+    vertical-align: top;
+}
+.guide-table td:first-child {
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.edi-box {
+    background: #f8fbfd;
+    color: var(--docrev-green-600);
+    padding: 1rem;
+    border-radius: 8px;
+    overflow: auto;
+    max-height: 300px;
+    font-size: 0.75rem;
+    white-space: pre-wrap;
+    border: 1px solid var(--docrev-green-100);
+    font-family: Consolas, 'Courier New', monospace;
+}
+
+.btn.logout {
+    background: transparent !important;
+    color: var(--docrev-blue-600) !important;
+    border: 1px solid var(--docrev-blue-200) !important;
+}
+.btn.logout:hover {
+    background: var(--docrev-blue-50) !important;
+}
