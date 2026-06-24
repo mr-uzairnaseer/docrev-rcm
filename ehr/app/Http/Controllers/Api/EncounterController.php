@@ -17,7 +17,7 @@ class EncounterController extends ApiController
     public function index(Request $request): AnonymousResourceCollection
     {
         $query = Encounter::forOrganization($this->organizationId())
-            ->with(['patient', 'provider', 'location'])
+            ->with(['patient', 'provider', 'location', 'charges', 'diagnoses'])
             ->orderByDesc('encounter_date');
 
         if ($patientId = $request->query('patient_id')) {

@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\EraController;
 use App\Http\Controllers\Api\EligibilityController;
 use App\Http\Controllers\Api\HealthController;
 use App\Http\Controllers\Api\IntegrationController;
+use App\Http\Controllers\Api\Internal\EncounterFormController;
 use App\Http\Controllers\Api\Internal\EncounterSyncController;
 use App\Http\Controllers\Api\Internal\PatientPaymentController;
 use App\Http\Controllers\Api\PayerController;
@@ -18,13 +19,20 @@ use Illuminate\Support\Facades\Route;
 Route::get('/health', HealthController::class);
 
 Route::post('/internal/encounter-sync', EncounterSyncController::class)
-    ->middleware('internal');
+    ->middleware(['internal', 'throttle:internal'])
+    ->withoutMiddleware(['throttle:api']);
+
+Route::get('/internal/encounter-forms/{encounterUuid}', EncounterFormController::class)
+    ->middleware(['internal', 'throttle:internal'])
+    ->withoutMiddleware(['throttle:api']);
 
 Route::post('/internal/patient-payment', PatientPaymentController::class)
-    ->middleware('internal');
+    ->middleware(['internal', 'throttle:internal'])
+    ->withoutMiddleware(['throttle:api']);
 
 Route::post('/internal/patient-provision', \App\Http\Controllers\Api\Internal\PatientProvisionController::class)
-    ->middleware('internal');
+    ->middleware(['internal', 'throttle:internal'])
+    ->withoutMiddleware(['throttle:api']);
 
 Route::post('/auth/login', [AuthController::class, 'login']);
 
@@ -87,6 +95,7 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
     Route::post('claims/{claim}/simulate-era', [EraController::class, 'simulate']);
     Route::post('claims/{claim}/simulate-denial', [EraController::class, 'simulateDenial']);
     Route::get('claims/{claim}/edi', [ClaimController::class, 'edi']);
+    Route::get('claims/{claim}/form/{form}', [ClaimController::class, 'form']);
 
     Route::get('eras', [EraController::class, 'index']);
     Route::get('patient-payments', [\App\Http\Controllers\Api\PatientPaymentController::class, 'index']);

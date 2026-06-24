@@ -77,6 +77,8 @@ createApp({
             isEligibilityChecking: false,
             eligibilityResult: null,
             selectedClaimForCMS1500: null,
+            claimFormPreview: null,
+            claimFormLoading: false,
             claimScrubResults: {},
             claimStatuses: {},
             eras: [
@@ -89,10 +91,105 @@ createApp({
             ],
             showAppealModal: false,
             generatedAppealLetter: '',
+            selectedMailboxThreadId: 1,
+            mailboxReplyDraft: '',
+            mailboxSearch: '',
+            mailboxThreads: [
+                {
+                    id: 1,
+                    patientName: 'Jane Doe',
+                    subject: 'Refill Request — Lisinopril',
+                    unread: 1,
+                    updatedAt: '2026-06-24T14:32:00',
+                    messages: [
+                        {
+                            id: 1,
+                            sender: 'patient',
+                            author: 'Jane Doe',
+                            role: 'Patient Portal',
+                            body: 'Hello Doctor, can I get a refill on my Lisinopril prescription? I have about 3 days left. Thank you.',
+                            sentAt: '2026-06-24T09:15:00',
+                        },
+                        {
+                            id: 2,
+                            sender: 'staff',
+                            author: 'Dr. David Miller',
+                            role: 'Provider',
+                            body: 'Hi Jane — I received your refill request. I can approve a 30-day refill if your last blood pressure reading was stable. Have you had any dizziness or swelling since your last visit?',
+                            sentAt: '2026-06-24T10:42:00',
+                        },
+                        {
+                            id: 3,
+                            sender: 'patient',
+                            author: 'Jane Doe',
+                            role: 'Patient Portal',
+                            body: 'No dizziness or swelling. My home readings have been around 128/82 this week. Please send the refill to my usual pharmacy.',
+                            sentAt: '2026-06-24T14:32:00',
+                        },
+                    ],
+                },
+                {
+                    id: 2,
+                    patientName: 'Bob Test',
+                    subject: 'Lab results question',
+                    unread: 0,
+                    updatedAt: '2026-06-23T16:10:00',
+                    messages: [
+                        {
+                            id: 1,
+                            sender: 'patient',
+                            author: 'Bob Test',
+                            role: 'Patient Portal',
+                            body: 'I saw my CMP results in the portal. The glucose line was flagged — should I schedule a follow-up?',
+                            sentAt: '2026-06-23T16:10:00',
+                        },
+                        {
+                            id: 2,
+                            sender: 'staff',
+                            author: 'Care Team',
+                            role: 'Clinical Staff',
+                            body: 'Thanks for reaching out, Bob. A nurse will review your results and call you within 1 business day to discuss next steps.',
+                            sentAt: '2026-06-23T16:45:00',
+                        },
+                    ],
+                },
+                {
+                    id: 3,
+                    patientName: 'John Smith',
+                    subject: 'Appointment reschedule',
+                    unread: 0,
+                    updatedAt: '2026-06-22T11:20:00',
+                    messages: [
+                        {
+                            id: 1,
+                            sender: 'patient',
+                            author: 'John Smith',
+                            role: 'Patient Portal',
+                            body: 'I need to move my Thursday appointment to next Monday afternoon if possible.',
+                            sentAt: '2026-06-22T11:20:00',
+                        },
+                    ],
+                },
+            ],
         };
     },
     computed: {
         syncedCount() { return this.encounters.filter(e => e.billing_sync_status === 'synced').length; },
+        filteredMailboxThreads() {
+            const q = this.mailboxSearch.trim().toLowerCase();
+            if (!q) return this.mailboxThreads;
+            return this.mailboxThreads.filter(t =>
+                t.patientName.toLowerCase().includes(q)
+                || t.subject.toLowerCase().includes(q)
+                || (t.messages[t.messages.length - 1]?.body || '').toLowerCase().includes(q)
+            );
+        },
+        selectedMailboxThread() {
+            return this.mailboxThreads.find(t => t.id === this.selectedMailboxThreadId) || null;
+        },
+        mailboxUnreadCount() {
+            return this.mailboxThreads.reduce((sum, t) => sum + (t.unread || 0), 0);
+        },
     },
     mounted() { if (this.token) this.load(); },
     methods: {
@@ -624,7 +721,66 @@ createApp({
             }, 1200);
         },
         openCMS1500Preview(encounter) {
-            this.selectedClaimForCMS1500 = encounter;
+            this.openClaimForm(encounter, 'hcfa');
+        },
+        async openClaimForm(encounter, formType) {
+            this.claimFormLoading = true;
+            this.claimFormPreview = null;
+            this.error = '';
+            try {
+                const { data } = await this.api().get(`/encounters/${encounter.id}/claim-form/${formType}`);
+                this.claimFormPreview = data.data;
+            } catch (e) {
+                const msg = (e.response && e.response.data && e.response.data.message) || 'Unable to load claim form.';
+                this.error = msg;
+                this.toast = msg;
+            }
+            this.claimFormLoading = false;
+        },
+        closeClaimForm() {
+            this.claimFormPreview = null;
+            this.selectedClaimForCMS1500 = null;
+        },
+        printClaimForm() {
+            if (!this.claimFormPreview) return;
+            const el = document.getElementById('claim-form-printable');
+            if (!el) {
+                this.toast = 'Nothing to print.';
+                return;
+            }
+            const win = window.open('', '_blank');
+            if (!win) {
+                this.toast = 'Allow pop-ups to print the claim form.';
+                return;
+            }
+            const title = this.claimFormPreview.title || 'Claim Form';
+            win.document.write('<!DOCTYPE html><html><head><title>' + title + '</title>');
+            win.document.write('<link rel="stylesheet" href="' + window.location.origin + '/css/claim-forms.css">');
+            win.document.write('<style>body{margin:0;padding:12px;background:#fff}@page{size:letter;margin:0.35in}</style>');
+            win.document.write('</head><body>');
+            win.document.write(el.innerHTML);
+            if (this.claimFormPreview.footnotes) {
+                win.document.write('<div class="claim-form-footnotes">');
+                this.claimFormPreview.footnotes.forEach(n => {
+                    win.document.write('<p>' + n + '</p>');
+                });
+                win.document.write('</div>');
+            }
+            win.document.write('</body></html>');
+            win.document.close();
+            win.focus();
+            setTimeout(() => { win.print(); }, 400);
+            this.toast = 'Claim form sent to printer.';
+        },
+        encounterPrimaryCpt(encounter) {
+            const charge = encounter.charges && encounter.charges[0];
+            if (!charge) return '—';
+            return charge.cpt_code || charge.hcpcs_code || '—';
+        },
+        encounterChargeTotal(encounter) {
+            if (!encounter.charges || !encounter.charges.length) return '$0.00';
+            const total = encounter.charges.reduce((sum, c) => sum + Number(c.charge_amount || 0), 0);
+            return '$' + total.toFixed(2);
         },
         autoPostERA(era) {
             era.status = 'posting';
@@ -646,6 +802,48 @@ createApp({
             if (s === 'synced') return 'badge badge-green';
             if (s === 'pending' || s === 'failed') return 'badge badge-yellow';
             return 'badge';
+        },
+        selectMailboxThread(threadId) {
+            this.selectedMailboxThreadId = threadId;
+            const thread = this.mailboxThreads.find(t => t.id === threadId);
+            if (thread) thread.unread = 0;
+            this.mailboxReplyDraft = '';
+        },
+        sendMailboxReply() {
+            const thread = this.selectedMailboxThread;
+            const body = this.mailboxReplyDraft.trim();
+            if (!thread || !body) return;
+            thread.messages.push({
+                id: Date.now(),
+                sender: 'staff',
+                author: 'Dr. David Miller',
+                role: 'Provider',
+                body,
+                sentAt: new Date().toISOString(),
+            });
+            thread.updatedAt = new Date().toISOString();
+            thread.unread = 0;
+            this.mailboxReplyDraft = '';
+            this.toast = 'Reply sent to ' + thread.patientName;
+        },
+        formatMailboxTime(iso) {
+            if (!iso) return '';
+            const d = new Date(iso);
+            const now = new Date();
+            const sameDay = d.toDateString() === now.toDateString();
+            if (sameDay) {
+                return d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+            }
+            return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+        },
+        mailboxPreview(thread) {
+            const last = thread.messages[thread.messages.length - 1];
+            if (!last) return '';
+            const prefix = last.sender === 'staff' ? 'You: ' : '';
+            return prefix + last.body;
+        },
+        mailboxInitials(name) {
+            return (name || '?').split(' ').map(p => p[0]).join('').slice(0, 2).toUpperCase();
         },
     },
 }).mount('#app');

@@ -29,7 +29,7 @@
     <div v-else class="wrap">
         <div class="portal-header" style="display:flex; justify-content:space-between; align-items:center;">
             <div style="display:flex; align-items:center; gap:0.5rem;">
-                <img src="/img/logo.png" alt="DocRev" class="docrev-brand-logo">
+                <img src="/img/logo-white.png" alt="DocRev" class="docrev-brand-logo">
                 <span class="docrev-brand-product">Patient Portal</span>
             </div>
             <button class="btn btn-sm logout" @click="logout">Logout</button>

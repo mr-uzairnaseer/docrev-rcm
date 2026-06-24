@@ -29,7 +29,7 @@
     <div v-else class="layout">
         <aside class="sidebar">
             <div class="sidebar-brand">
-                <img src="/img/logo.png" alt="DocRev" class="docrev-brand-logo">
+                <img src="/img/logo-white.png" alt="DocRev" class="docrev-brand-logo">
                 <span class="docrev-brand-product">RCM</span>
             </div>
             <nav>
@@ -43,7 +43,7 @@
                 <a :class="{active: view==='setup'}" @click="setView('setup')">Setup</a>
             </nav>
             <div class="sidebar-footer">
-                <a @click="logout" class="logout">Logout</a>
+                <a href="#" @click.prevent="logout" class="logout">Logout</a>
             </div>
         </aside>
         <main class="main">

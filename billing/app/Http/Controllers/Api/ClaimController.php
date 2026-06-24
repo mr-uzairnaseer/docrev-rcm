@@ -10,6 +10,7 @@ use App\Models\ClaimLine;
 use App\Models\Payer;
 use App\Models\Patient;
 use App\Services\Billing\ClaimExportService;
+use App\Services\Billing\ClaimFormBuilder;
 use App\Services\Billing\ClaimScrubber;
 use App\Services\Billing\ClaimSubmissionService;
 use App\Services\Billing\CorrectedClaimService;
@@ -158,6 +159,21 @@ class ClaimController extends ApiController
             'generated_at' => $claim->edi_generated_at?->toIso8601String(),
             'edi_837' => $claim->edi_837_content,
         ]);
+    }
+
+    public function form(Claim $claim, string $form, ClaimFormBuilder $builder): JsonResponse
+    {
+        $this->ensureBelongsToOrganization($claim);
+
+        try {
+            $data = $builder->buildForClaim($claim->load(['patient.organization', 'payer', 'claimLines.charge']), $form);
+        } catch (\InvalidArgumentException $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        } catch (\RuntimeException $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
+
+        return response()->json(['data' => $data]);
     }
 
     public function submit(Claim $claim, ClaimSubmissionService $submissionService): JsonResponse

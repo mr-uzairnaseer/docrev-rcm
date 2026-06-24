@@ -9,8 +9,9 @@
     <link rel="apple-touch-icon" href="/img/logo.png">
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/vendor/fontawesome/css/all.min.css">
     <link rel="stylesheet" href="/css/docrev-theme.css">
+    <link rel="stylesheet" href="/css/claim-forms.css">
 </head>
 <body>
 <div id="app">
@@ -37,7 +38,7 @@
     <div v-else class="layout">
         <aside class="sidebar">
             <div class="sidebar-brand">
-                <img src="/img/logo.png" alt="DocRev" class="docrev-brand-logo">
+                <img src="/img/logo-white.png" alt="DocRev" class="docrev-brand-logo">
                 <span class="docrev-brand-product">EHR</span>
             </div>
             <nav>
@@ -56,7 +57,7 @@
                 <a :class="{active: view==='new-encounter'}" @click="openNewEncounter()"><i class="fas fa-notes-medical" style="margin-right:8px; width:16px"></i>+ Encounter</a>
             </nav>
             <div class="sidebar-footer">
-                <a @click="logout" class="logout"><i class="fas fa-sign-out-alt" style="margin-right:8px"></i>Logout</a>
+                <a href="#" @click.prevent="logout" class="logout"><i class="fas fa-sign-out-alt" style="margin-right:8px"></i>Logout</a>
             </div>
         </aside>
         <main class="main">
@@ -395,10 +396,10 @@
                     <!-- Calendar Header Controls -->
                     <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #e2e8f0; padding-bottom:0.75rem; margin-bottom:1rem">
                         <div style="display:flex; align-items:center; gap:0.5rem">
-                            <button class="btn btn-sm" style="background:#edf2f7" @click="prevDay()"><i class="fas fa-chevron-left"></i></button>
-                            <button class="btn btn-sm" style="background:#edf2f7" @click="nextDay()"><i class="fas fa-chevron-right"></i></button>
-                            <button class="btn btn-sm" style="background:#edf2f7" @click="goToToday()">Today</button>
-                            <span style="font-weight:bold; font-size:1.1rem; color:#2d3748">@{{ formatCalendarHeader() }}</span>
+                            <button class="btn btn-sm btn-icon" type="button" aria-label="Previous day" @click="prevDay()"><i class="fas fa-chevron-left" aria-hidden="true"></i></button>
+                            <button class="btn btn-sm btn-icon" type="button" aria-label="Next day" @click="nextDay()"><i class="fas fa-chevron-right" aria-hidden="true"></i></button>
+                            <button class="btn btn-sm" type="button" @click="goToToday()">Today</button>
+                            <span style="font-weight:bold; font-size:1.1rem; color:#2d3748">{{ formatCalendarHeader() }}</span>
                         </div>
                         <div style="display:flex; gap:0.5rem; align-items:center">
                             <input type="date" v-model="calendarDateInput" @change="setDateFromInput" style="padding:0.3rem 0.5rem; border-radius:6px; border:1px solid #cbd5e0; font-size:0.9rem">
@@ -778,8 +779,8 @@
                         <tbody>
                             <tr v-for="e in encounters.filter(x=>x.billing_sync_status==='synced')" :key="e.id">
                                 <td><strong>{{ e.patient ? e.patient.full_name : '—' }}</strong></td>
-                                <td>CPT 99213</td>
-                                <td>$150.00</td>
+                                <td>{{ encounterPrimaryCpt(e) }}</td>
+                                <td>{{ encounterChargeTotal(e) }}</td>
                                 <td>
                                     <span v-if="claimScrubResults[e.id]==='scrubbing'" class="badge" style="background:#ecc94b; color:#744210">Scrubbing...</span>
                                     <span v-else-if="claimScrubResults[e.id]" class="badge badge-green">{{ claimScrubResults[e.id] }}</span>
@@ -794,7 +795,8 @@
                                     <div style="display:flex; gap:0.25rem">
                                         <button class="btn btn-xs" @click="scrubClaim(e.id)" style="padding:0.2rem 0.4rem; font-size:0.75rem">Scrub</button>
                                         <button class="btn btn-xs btn-primary" @click="submitClaimEDI(e.id)" :disabled="!claimScrubResults[e.id]" style="padding:0.2rem 0.4rem; font-size:0.75rem">Submit EDI</button>
-                                        <button class="btn btn-xs btn-secondary" @click="openCMS1500Preview(e)" style="padding:0.2rem 0.4rem; font-size:0.75rem">CMS-1500</button>
+                                        <button class="btn btn-xs btn-secondary" @click="openClaimForm(e, 'hcfa')" style="padding:0.2rem 0.4rem; font-size:0.75rem">HCFA</button>
+                                        <button class="btn btn-xs btn-secondary" @click="openClaimForm(e, 'ub04')" style="padding:0.2rem 0.4rem; font-size:0.75rem">UB-04</button>
                                     </div>
                                 </td>
                             </tr>
@@ -905,23 +907,93 @@
             </div>
 
             <!-- Messages & Inbox Tab View -->
-            <div v-if="view==='messages'" class="card">
-                <h2>Clinical Mailbox &amp; Patient Messages</h2>
-                <div style="display:flex; gap:1.5rem">
-                    <div style="flex:1; border-right:1px solid #e2e8f0; padding-right:1rem">
-                        <h3>Inbox Folder</h3>
-                        <div style="background:#ebf8ff; padding:0.75rem; border-radius:6px; border:1px solid #bee3f8; cursor:pointer">
-                            <strong>Jane Doe</strong>
-                            <p style="margin:0.25rem 0; font-size:0.85rem">RE: Refill Request Lisinopril</p>
+            <div v-if="view==='messages'" class="card mailbox-card">
+                <div class="mailbox-header">
+                    <div>
+                        <h2 style="margin:0">Clinical Mailbox &amp; Patient Messages</h2>
+                        <p class="mailbox-subtitle">Secure messages from the patient portal</p>
+                    </div>
+                    <span v-if="mailboxUnreadCount" class="badge badge-blue">{{ mailboxUnreadCount }} unread</span>
+                </div>
+
+                <div class="mailbox-layout">
+                    <!-- Inbox list -->
+                    <aside class="mailbox-inbox">
+                        <div class="mailbox-inbox-toolbar">
+                            <input v-model="mailboxSearch" type="search" placeholder="Search patients or subjects..." class="mailbox-search">
                         </div>
-                    </div>
-                    <div style="flex:2; background:#f7fafc; padding:1rem; border-radius:6px; border:1px solid #cbd5e0">
-                        <h3>Message Thread</h3>
-                        <p><strong>From:</strong> Jane Doe (Patient Portal)</p>
-                        <p><strong>Message:</strong> Hello Doctor, can I get a refill on my prescription? Thank you.</p>
-                        <hr>
-                        <button class="btn btn-sm btn-primary">Reply Message</button>
-                    </div>
+                        <div class="mailbox-thread-list">
+                            <button
+                                v-for="thread in filteredMailboxThreads"
+                                :key="thread.id"
+                                type="button"
+                                class="mailbox-thread-item"
+                                :class="{ active: selectedMailboxThreadId === thread.id, unread: thread.unread > 0 }"
+                                @click="selectMailboxThread(thread.id)"
+                            >
+                                <div class="mailbox-thread-avatar">{{ mailboxInitials(thread.patientName) }}</div>
+                                <div class="mailbox-thread-meta">
+                                    <div class="mailbox-thread-top">
+                                        <strong>{{ thread.patientName }}</strong>
+                                        <span class="mailbox-thread-time">{{ formatMailboxTime(thread.updatedAt) }}</span>
+                                    </div>
+                                    <div class="mailbox-thread-subject">{{ thread.subject }}</div>
+                                    <div class="mailbox-thread-preview">{{ mailboxPreview(thread) }}</div>
+                                </div>
+                                <span v-if="thread.unread" class="mailbox-unread-dot" aria-label="Unread"></span>
+                            </button>
+                            <p v-if="!filteredMailboxThreads.length" class="mailbox-empty">No messages match your search.</p>
+                        </div>
+                    </aside>
+
+                    <!-- Thread panel -->
+                    <section v-if="selectedMailboxThread" class="mailbox-thread-panel">
+                        <header class="mailbox-thread-header">
+                            <div class="mailbox-thread-avatar mailbox-thread-avatar--lg">{{ mailboxInitials(selectedMailboxThread.patientName) }}</div>
+                            <div>
+                                <h3 class="mailbox-thread-title">{{ selectedMailboxThread.subject }}</h3>
+                                <p class="mailbox-thread-participant">{{ selectedMailboxThread.patientName }} · Patient Portal</p>
+                            </div>
+                        </header>
+
+                        <div class="mailbox-messages">
+                            <div
+                                v-for="msg in selectedMailboxThread.messages"
+                                :key="msg.id"
+                                class="mailbox-message"
+                                :class="msg.sender === 'staff' ? 'mailbox-message--out' : 'mailbox-message--in'"
+                            >
+                                <div class="mailbox-bubble">
+                                    <div class="mailbox-bubble-head">
+                                        <strong>{{ msg.author }}</strong>
+                                        <span>{{ msg.role }}</span>
+                                    </div>
+                                    <p class="mailbox-bubble-body">{{ msg.body }}</p>
+                                    <time class="mailbox-bubble-time">{{ formatMailboxTime(msg.sentAt) }}</time>
+                                </div>
+                            </div>
+                        </div>
+
+                        <footer class="mailbox-compose">
+                            <textarea
+                                v-model="mailboxReplyDraft"
+                                rows="3"
+                                placeholder="Type your reply to the patient..."
+                                @keydown.ctrl.enter="sendMailboxReply"
+                            ></textarea>
+                            <div class="mailbox-compose-actions">
+                                <span class="mailbox-compose-hint">Ctrl+Enter to send</span>
+                                <button class="btn btn-sm btn-primary" :disabled="!mailboxReplyDraft.trim()" @click="sendMailboxReply">
+                                    <i class="fas fa-paper-plane" style="margin-right:6px"></i>Send Reply
+                                </button>
+                            </div>
+                        </footer>
+                    </section>
+
+                    <section v-else class="mailbox-thread-panel mailbox-thread-panel--empty">
+                        <i class="fas fa-inbox" style="font-size:2rem; color:#a0aec0; margin-bottom:0.75rem"></i>
+                        <p>Select a conversation from the inbox</p>
+                    </section>
                 </div>
             </div>
 
@@ -1203,57 +1275,250 @@
                 </div>
             </div>
         </div>
-        <!-- CMS-1500 Claim Form Preview Modal -->
-        <div v-if="selectedClaimForCMS1500" class="modal-overlay" style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.6); display:flex; justify-content:center; align-items:center; z-index:1050">
-            <div class="modal-card" style="background:#fdfaf7; padding:2rem; border-radius:8px; max-width:850px; width:95%; max-height:90vh; overflow-y:auto; box-shadow:0 15px 30px rgba(0,0,0,0.2); border: 2px solid #e53e3e">
-                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #e53e3e; padding-bottom:0.75rem; margin-bottom:1rem">
-                    <h3 style="margin:0; color:#e53e3e; font-family:monospace; font-weight:bold"><i class="fas fa-file-invoice" style="margin-right:6px"></i>HEALTH INSURANCE CLAIM FORM (CMS-1500) PREVIEW</h3>
-                    <button class="btn btn-sm" @click="selectedClaimForCMS1500=null" style="background:#e53e3e; color:white; border:none; padding:0.25rem 0.5rem; border-radius:4px; cursor:pointer">&times;</button>
+        <!-- Claim Form Preview Modal (CMS-1500 / UB-04) -->
+        <div v-if="claimFormLoading || claimFormPreview" class="modal-overlay" style="position:fixed; inset:0; background:rgba(0,0,0,0.65); display:flex; justify-content:center; align-items:flex-start; z-index:1050; padding:1rem; overflow-y:auto">
+            <div class="claim-form-modal">
+                <div class="claim-form-toolbar">
+                    <div>
+                        <h3 style="margin:0; color:#1e4d6b; font-size:1.05rem">
+                            <i class="fas fa-file-invoice" style="margin-right:6px"></i>
+                            {{ claimFormPreview ? claimFormPreview.title : 'Generating claim form...' }}
+                        </h3>
+                        <p v-if="claimFormPreview" style="margin:0.25rem 0 0; font-size:0.72rem; color:#718096">{{ claimFormPreview.standard }}</p>
+                    </div>
+                    <div class="claim-form-modal-actions" style="display:flex; gap:0.5rem">
+                        <button v-if="claimFormPreview" class="btn btn-sm btn-primary" @click="printClaimForm"><i class="fas fa-print" style="margin-right:4px"></i>Print</button>
+                        <button class="btn btn-sm" @click="closeClaimForm">Close</button>
+                    </div>
                 </div>
-                
-                <div style="font-family:monospace; font-size:0.75rem; border:1px solid #e53e3e; padding:1rem; background:white; color:#333; line-height:1.4">
-                    <div style="display:grid; grid-template-columns: repeat(4, 1fr); border-bottom:1px solid #e53e3e; padding-bottom:0.5rem">
-                        <div style="border-right:1px solid #e53e3e; padding:0.25rem">1. MEDICARE / OTHER<br><strong>[ X ] OTHER</strong></div>
-                        <div style="border-right:1px solid #e53e3e; padding:0.25rem">1a. INSURED'S I.D. NUMBER<br><strong>UHC-@{{ selectedClaimForCMS1500.patient_id }}09876</strong></div>
-                        <div style="border-right:1px solid #e53e3e; padding:0.25rem">2. PATIENT'S NAME<br><strong>@{{ selectedClaimForCMS1500.patient ? selectedClaimForCMS1500.patient.last_name + ', ' + selectedClaimForCMS1500.patient.first_name : 'Jane Doe' }}</strong></div>
-                        <div style="padding:0.25rem">3. PATIENT'S DOB<br><strong>@{{ selectedClaimForCMS1500.patient ? selectedClaimForCMS1500.patient.date_of_birth : '1990-01-01' }}</strong></div>
-                    </div>
-                    
-                    <div style="display:grid; grid-template-columns: 2fr 1fr 1fr; border-bottom:1px solid #e53e3e">
-                        <div style="border-right:1px solid #e53e3e; padding:0.25rem">4. INSURED'S NAME<br><strong>@{{ selectedClaimForCMS1500.patient ? selectedClaimForCMS1500.patient.last_name + ', ' + selectedClaimForCMS1500.patient.first_name : 'Jane Doe' }}</strong></div>
-                        <div style="border-right:1px solid #e53e3e; padding:0.25rem">5. PATIENT'S ADDRESS<br><strong>123 Health St, City, ST 12345</strong></div>
-                        <div style="padding:0.25rem">6. RELATIONSHIP<br><strong>[ X ] SELF</strong></div>
+
+                <div v-if="claimFormLoading" style="text-align:center; padding:3rem; color:#4a5568">
+                    <i class="fas fa-spinner fa-spin" style="font-size:1.5rem; margin-bottom:0.75rem"></i>
+                    <p style="margin:0">Building CMS-compliant claim form...</p>
+                </div>
+
+                <template v-else-if="claimFormPreview">
+                    <div class="claim-form-meta">
+                        Claim <strong>{{ claimFormPreview.claim_number }}</strong>
+                        &middot; Encounter {{ claimFormPreview.encounter_uuid }}
+                        &middot; Generated {{ claimFormPreview.generated_at }}
                     </div>
 
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; border-bottom:1px solid #e53e3e">
-                        <div style="border-right:1px solid #e53e3e; padding:0.25rem">21. DIAGNOSIS (ICD-10-CM)<br><strong>A. J06.9 (Acute upper respiratory infection)</strong></div>
-                        <div style="padding:0.25rem">23. PRIOR AUTHORIZATION<br><strong>AUTH-@{{ selectedClaimForCMS1500.id }}889</strong></div>
-                    </div>
+                    <div id="claim-form-printable">
+                        <!-- CMS-1500 (02/12) -->
+                        <div v-if="claimFormPreview.form_type === 'hcfa' && claimFormPreview.hcfa" class="cms1500">
+                            <div class="cms1500-header">
+                                <div class="cms1500-pica">CARRIER<br>PICA</div>
+                                <div class="cms1500-title">HEALTH INSURANCE CLAIM FORM<br>APPROVED BY NATIONAL UNIFORM CLAIM COMMITTEE (NUCC) 02/12</div>
+                                <div class="cms1500-pica" style="text-align:right">PICA</div>
+                            </div>
 
-                    <div style="border-bottom:1px solid #e53e3e; padding:0.25rem">
-                        24. DATE OF SERVICE | PLACE | PROCEDURES (CPT) | DIAG POINTER | CHARGES | DAYS | RENDERING PROVIDER
-                        <div style="display:grid; grid-template-columns: 2fr 1fr 3fr 1fr 1fr 1fr 2fr; background:#fff8f8; font-weight:bold; padding:0.25rem 0; margin-top:0.25rem; border-top:1px dashed #e53e3e">
-                            <div>@{{ selectedClaimForCMS1500.encounter_date ? selectedClaimForCMS1500.encounter_date.slice(0, 10) : '2026-06-24' }}</div>
-                            <div>11 (Office)</div>
-                            <div>99213 (Outpatient Visit)</div>
-                            <div>A</div>
-                            <div>$150.00</div>
-                            <div>1</div>
-                            <div>NPI: 1982736450</div>
+                            <div class="cms1500-row" style="grid-template-columns: 2fr 1fr">
+                                <div class="cms1500-cell">
+                                    <span class="cms1500-label">1. MEDICARE &nbsp; MEDICAID &nbsp; TRICARE &nbsp; CHAMPVA &nbsp; GROUP HEALTH PLAN &nbsp; FECA &nbsp; OTHER</span>
+                                    <div class="cms1500-checks">
+                                        <label v-for="t in claimFormPreview.hcfa.box1_insurance_types" :key="t.key" class="cms1500-check" :class="{ 'is-on': t.checked }">
+                                            <input type="checkbox" :checked="t.checked" disabled> {{ t.label }}
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="cms1500-cell">
+                                    <span class="cms1500-label">1a. INSURED'S I.D. NUMBER</span>
+                                    <div class="cms1500-value">{{ claimFormPreview.hcfa.box1a_insured_id }}</div>
+                                </div>
+                            </div>
+
+                            <div class="cms1500-row" style="grid-template-columns: 1.2fr 0.8fr 1fr 1.5fr">
+                                <div class="cms1500-cell"><span class="cms1500-label">2. PATIENT'S NAME (Last, First, Middle)</span><div class="cms1500-value">{{ claimFormPreview.hcfa.box2_patient_name }}</div></div>
+                                <div class="cms1500-cell"><span class="cms1500-label">3. PATIENT'S BIRTH DATE &nbsp; SEX</span><div class="cms1500-value">{{ claimFormPreview.hcfa.box3_dob }} &nbsp; M<input type="checkbox" :checked="claimFormPreview.hcfa.box3_sex.M" disabled> F<input type="checkbox" :checked="claimFormPreview.hcfa.box3_sex.F" disabled></div></div>
+                                <div class="cms1500-cell"><span class="cms1500-label">4. INSURED'S NAME</span><div class="cms1500-value">{{ claimFormPreview.hcfa.box4_insured_name }}</div></div>
+                                <div class="cms1500-cell"><span class="cms1500-label">5. PATIENT'S ADDRESS</span><div class="cms1500-value">{{ claimFormPreview.hcfa.box5_patient_address.street }}, {{ claimFormPreview.hcfa.box5_patient_address.city }}, {{ claimFormPreview.hcfa.box5_patient_address.state }} {{ claimFormPreview.hcfa.box5_patient_address.zip }}</div></div>
+                            </div>
+
+                            <div class="cms1500-row" style="grid-template-columns: 1fr 1fr 1fr 1fr">
+                                <div class="cms1500-cell"><span class="cms1500-label">6. PATIENT RELATIONSHIP TO INSURED</span>
+                                    <div class="cms1500-checks">
+                                        <label v-for="r in claimFormPreview.hcfa.box6_relationship" :key="r.key" class="cms1500-check" :class="{ 'is-on': r.checked }"><input type="checkbox" :checked="r.checked" disabled> {{ r.label }}</label>
+                                    </div>
+                                </div>
+                                <div class="cms1500-cell"><span class="cms1500-label">7. INSURED'S ADDRESS</span><div class="cms1500-value">{{ claimFormPreview.hcfa.box7_insured_address.street }}</div></div>
+                                <div class="cms1500-cell"><span class="cms1500-label">8. RESERVED FOR NUCC USE</span><div class="cms1500-value">{{ claimFormPreview.hcfa.box8_reserved || '—' }}</div></div>
+                                <div class="cms1500-cell"><span class="cms1500-label">9. OTHER INSURED'S NAME</span><div class="cms1500-value">{{ claimFormPreview.hcfa.box9_other_insured || 'N/A' }}</div></div>
+                            </div>
+
+                            <div class="cms1500-row" style="grid-template-columns: 1fr 1fr 1fr 1fr">
+                                <div class="cms1500-cell"><span class="cms1500-label">10. IS PATIENT'S CONDITION RELATED TO:</span>
+                                    <div>Employment? Y<input type="checkbox" :checked="claimFormPreview.hcfa.box10_condition.employment.yes" disabled> N<input type="checkbox" :checked="claimFormPreview.hcfa.box10_condition.employment.no" disabled></div>
+                                    <div>Auto Accident? Y<input type="checkbox" :checked="claimFormPreview.hcfa.box10_condition.auto_accident.yes" disabled> N<input type="checkbox" :checked="claimFormPreview.hcfa.box10_condition.auto_accident.no" disabled> Place: {{ claimFormPreview.hcfa.box10_condition.auto_accident_place || '—' }}</div>
+                                    <div>Other Accident? Y<input type="checkbox" :checked="claimFormPreview.hcfa.box10_condition.other_accident.yes" disabled> N<input type="checkbox" :checked="claimFormPreview.hcfa.box10_condition.other_accident.no" disabled></div>
+                                </div>
+                                <div class="cms1500-cell"><span class="cms1500-label">11. INSURED'S POLICY GROUP / PLAN NAME</span><div class="cms1500-value">{{ claimFormPreview.hcfa.box11_insured_policy.group_number }} — {{ claimFormPreview.hcfa.box11_insured_policy.c_insurance_plan }}</div>
+                                    <div style="margin-top:2px">d. Another plan? Y<input type="checkbox" :checked="claimFormPreview.hcfa.box11_insured_policy.d_another_plan.yes" disabled> N<input type="checkbox" :checked="claimFormPreview.hcfa.box11_insured_policy.d_another_plan.no" disabled></div>
+                                </div>
+                                <div class="cms1500-cell"><span class="cms1500-label">12. PATIENT'S OR AUTHORIZED SIGNATURE</span><div class="cms1500-value">{{ claimFormPreview.hcfa.box12_patient_signature }} &nbsp; Date: {{ claimFormPreview.hcfa.box12_date }}</div></div>
+                                <div class="cms1500-cell"><span class="cms1500-label">13. INSURED'S OR AUTHORIZED SIGNATURE</span><div class="cms1500-value">{{ claimFormPreview.hcfa.box13_insured_signature }}</div></div>
+                            </div>
+
+                            <div class="cms1500-row" style="grid-template-columns: 1fr 1fr 1fr 1fr">
+                                <div class="cms1500-cell"><span class="cms1500-label">14. DATE OF CURRENT ILLNESS (QUAL {{ claimFormPreview.hcfa.box14_qualifier }})</span><div class="cms1500-value">{{ claimFormPreview.hcfa.box14_illness_date.mm }} / {{ claimFormPreview.hcfa.box14_illness_date.dd }} / {{ claimFormPreview.hcfa.box14_illness_date.yy }}</div></div>
+                                <div class="cms1500-cell"><span class="cms1500-label">17. NAME OF REFERRING PROVIDER</span><div class="cms1500-value">{{ claimFormPreview.hcfa.box17_referring.name || '—' }} NPI: {{ claimFormPreview.hcfa.box17_referring.npi || '—' }}</div></div>
+                                <div class="cms1500-cell"><span class="cms1500-label">19. ADDITIONAL CLAIM INFO</span><div class="cms1500-value">{{ claimFormPreview.hcfa.box19_additional || '—' }}</div></div>
+                                <div class="cms1500-cell"><span class="cms1500-label">20. OUTSIDE LAB? &nbsp; $ CHARGES</span>
+                                    Y<input type="checkbox" :checked="claimFormPreview.hcfa.box20_outside_lab.yes" disabled> N<input type="checkbox" :checked="claimFormPreview.hcfa.box20_outside_lab.no" disabled> {{ claimFormPreview.hcfa.box20_charges || '0.00' }}
+                                </div>
+                            </div>
+
+                            <div class="cms1500-cell" style="border-bottom:1px solid #c53030">
+                                <span class="cms1500-label">21. DIAGNOSIS OR NATURE OF ILLNESS (ICD Ind. {{ claimFormPreview.hcfa.box21_icd_indicator }}) — ICD-10-CM</span>
+                                <div class="cms1500-dx-grid" style="margin-top:3px">
+                                    <div v-for="dx in claimFormPreview.hcfa.box21_diagnoses" :key="dx.pointer" class="cms1500-dx-item">
+                                        <span class="ptr">{{ dx.pointer }}.</span>
+                                        <span class="code">{{ dx.code }}</span>
+                                        <div v-if="dx.description" class="desc">{{ dx.description }}</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="cms1500-row" style="grid-template-columns: 1fr 1fr">
+                                <div class="cms1500-cell"><span class="cms1500-label">22. RESUBMISSION CODE / ORIGINAL REF. NO.</span><div class="cms1500-value">{{ claimFormPreview.hcfa.box22_resubmission.code || '—' }} / {{ claimFormPreview.hcfa.box22_resubmission.original_ref || '—' }}</div></div>
+                                <div class="cms1500-cell"><span class="cms1500-label">23. PRIOR AUTHORIZATION NUMBER</span><div class="cms1500-value">{{ claimFormPreview.hcfa.box23_prior_auth }}</div></div>
+                            </div>
+
+                            <div class="cms1500-cell" style="border-bottom:1px solid #c53030">
+                                <span class="cms1500-label">24. A. DATE(S) OF SERVICE &nbsp; B. POS &nbsp; C. EMG &nbsp; D. PROCEDURES &nbsp; E. DIAG PTR &nbsp; F. $ CHARGES &nbsp; G. UNITS &nbsp; H. EPSDT &nbsp; J. RENDERING PROVIDER NPI</span>
+                                <table class="cms1500-table" style="margin-top:3px">
+                                    <thead>
+                                        <tr>
+                                            <th>FROM<br>MM DD YY</th><th>TO<br>MM DD YY</th><th>POS</th><th>EMG</th><th>CPT/HCPCS</th><th>MOD</th><th>PTR</th><th>$ CHARGES</th><th>UNITS</th><th>NPI</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="ln in claimFormPreview.hcfa.box24_lines" :key="ln.line">
+                                            <td>{{ ln.from_mm }} {{ ln.from_dd }} {{ ln.from_yy }}</td>
+                                            <td>{{ ln.to_mm }} {{ ln.to_dd }} {{ ln.to_yy }}</td>
+                                            <td>{{ ln.place_of_service }}</td>
+                                            <td>{{ ln.emg }}</td>
+                                            <td class="val">{{ ln.cpt_hcpcs }} {{ ln.modifier_1 }} {{ ln.modifier_2 }}</td>
+                                            <td>{{ ln.diagnosis_pointer }}</td>
+                                            <td>{{ ln.charges }}</td>
+                                            <td>{{ ln.units }}</td>
+                                            <td class="val">{{ ln.rendering_npi }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="cms1500-row" style="grid-template-columns: 1fr 0.8fr 0.6fr 0.6fr 0.6fr 1fr 1fr">
+                                <div class="cms1500-cell"><span class="cms1500-label">25. FEDERAL TAX I.D.</span><div class="cms1500-value">{{ claimFormPreview.hcfa.box25_tax_id }} SSN<input type="checkbox" :checked="claimFormPreview.hcfa.box25_tax_id_type.ssn" disabled> EIN<input type="checkbox" :checked="claimFormPreview.hcfa.box25_tax_id_type.ein" disabled></div></div>
+                                <div class="cms1500-cell"><span class="cms1500-label">26. PATIENT'S ACCOUNT NO.</span><div class="cms1500-value">{{ claimFormPreview.hcfa.box26_account }}</div></div>
+                                <div class="cms1500-cell"><span class="cms1500-label">27. ACCEPT ASSIGNMENT?</span>Y<input type="checkbox" :checked="claimFormPreview.hcfa.box27_assignment.yes" disabled> N<input type="checkbox" :checked="claimFormPreview.hcfa.box27_assignment.no" disabled></div>
+                                <div class="cms1500-cell"><span class="cms1500-label">28. TOTAL CHARGE</span><div class="cms1500-value">${{ claimFormPreview.hcfa.box28_total_charge }}</div></div>
+                                <div class="cms1500-cell"><span class="cms1500-label">29. AMOUNT PAID</span><div class="cms1500-value">${{ claimFormPreview.hcfa.box29_amount_paid }}</div></div>
+                                <div class="cms1500-cell"><span class="cms1500-label">31. PHYSICIAN SIGNATURE</span><div class="cms1500-value">{{ claimFormPreview.hcfa.box31_physician.signature }} Date: {{ claimFormPreview.hcfa.box31_physician.date }}</div></div>
+                                <div class="cms1500-cell"><span class="cms1500-label">33. BILLING PROVIDER</span><div class="cms1500-value">{{ claimFormPreview.hcfa.box33_billing_provider.name }}<br>{{ claimFormPreview.hcfa.box33_billing_provider.address }}<br>NPI: {{ claimFormPreview.hcfa.box33_billing_provider.npi }}</div></div>
+                            </div>
+                        </div>
+
+                        <!-- UB-04 (CMS-1450) -->
+                        <div v-if="claimFormPreview.form_type === 'ub04' && claimFormPreview.ub04" class="ub04">
+                            <div class="ub04-header">UNIFORM BILL UB-04 &nbsp; CMS-1450 &nbsp; NUBC APPROVED</div>
+
+                            <div class="ub04-row" style="grid-template-columns: 2fr 1fr">
+                                <div class="ub04-cell"><span class="ub04-fl">FL 1</span><span class="ub04-label">Billing Provider Name, Address, Phone</span><div class="ub04-value">{{ claimFormPreview.ub04.fl1_billing_provider.name }}<br>{{ claimFormPreview.ub04.fl1_billing_provider.address }}<br>{{ claimFormPreview.ub04.fl1_billing_provider.phone }}</div></div>
+                                <div class="ub04-cell"><span class="ub04-fl">FL 3a / 3b</span><span class="ub04-label">Patient Control # / MRN</span><div class="ub04-value">{{ claimFormPreview.ub04.fl3a_patient_control }} / {{ claimFormPreview.ub04.fl3b_medical_record }}</div></div>
+                            </div>
+
+                            <div class="ub04-row" style="grid-template-columns: 1fr 1fr 1fr">
+                                <div class="ub04-cell"><span class="ub04-fl">FL 4</span><span class="ub04-label">Type of Bill</span><div class="ub04-value">{{ claimFormPreview.ub04.fl4_type_of_bill }} — {{ claimFormPreview.ub04.fl4_type_of_bill_description }}</div>
+                                    <div class="ub04-checks">
+                                        <label v-for="opt in claimFormPreview.ub04.fl4_type_of_bill_options" :key="opt.code" class="ub04-check" :class="{ 'is-on': opt.selected }"><input type="radio" :checked="opt.selected" disabled> {{ opt.label }}</label>
+                                    </div>
+                                </div>
+                                <div class="ub04-cell"><span class="ub04-fl">FL 5</span><span class="ub04-label">Federal Tax ID</span><div class="ub04-value">{{ claimFormPreview.ub04.fl5_fed_tax_id }}</div></div>
+                                <div class="ub04-cell"><span class="ub04-fl">FL 6</span><span class="ub04-label">Statement Covers Period</span><div class="ub04-value">{{ claimFormPreview.ub04.fl6_statement_period.from }} — {{ claimFormPreview.ub04.fl6_statement_period.through }}</div></div>
+                            </div>
+
+                            <div class="ub04-row" style="grid-template-columns: 1.5fr 1fr 1fr">
+                                <div class="ub04-cell"><span class="ub04-fl">FL 8-9</span><span class="ub04-label">Patient Name / Address</span><div class="ub04-value">{{ claimFormPreview.ub04.fl8_patient_name }}<br>{{ claimFormPreview.ub04.fl9_patient_address.street }}, {{ claimFormPreview.ub04.fl9_patient_address.city }}, {{ claimFormPreview.ub04.fl9_patient_address.state }} {{ claimFormPreview.ub04.fl9_patient_address.zip }}</div></div>
+                                <div class="ub04-cell"><span class="ub04-fl">FL 10</span><span class="ub04-label">Birth Date / Sex</span><div class="ub04-value">{{ claimFormPreview.ub04.fl10_birth_date }} M<input type="checkbox" :checked="claimFormPreview.ub04.fl10_sex.M" disabled> F<input type="checkbox" :checked="claimFormPreview.ub04.fl10_sex.F" disabled></div></div>
+                                <div class="ub04-cell"><span class="ub04-fl">FL 12</span><span class="ub04-label">Admission Date</span><div class="ub04-value">{{ claimFormPreview.ub04.fl12_admission_date }}</div></div>
+                            </div>
+
+                            <div class="ub04-row" style="grid-template-columns: 1fr 1fr 1fr">
+                                <div class="ub04-cell"><span class="ub04-fl">FL 14</span><span class="ub04-label">Admission Type</span>
+                                    <div class="ub04-checks">
+                                        <label v-for="opt in claimFormPreview.ub04.fl14_admission_type" :key="opt.code" class="ub04-check" :class="{ 'is-on': opt.selected }"><input type="radio" :checked="opt.selected" disabled> {{ opt.label }}</label>
+                                    </div>
+                                </div>
+                                <div class="ub04-cell"><span class="ub04-fl">FL 15</span><span class="ub04-label">Point of Origin</span>
+                                    <div class="ub04-checks">
+                                        <label v-for="opt in claimFormPreview.ub04.fl15_point_of_origin" :key="opt.code" class="ub04-check" :class="{ 'is-on': opt.selected }"><input type="radio" :checked="opt.selected" disabled> {{ opt.label }}</label>
+                                    </div>
+                                </div>
+                                <div class="ub04-cell"><span class="ub04-fl">FL 17</span><span class="ub04-label">Patient Discharge Status</span>
+                                    <div class="ub04-checks">
+                                        <label v-for="opt in claimFormPreview.ub04.fl17_discharge_status" :key="opt.code" class="ub04-check" :class="{ 'is-on': opt.selected }"><input type="radio" :checked="opt.selected" disabled> {{ opt.label }}</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="ub04-cell" style="border-bottom:1px solid #2d3748">
+                                <span class="ub04-fl">FL 42–47</span><span class="ub04-label">Revenue Codes / Description / HCPCS / Rate / HIPPS / Service Units / Total Charges / Non-Covered</span>
+                                <table class="ub04-table" style="margin-top:3px">
+                                    <thead><tr><th>42 Rev</th><th>43 Description</th><th>44 HCPCS</th><th>45 Svc Units</th><th>46 Total Charges</th><th>47 Non-Covered</th></tr></thead>
+                                    <tbody>
+                                        <tr v-for="(ln, idx) in claimFormPreview.ub04.fl42_47_lines" :key="idx" :style="ln.fl42 ? 'font-weight:600' : ''">
+                                            <td>{{ ln.fl42 }}</td><td>{{ ln.fl43 }}</td><td>{{ ln.fl44 }}</td><td>{{ ln.fl45 }}</td><td>{{ ln.fl46 }}</td><td>{{ ln.fl47 }}</td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot><tr><td colspan="4" style="text-align:right;font-weight:700">Total Charges (FL 47):</td><td colspan="2" style="font-weight:700">${{ claimFormPreview.ub04.fl47_total_charges }}</td></tr></tfoot>
+                                </table>
+                            </div>
+
+                            <div class="ub04-cell" style="border-bottom:1px solid #2d3748; margin-top:4px">
+                                <span class="ub04-fl">FL 50–65</span><span class="ub04-label">Payer Information (Primary / Secondary / Tertiary)</span>
+                                <div class="ub04-payer-grid">
+                                    <div v-for="(p, pi) in claimFormPreview.ub04.fl50_payers" :key="pi" class="ub04-payer-col">
+                                        <div class="ub04-fl">Payer {{ pi + 1 }}</div>
+                                        <div class="ub04-value">{{ p.name || '—' }}</div>
+                                        <div class="ub04-select-hint">Plan ID: {{ p.health_plan_id || '—' }}</div>
+                                        <div class="ub04-select-hint">Release Info: {{ p.release_info || '—' }} | Assign Benefits: {{ p.assign_benefits || '—' }}</div>
+                                        <div class="ub04-select-hint">Prior Payments: ${{ p.prior_payments || '0.00' }} | Est. Due: ${{ p.estimated_amount || '0.00' }}</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="ub04-row" style="grid-template-columns: 1fr 1fr 1fr">
+                                <div class="ub04-cell"><span class="ub04-fl">FL 56</span><span class="ub04-label">Billing Provider NPI</span><div class="ub04-value">{{ claimFormPreview.ub04.fl56_billing_provider_npi }}</div></div>
+                                <div class="ub04-cell"><span class="ub04-fl">FL 66</span><span class="ub04-label">Diagnosis Code Qualifier</span><div class="ub04-value">{{ claimFormPreview.ub04.fl66_diagnosis_qualifier }} (ICD-10-CM)</div></div>
+                                <div class="ub04-cell"><span class="ub04-fl">FL 69</span><span class="ub04-label">Admitting Diagnosis</span><div class="ub04-value">{{ claimFormPreview.ub04.fl69_admitting_diagnosis }}</div></div>
+                            </div>
+
+                            <div class="ub04-cell" style="border-bottom:1px solid #2d3748">
+                                <span class="ub04-fl">FL 67</span><span class="ub04-label">Principal / Other Diagnosis Codes (ICD-10-CM)</span>
+                                <table class="ub04-table" style="margin-top:3px">
+                                    <thead><tr><th>Seq</th><th>Code</th><th>Description</th></tr></thead>
+                                    <tbody>
+                                        <tr v-for="(dx, di) in claimFormPreview.ub04.fl67_diagnoses" :key="di">
+                                            <td>{{ di === 0 ? 'Principal' : 'Other ' + di }}</td>
+                                            <td>{{ dx.code }}</td>
+                                            <td>{{ dx.description }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="ub04-row" style="grid-template-columns: 1fr 1fr">
+                                <div class="ub04-cell"><span class="ub04-fl">FL 76</span><span class="ub04-label">Attending Provider</span><div class="ub04-value">{{ claimFormPreview.ub04.fl76_attending.name }} ({{ claimFormPreview.ub04.fl76_attending.qualifier }}) NPI: {{ claimFormPreview.ub04.fl76_attending.npi }}</div></div>
+                                <div class="ub04-cell"><span class="ub04-fl">FL 80</span><span class="ub04-label">Remarks</span><div class="ub04-value">{{ claimFormPreview.ub04.fl80_remarks }}</div></div>
+                            </div>
                         </div>
                     </div>
 
-                    <div style="display:grid; grid-template-columns: repeat(3, 1fr); padding-top:0.5rem">
-                        <div style="border-right:1px solid #e53e3e; padding:0.25rem">25. FEDERAL TAX I.D.<br><strong>36-9081234 (EIN)</strong></div>
-                        <div style="border-right:1px solid #e53e3e; padding:0.25rem">31. SIGNATURE OF PHYSICIAN<br><strong>Dr. David Miller</strong></div>
-                        <div style="padding:0.25rem">33. BILLING PROVIDER INFO<br><strong>DocRev Practice, NPI: 1092837465</strong></div>
+                    <div v-if="claimFormPreview.footnotes" class="claim-form-footnotes">
+                        <p v-for="(note, ni) in claimFormPreview.footnotes" :key="ni">{{ note }}</p>
                     </div>
-                </div>
-
-                <div style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:1.5rem">
-                    <button class="btn btn-sm" @click="selectedClaimForCMS1500=null">Close Preview</button>
-                    <button class="btn btn-sm btn-primary" @click="toast='Paper Claim Queue Simulated'; selectedClaimForCMS1500=null">Print Claim</button>
-                </div>
+                </template>
             </div>
         </div>
 

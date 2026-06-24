@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AppointmentController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\EncounterChargeController;
+use App\Http\Controllers\Api\EncounterClaimFormController;
 use App\Http\Controllers\Api\EncounterController;
 use App\Http\Controllers\Api\HealthController;
 use App\Http\Controllers\Api\HieController;
@@ -40,6 +41,8 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
     Route::apiResource('locations', LocationController::class)->only(['index', 'store', 'show']);
     Route::apiResource('encounters', EncounterController::class);
     Route::post('encounters/{encounter}/sign', [EncounterController::class, 'sign']);
+    Route::get('encounters/{encounter}/claim-form/{form}', EncounterClaimFormController::class)
+        ->where('form', 'hcfa|ub04');
     Route::post('encounters/{encounter}/charges', [EncounterChargeController::class, 'store']);
     Route::post('encounters/{encounter}/diagnoses', [EncounterChargeController::class, 'storeDiagnosis']);
 

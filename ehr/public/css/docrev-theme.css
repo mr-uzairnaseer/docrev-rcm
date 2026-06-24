@@ -101,9 +101,6 @@ body {
 
 .sidebar-brand .docrev-brand-logo {
     max-width: 168px;
-    background: #ffffff;
-    border-radius: 8px;
-    padding: 0.45rem 0.65rem;
 }
 
 .docrev-brand-product {
@@ -139,24 +136,32 @@ body {
     border-top: 1px solid rgba(255, 255, 255, 0.12);
 }
 
-.sidebar-footer .logout {
+.sidebar-footer .logout,
+.sidebar-footer .logout:visited,
+.sidebar-footer .logout:hover,
+.sidebar-footer .logout:focus {
     display: block;
     padding: 0.65rem 1rem;
-    color: rgba(255, 255, 255, 0.9);
+    color: #ffffff !important;
     text-decoration: none;
     cursor: pointer;
     border-radius: 8px;
     font-size: 0.85rem;
-    font-weight: 500;
+    font-weight: 600;
     text-align: center;
     transition: background 0.18s ease, color 0.18s ease;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-footer .logout i {
+    color: inherit;
 }
 
 .sidebar-footer .logout:hover {
-    background: rgba(255, 255, 255, 0.12);
-    color: #ffffff;
-    border-color: rgba(255, 255, 255, 0.35);
+    background: rgba(255, 255, 255, 0.18);
+    color: #ffffff !important;
+    border-color: rgba(255, 255, 255, 0.5);
 }
 
 .sidebar nav a {
@@ -228,9 +233,6 @@ body {
 
 .portal-header .docrev-brand-logo {
     max-width: 180px;
-    background: #ffffff;
-    border-radius: 8px;
-    padding: 0.35rem 0.55rem;
 }
 
 .portal-header .docrev-brand-product {
@@ -322,6 +324,15 @@ th {
     border-color: var(--docrev-blue-500);
 }
 .btn-sm { padding: 0.32rem 0.7rem; font-size: 0.78rem; }
+.btn-icon {
+    min-width: 2.1rem;
+    padding: 0.32rem 0.55rem;
+    line-height: 1;
+}
+.btn-icon .fas {
+    font-size: 0.9rem;
+    pointer-events: none;
+}
 .btn-primary {
     background: var(--docrev-blue-600);
     color: var(--docrev-white);
@@ -572,4 +583,282 @@ th {
 }
 .btn.logout:hover {
     background: var(--docrev-blue-50) !important;
+}
+
+/* Clinical mailbox */
+.mailbox-card { padding: 0; overflow: hidden; }
+.mailbox-card > .mailbox-header,
+.mailbox-card > .mailbox-layout { padding-left: 1.5rem; padding-right: 1.5rem; }
+.mailbox-card > .mailbox-header { padding-top: 1.5rem; padding-bottom: 1rem; }
+.mailbox-card > .mailbox-layout { padding-bottom: 1.5rem; }
+
+.mailbox-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    border-bottom: 1px solid var(--docrev-border);
+    margin-bottom: 0;
+}
+.mailbox-subtitle {
+    margin: 0.35rem 0 0;
+    font-size: 0.875rem;
+    color: var(--docrev-text-muted);
+}
+.mailbox-layout {
+    display: grid;
+    grid-template-columns: minmax(260px, 320px) 1fr;
+    gap: 0;
+    min-height: 520px;
+    border: 1px solid var(--docrev-border);
+    border-radius: var(--docrev-radius);
+    overflow: hidden;
+    background: var(--docrev-white);
+}
+.mailbox-inbox {
+    border-right: 1px solid var(--docrev-border);
+    background: var(--docrev-blue-50);
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+.mailbox-inbox-toolbar {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--docrev-border);
+    background: var(--docrev-white);
+}
+.mailbox-search {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--docrev-border);
+    border-radius: 8px;
+    font-size: 0.875rem;
+}
+.mailbox-search:focus {
+    outline: none;
+    border-color: var(--docrev-blue-500);
+    box-shadow: 0 0 0 3px rgba(58, 143, 191, 0.15);
+}
+.mailbox-thread-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.5rem;
+}
+.mailbox-thread-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+    width: 100%;
+    text-align: left;
+    border: 1px solid transparent;
+    background: transparent;
+    border-radius: 10px;
+    padding: 0.7rem;
+    cursor: pointer;
+    position: relative;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+.mailbox-thread-item:hover {
+    background: rgba(255, 255, 255, 0.75);
+    border-color: var(--docrev-border);
+}
+.mailbox-thread-item.active {
+    background: var(--docrev-white);
+    border-color: var(--docrev-blue-200);
+    box-shadow: var(--docrev-shadow);
+}
+.mailbox-thread-item.unread .mailbox-thread-subject {
+    font-weight: 700;
+}
+.mailbox-thread-avatar {
+    flex-shrink: 0;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    background: var(--docrev-blue-600);
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.mailbox-thread-avatar--lg {
+    width: 2.75rem;
+    height: 2.75rem;
+    font-size: 0.85rem;
+}
+.mailbox-thread-meta { flex: 1; min-width: 0; }
+.mailbox-thread-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    align-items: baseline;
+}
+.mailbox-thread-top strong {
+    font-size: 0.9rem;
+    color: var(--docrev-text);
+}
+.mailbox-thread-time {
+    font-size: 0.72rem;
+    color: var(--docrev-text-muted);
+    white-space: nowrap;
+}
+.mailbox-thread-subject {
+    font-size: 0.82rem;
+    color: var(--docrev-blue-700);
+    margin-top: 0.15rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.mailbox-thread-preview {
+    font-size: 0.78rem;
+    color: var(--docrev-text-muted);
+    margin-top: 0.2rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.mailbox-unread-dot {
+    position: absolute;
+    top: 0.85rem;
+    right: 0.65rem;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--docrev-blue-500);
+}
+.mailbox-empty {
+    padding: 1.5rem 0.75rem;
+    text-align: center;
+    color: var(--docrev-text-muted);
+    font-size: 0.875rem;
+}
+.mailbox-thread-panel {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    background: #f8fbfd;
+}
+.mailbox-thread-panel--empty {
+    align-items: center;
+    justify-content: center;
+    color: var(--docrev-text-muted);
+}
+.mailbox-thread-header {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 1rem 1.25rem;
+    background: var(--docrev-white);
+    border-bottom: 1px solid var(--docrev-border);
+}
+.mailbox-thread-title {
+    margin: 0;
+    font-size: 1.05rem;
+    color: var(--docrev-blue-700);
+}
+.mailbox-thread-participant {
+    margin: 0.2rem 0 0;
+    font-size: 0.82rem;
+    color: var(--docrev-text-muted);
+}
+.mailbox-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+.mailbox-message {
+    display: flex;
+    max-width: 85%;
+}
+.mailbox-message--in { align-self: flex-start; }
+.mailbox-message--out { align-self: flex-end; }
+.mailbox-bubble {
+    padding: 0.75rem 0.9rem;
+    border-radius: 12px;
+    box-shadow: var(--docrev-shadow);
+}
+.mailbox-message--in .mailbox-bubble {
+    background: var(--docrev-white);
+    border: 1px solid var(--docrev-border);
+    border-bottom-left-radius: 4px;
+}
+.mailbox-message--out .mailbox-bubble {
+    background: linear-gradient(135deg, var(--docrev-blue-600), var(--docrev-sidebar-bottom));
+    color: #fff;
+    border-bottom-right-radius: 4px;
+}
+.mailbox-bubble-head {
+    display: flex;
+    align-items: baseline;
+    gap: 0.45rem;
+    margin-bottom: 0.35rem;
+    font-size: 0.78rem;
+}
+.mailbox-message--in .mailbox-bubble-head strong { color: var(--docrev-blue-700); }
+.mailbox-message--in .mailbox-bubble-head span { color: var(--docrev-text-muted); }
+.mailbox-message--out .mailbox-bubble-head strong,
+.mailbox-message--out .mailbox-bubble-head span { color: rgba(255, 255, 255, 0.9); }
+.mailbox-bubble-body {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.55;
+    white-space: pre-wrap;
+}
+.mailbox-message--in .mailbox-bubble-body { color: var(--docrev-text); }
+.mailbox-bubble-time {
+    display: block;
+    margin-top: 0.45rem;
+    font-size: 0.72rem;
+    opacity: 0.8;
+}
+.mailbox-compose {
+    padding: 1rem 1.25rem;
+    background: var(--docrev-white);
+    border-top: 1px solid var(--docrev-border);
+}
+.mailbox-compose textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--docrev-border);
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    resize: vertical;
+    min-height: 4.5rem;
+}
+.mailbox-compose textarea:focus {
+    outline: none;
+    border-color: var(--docrev-blue-500);
+    box-shadow: 0 0 0 3px rgba(58, 143, 191, 0.12);
+}
+.mailbox-compose-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.65rem;
+    gap: 0.75rem;
+}
+.mailbox-compose-hint {
+    font-size: 0.75rem;
+    color: var(--docrev-text-muted);
+}
+
+@media (max-width: 900px) {
+    .mailbox-layout {
+        grid-template-columns: 1fr;
+        min-height: auto;
+    }
+    .mailbox-inbox {
+        max-height: 240px;
+        border-right: none;
+        border-bottom: 1px solid var(--docrev-border);
+    }
+    .mailbox-messages { min-height: 280px; }
 }
