@@ -243,6 +243,20 @@ body {
     text-transform: none;
 }
 
+.portal-header .btn.logout {
+    background: rgba(255, 255, 255, 0.14) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.65) !important;
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.portal-header .btn.logout:hover {
+    background: rgba(255, 255, 255, 0.28) !important;
+    border-color: #ffffff !important;
+    color: #ffffff !important;
+}
+
 /* Cards & panels */
 .card {
     background: var(--docrev-white);
@@ -275,22 +289,48 @@ h3 {
 }
 
 /* Tables */
-table { width: 100%; border-collapse: collapse; margin-top: 0.75rem; }
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-top: 0.75rem;
+    background: var(--docrev-white);
+    border: 1px solid var(--docrev-border);
+    border-radius: var(--docrev-radius);
+    overflow: hidden;
+    box-shadow: var(--docrev-shadow);
+}
+
 th, td {
     text-align: left;
     padding: 0.65rem 0.85rem;
     border-bottom: 1px solid var(--docrev-border);
+    border-right: 1px solid rgba(212, 232, 242, 0.65);
     font-size: 0.875rem;
+    transition: background-color 0.18s ease;
 }
-tbody tr:hover { background: var(--docrev-blue-50); }
+
+th:last-child,
+td:last-child {
+    border-right: none;
+}
+
+tbody tr:last-child td {
+    border-bottom: none;
+}
+
+tbody tr:hover td {
+    background: var(--docrev-blue-50);
+}
+
 th {
     font-size: 0.7rem;
     text-transform: uppercase;
     letter-spacing: 0.04em;
     color: var(--docrev-blue-700);
-    background: var(--docrev-blue-50);
+    background: linear-gradient(180deg, var(--docrev-blue-50) 0%, #e3f2f9 100%);
     font-weight: 600;
-    border-bottom: 2px solid var(--docrev-blue-100);
+    border-bottom: 1px solid var(--docrev-blue-100);
 }
 
 /* Badges */
@@ -324,6 +364,26 @@ th {
     border-color: var(--docrev-blue-500);
 }
 .btn-sm { padding: 0.32rem 0.7rem; font-size: 0.78rem; }
+
+.calendar-nav-btn {
+    background: var(--docrev-white);
+    color: var(--docrev-blue-700);
+    border: 1px solid var(--docrev-blue-200);
+    font-weight: 600;
+    min-width: 2.1rem;
+    line-height: 1.2;
+}
+
+.calendar-nav-btn:hover {
+    background: var(--docrev-blue-50);
+    border-color: var(--docrev-blue-500);
+    color: var(--docrev-blue-700);
+}
+
+.calendar-nav-btn--arrow {
+    font-size: 1.05rem;
+    padding: 0.28rem 0.55rem;
+}
 .btn-primary {
     background: var(--docrev-blue-600);
     color: var(--docrev-white);
@@ -594,10 +654,10 @@ th {
 }
 
 .btn.logout {
-    background: transparent !important;
-    color: var(--docrev-blue-600) !important;
-    border: 1px solid var(--docrev-blue-200) !important;
+    background: transparent;
+    color: var(--docrev-blue-600);
+    border: 1px solid var(--docrev-blue-200);
 }
 .btn.logout:hover {
-    background: var(--docrev-blue-50) !important;
+    background: var(--docrev-blue-50);
 }

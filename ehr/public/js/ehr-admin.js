@@ -47,6 +47,16 @@ createApp({
             // New view sub-tab states
             patientTab: 'directory',
             selectedPatient: null,
+            patientSubTabs: [
+                { id: 'directory', label: 'All Patients' },
+                { id: 'demographics', label: 'Patient Demographics', needsPatient: true },
+                { id: 'insurance', label: 'Insurance / Eligibility', needsPatient: true },
+                { id: 'care-team', label: 'Care Team', needsPatient: true },
+                { id: 'problems', label: 'Problem List', needsPatient: true },
+                { id: 'medications', label: 'Medications', needsPatient: true },
+                { id: 'allergies', label: 'Allergies', needsPatient: true },
+                { id: 'history', label: 'Visit History', needsPatient: true },
+            ],
             billingTab: 'claims',
             reportTab: 'financial',
             agingType: 'service',
@@ -229,6 +239,19 @@ createApp({
                 this.apptForm.patient_id = this.patients[0].id;
             }
         },
+        openPatients(tab = 'directory') {
+            this.view = 'patients';
+            this.patientTab = tab;
+            this.loadPatients();
+        },
+        selectPatient(patient, tab = 'demographics') {
+            this.selectedPatient = patient;
+            this.patientTab = tab;
+            this.view = 'patients';
+        },
+        activePatientSubTab() {
+            return this.patientSubTabs.find((t) => t.id === this.patientTab) || this.patientSubTabs[0];
+        },
         async loadEncounters() {
             const { data } = await this.api().get('/encounters?per_page=100');
             this.encounters = data.data;
@@ -371,7 +394,7 @@ createApp({
             this.toast = 'Patient created and synced to Billing & Portal.';
             this.patientForm = { first_name: '', last_name: '', date_of_birth: '', mrn: '', email: '', phone: '', gender: 'male' };
             await this.loadPatients();
-            this.view = 'patients';
+            this.openPatients('directory');
         },
         async createAppointment() {
             const payload = {

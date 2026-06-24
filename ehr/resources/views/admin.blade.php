@@ -43,7 +43,15 @@
             </div>
             <nav>
                 <a :class="{active: view==='dashboard'}" @click="view='dashboard';load()"><i class="fas fa-chart-line" style="margin-right:8px; width:16px"></i>Dashboard</a>
-                <a :class="{active: view==='patients'}" @click="view='patients';loadPatients()"><i class="fas fa-user-injured" style="margin-right:8px; width:16px"></i>Patients</a>
+                <a :class="{active: view==='patients'}" @click="openPatients('directory')"><i class="fas fa-user-injured" style="margin-right:8px; width:16px"></i>Patients</a>
+                <div v-if="view==='patients'" class="sidebar-subnav">
+                    <a
+                        v-for="tab in patientSubTabs"
+                        :key="tab.id"
+                        :class="{ active: patientTab === tab.id }"
+                        @click="openPatients(tab.id)"
+                    >{{ tab.label }}</a>
+                </div>
                 <a :class="{active: view==='encounters'}" @click="view='encounters';loadEncounters()"><i class="fas fa-stethoscope" style="margin-right:8px; width:16px"></i>Encounters</a>
                 <a :class="{active: view==='appointments'}" @click="view='appointments';loadAppointments()"><i class="fas fa-calendar-check" style="margin-right:8px; width:16px"></i>Appointments</a>
                 <a :class="{active: view==='prescriptions'}" @click="setView('prescriptions')"><i class="fas fa-prescription-bottle-alt" style="margin-right:8px; width:16px"></i>E-Prescribing</a>
@@ -91,20 +99,29 @@
 
             <div v-if="view==='patients'" class="card">
                 <div class="row-between">
-                    <h2>Patients Directory</h2>
+                    <div>
+                        <h2>{{ activePatientSubTab().label }}</h2>
+                        <p v-if="selectedPatient && patientTab !== 'directory'" class="patient-subtitle">
+                            Clinical file: <strong>{{ selectedPatient.full_name }}</strong>
+                            <span v-if="selectedPatient.mrn"> · MRN {{ selectedPatient.mrn }}</span>
+                        </p>
+                    </div>
                     <button class="btn btn-primary" @click="view='new-patient'">Add Patient</button>
                 </div>
-                
-                <!-- Patient Sub-navigation & Details Tab View -->
-                <div class="portal-nav" style="margin: 1rem 0; display:flex; gap:0.5rem; flex-wrap: wrap; background: #f7fafc; padding: 0.5rem; border-radius: 6px; border: 1px solid #e2e8f0;">
-                    <button class="btn btn-sm" :class="patientTab==='directory'?'btn-primary':''" @click="patientTab='directory'">All Patients</button>
-                    <button class="btn btn-sm" :class="patientTab==='demographics'?'btn-primary':''" @click="patientTab='demographics'" :disabled="!selectedPatient">Patient Demographics</button>
-                    <button class="btn btn-sm" :class="patientTab==='insurance'?'btn-primary':''" @click="patientTab='insurance'" :disabled="!selectedPatient">Insurance / Eligibility</button>
-                    <button class="btn btn-sm" :class="patientTab==='care-team'?'btn-primary':''" @click="patientTab='care-team'" :disabled="!selectedPatient">Care Team</button>
-                    <button class="btn btn-sm" :class="patientTab==='problems'?'btn-primary':''" @click="patientTab='problems'" :disabled="!selectedPatient">Problem List</button>
-                    <button class="btn btn-sm" :class="patientTab==='medications'?'btn-primary':''" @click="patientTab='medications'" :disabled="!selectedPatient">Medications</button>
-                    <button class="btn btn-sm" :class="patientTab==='allergies'?'btn-primary':''" @click="patientTab='allergies'" :disabled="!selectedPatient">Allergies</button>
-                    <button class="btn btn-sm" :class="patientTab==='history'?'btn-primary':''" @click="patientTab='history'" :disabled="!selectedPatient">Visit History</button>
+
+                <nav class="patient-subnav" aria-label="Patient chart sections">
+                    <button
+                        v-for="tab in patientSubTabs"
+                        :key="tab.id"
+                        type="button"
+                        class="btn btn-sm patient-subnav__btn"
+                        :class="{ 'btn-primary': patientTab === tab.id }"
+                        @click="openPatients(tab.id)"
+                    >{{ tab.label }}</button>
+                </nav>
+
+                <div v-if="activePatientSubTab().needsPatient && !selectedPatient" class="patient-empty-state">
+                    <p>Select a patient from <button type="button" class="btn btn-sm btn-primary" @click="openPatients('directory')">All Patients</button> to open this chart section.</p>
                 </div>
 
                 <!-- All Patients Directory -->
@@ -118,7 +135,7 @@
                                 <td>{{ p.date_of_birth }}</td>
                                 <td>{{ p.phone || '—' }}</td>
                                 <td>
-                                    <button class="btn btn-sm btn-primary" @click="selectedPatient=p; patientTab='demographics'" style="padding:0.25rem 0.5rem">Select Clinical File</button>
+                                    <button class="btn btn-sm btn-primary" @click="selectPatient(p, 'demographics')" style="padding:0.25rem 0.5rem">Select Clinical File</button>
                                 </td>
                             </tr>
                         </tbody>

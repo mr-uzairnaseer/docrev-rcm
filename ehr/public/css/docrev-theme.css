@@ -122,12 +122,38 @@ body {
 .sidebar nav {
     flex: 1;
     min-height: 0;
-    padding: 0.5rem 0.75rem 0.75rem;
+    padding: 0.5rem 0.65rem 0.75rem 0.75rem;
     display: flex;
     flex-direction: column;
     gap: 0.2rem;
     overflow-x: hidden;
     overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+.sidebar nav::-webkit-scrollbar {
+    width: 5px;
+}
+
+.sidebar nav::-webkit-scrollbar-track {
+    background: transparent;
+    margin: 0.25rem 0;
+}
+
+.sidebar nav::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.24);
+    border-radius: 999px;
+}
+
+.sidebar nav::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.42);
+}
+
+.sidebar nav::-webkit-scrollbar-button {
+    display: none;
+    height: 0;
+    width: 0;
 }
 
 .sidebar-footer {
@@ -166,12 +192,12 @@ body {
 
 .sidebar nav a {
     display: block;
-    padding: 0.65rem 1rem;
+    padding: 0.52rem 0.85rem;
     color: rgba(255, 255, 255, 0.82);
     text-decoration: none;
     cursor: pointer;
     border-radius: 8px;
-    font-size: 0.9rem;
+    font-size: 0.875rem;
     font-weight: 500;
     transition: background 0.18s ease, color 0.18s ease, transform 0.12s ease;
     border: 1px solid transparent;
@@ -202,6 +228,83 @@ body {
     border-radius: 2px;
     margin-right: 0.5rem;
     vertical-align: -0.1em;
+}
+
+.sidebar-subnav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.08rem;
+    margin: 0.05rem 0 0.3rem 0.7rem;
+    padding: 0.15rem 0 0.15rem 0.5rem;
+    border-left: 2px solid rgba(255, 255, 255, 0.2);
+    flex-shrink: 0;
+}
+
+.sidebar-subnav a {
+    display: block;
+    padding: 0.28rem 0.5rem;
+    color: rgba(255, 255, 255, 0.82);
+    text-decoration: none;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 0.72rem;
+    font-weight: 500;
+    line-height: 1.25;
+    border: 1px solid transparent;
+    transition: background 0.18s ease, color 0.18s ease;
+}
+
+.sidebar-subnav a:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+.sidebar-subnav a.active {
+    background: rgba(255, 255, 255, 0.16);
+    color: #ffffff;
+    font-weight: 600;
+    border-color: rgba(255, 255, 255, 0.22);
+    box-shadow: none;
+}
+
+.sidebar-subnav a.active::before {
+    display: none;
+}
+
+.patient-subnav {
+    display: flex;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+    margin: 1rem 0 1.25rem;
+    padding: 0.65rem 0.7rem;
+    background: var(--docrev-white);
+    border: 1px solid var(--docrev-blue-200);
+    border-radius: var(--docrev-radius);
+    box-shadow: var(--docrev-shadow);
+}
+
+.patient-subnav__btn {
+    white-space: nowrap;
+}
+
+.patient-subtitle {
+    margin-top: 0.35rem;
+    color: var(--docrev-text-muted);
+    font-size: 0.88rem;
+}
+
+.patient-empty-state {
+    padding: 2rem 1.25rem;
+    text-align: center;
+    color: var(--docrev-text-muted);
+    background: var(--docrev-blue-50);
+    border: 1px dashed var(--docrev-blue-200);
+    border-radius: var(--docrev-radius);
+    margin-bottom: 1rem;
+}
+
+.patient-empty-state p {
+    margin: 0;
 }
 
 .main {
@@ -275,22 +378,48 @@ h3 {
 }
 
 /* Tables */
-table { width: 100%; border-collapse: collapse; margin-top: 0.75rem; }
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-top: 0.75rem;
+    background: var(--docrev-white);
+    border: 1px solid var(--docrev-border);
+    border-radius: var(--docrev-radius);
+    overflow: hidden;
+    box-shadow: var(--docrev-shadow);
+}
+
 th, td {
     text-align: left;
     padding: 0.65rem 0.85rem;
     border-bottom: 1px solid var(--docrev-border);
+    border-right: 1px solid rgba(212, 232, 242, 0.65);
     font-size: 0.875rem;
+    transition: background-color 0.18s ease;
 }
-tbody tr:hover { background: var(--docrev-blue-50); }
+
+th:last-child,
+td:last-child {
+    border-right: none;
+}
+
+tbody tr:last-child td {
+    border-bottom: none;
+}
+
+tbody tr:hover td {
+    background: var(--docrev-blue-50);
+}
+
 th {
     font-size: 0.7rem;
     text-transform: uppercase;
     letter-spacing: 0.04em;
     color: var(--docrev-blue-700);
-    background: var(--docrev-blue-50);
+    background: linear-gradient(180deg, var(--docrev-blue-50) 0%, #e3f2f9 100%);
     font-weight: 600;
-    border-bottom: 2px solid var(--docrev-blue-100);
+    border-bottom: 1px solid var(--docrev-blue-100);
 }
 
 /* Badges */

@@ -134,9 +134,9 @@
             <div class="card" style="margin-bottom:1.5rem; overflow-x:auto">
                 <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #e2e8f0; padding-bottom:0.75rem; margin-bottom:1rem">
                     <div style="display:flex; align-items:center; gap:0.5rem">
-                        <button class="btn btn-sm" style="background:#edf2f7" @click="prevDay()"><i class="fas fa-chevron-left"></i></button>
-                        <button class="btn btn-sm" style="background:#edf2f7" @click="nextDay()"><i class="fas fa-chevron-right"></i></button>
-                        <button class="btn btn-sm" style="background:#edf2f7" @click="goToToday()">Today</button>
+                        <button type="button" class="btn btn-sm calendar-nav-btn calendar-nav-btn--arrow" @click="prevDay()" aria-label="Previous day">‹</button>
+                        <button type="button" class="btn btn-sm calendar-nav-btn calendar-nav-btn--arrow" @click="nextDay()" aria-label="Next day">›</button>
+                        <button type="button" class="btn btn-sm calendar-nav-btn" @click="goToToday()">Today</button>
                         <span style="font-weight:bold; font-size:1.1rem; color:#2d3748">@{{ formatCalendarHeader() }}</span>
                     </div>
                     <div style="display:flex; gap:0.5rem; align-items:center">
