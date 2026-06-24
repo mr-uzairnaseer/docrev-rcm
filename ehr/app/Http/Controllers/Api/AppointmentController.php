@@ -67,6 +67,28 @@ class AppointmentController extends ApiController
         return new AppointmentResource($appointment->load(['patient', 'provider', 'location']));
     }
 
+    public function update(Request $request, Appointment $appointment, PortalAppointmentSyncService $syncService): AppointmentResource
+    {
+        $this->ensureBelongsToOrganization($appointment);
+
+        $data = $request->validate([
+            'provider_id' => ['sometimes', 'required', 'integer', 'exists:providers,id'],
+            'location_id' => ['sometimes', 'nullable', 'integer', 'exists:locations,id'],
+            'scheduled_at' => ['sometimes', 'required', 'date'],
+            'duration_minutes' => ['sometimes', 'nullable', 'integer', 'min:5', 'max:480'],
+            'appointment_type' => ['sometimes', 'nullable', 'string', 'max:50'],
+            'status' => ['sometimes', 'required', 'string', 'in:scheduled,checked_in,completed,cancelled,no_show'],
+            'notes' => ['sometimes', 'nullable', 'string', 'max:2000'],
+        ]);
+
+        $appointment->update($data);
+        
+        $appointment->load(['patient', 'provider', 'location', 'organization']);
+        $syncService->sync($appointment);
+
+        return new AppointmentResource($appointment->fresh()->load(['patient', 'provider', 'location']));
+    }
+
     public function checkIn(Appointment $appointment, AppointmentCheckInService $checkInService): AppointmentResource
     {
         $this->ensureBelongsToOrganization($appointment);

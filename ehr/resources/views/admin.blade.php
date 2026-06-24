@@ -432,22 +432,22 @@
 
                             <!-- Hour columns placeholders -->
                             <div style="flex:10; display:flex; position:relative; height:100%">
-                                <div style="flex:1; border-right:1px solid #f0f4f8"></div>
-                                <div style="flex:1; border-right:1px solid #f0f4f8"></div>
-                                <div style="flex:1; border-right:1px solid #f0f4f8"></div>
-                                <div style="flex:1; border-right:1px solid #f0f4f8"></div>
+                                <div @click="clickGridSlot(pr, 8)" style="flex:1; border-right:1px solid #f0f4f8; cursor:pointer" title="Click to schedule at 8:00 AM"></div>
+                                <div @click="clickGridSlot(pr, 9)" style="flex:1; border-right:1px solid #f0f4f8; cursor:pointer" title="Click to schedule at 9:00 AM"></div>
+                                <div @click="clickGridSlot(pr, 10)" style="flex:1; border-right:1px solid #f0f4f8; cursor:pointer" title="Click to schedule at 10:00 AM"></div>
+                                <div @click="clickGridSlot(pr, 11)" style="flex:1; border-right:1px solid #f0f4f8; cursor:pointer" title="Click to schedule at 11:00 AM"></div>
                                 <div style="flex:1; border-right:1px solid #f0f4f8; background:#edf2f7; display:flex; justify-content:center; align-items:center; color:#a0aec0; font-size:0.8rem">Lunch Break</div>
-                                <div style="flex:1; border-right:1px solid #f0f4f8"></div>
-                                <div style="flex:1; border-right:1px solid #f0f4f8"></div>
-                                <div style="flex:1; border-right:1px solid #f0f4f8"></div>
-                                <div style="flex:1; border-right:1px solid #f0f4f8"></div>
-                                <div style="flex:1;"></div>
+                                <div @click="clickGridSlot(pr, 13)" style="flex:1; border-right:1px solid #f0f4f8; cursor:pointer" title="Click to schedule at 1:00 PM"></div>
+                                <div @click="clickGridSlot(pr, 14)" style="flex:1; border-right:1px solid #f0f4f8; cursor:pointer" title="Click to schedule at 2:00 PM"></div>
+                                <div @click="clickGridSlot(pr, 15)" style="flex:1; border-right:1px solid #f0f4f8; cursor:pointer" title="Click to schedule at 3:00 PM"></div>
+                                <div @click="clickGridSlot(pr, 16)" style="flex:1; border-right:1px solid #f0f4f8; cursor:pointer" title="Click to schedule at 4:00 PM"></div>
+                                <div @click="clickGridSlot(pr, 17)" style="flex:1; cursor:pointer" title="Click to schedule at 5:00 PM"></div>
 
                                 <!-- Dynamically Rendered Calendar Blocks -->
                                 <div v-for="appt in appointments.filter(a => a.provider_id === pr.id)" :key="appt.id"
                                      style="position:absolute; top:10px; height:55px; border-radius:4px; padding:0.4rem; overflow:hidden; box-shadow:0 2px 4px rgba(0,0,0,0.1); cursor:pointer; display:flex; flex-direction:column; justify-content:space-between"
                                      :style="getApptStyle(appt)"
-                                     @click="appt.appointment_type==='telehealth' ? startTelehealthMeeting(appt) : ''">
+                                     @click.stop="openApptDetails(appt)">
                                     <div style="font-weight:bold; text-overflow:ellipsis; white-space:nowrap; overflow:hidden">
                                         {{ appt.patient ? appt.patient.first_name + ' ' + appt.patient.last_name : 'Patient Encounter' }}
                                     </div>
@@ -973,6 +973,112 @@
                 </div>
             </div>
         </main>
+        <!-- Detailed Appointment Settings Modal -->
+        <div v-if="selectedApptDetail" class="modal-overlay" style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.55); display:flex; justify-content:center; align-items:center; z-index:1000">
+            <div class="modal-card" style="background:white; padding:2rem; border-radius:12px; max-width:650px; width:90%; box-shadow:0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); border-top: 6px solid #3182ce;">
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e2e8f0; padding-bottom:1rem; margin-bottom:1.5rem">
+                    <h2 style="margin:0; color:#2d3748; font-size:1.5rem;"><i class="fas fa-calendar-check" style="color:#3182ce; margin-right:8px"></i>Appointment Settings</h2>
+                    <button class="btn btn-sm" @click="selectedApptDetail=null" style="background:#edf2f7; border:none; color:#4a5568; font-size:1rem; cursor:pointer; padding:0.25rem 0.5rem; border-radius:4px">&times;</button>
+                </div>
+
+                <!-- Patient & Quick info header -->
+                <div style="background:#f7fafc; border:1px solid #e2e8f0; border-radius:8px; padding:1rem; margin-bottom:1.5rem; display:grid; grid-template-columns: 1fr 1fr; gap:0.5rem; font-size:0.9rem">
+                    <div><strong>Patient:</strong> {{ selectedApptDetail.patient ? selectedApptDetail.patient.first_name + ' ' + selectedApptDetail.patient.last_name : '—' }}</div>
+                    <div><strong>DOB:</strong> {{ selectedApptDetail.patient ? selectedApptDetail.patient.date_of_birth : '—' }}</div>
+                    <div><strong>MRN:</strong> {{ selectedApptDetail.patient ? (selectedApptDetail.patient.mrn || 'N/A') : '—' }}</div>
+                    <div><strong>Sync Status:</strong> <span class="badge badge-green">{{ selectedApptDetail.portal_sync_status || 'Synced' }}</span></div>
+                </div>
+
+                <div class="form-row" style="margin-bottom:1rem">
+                    <div class="form-group" style="flex:1; min-width:200px">
+                        <label>Provider</label>
+                        <select v-model="selectedApptDetail.provider_id" style="width:100%; padding:0.5rem; border-radius:6px; border:1px solid #cbd5e0">
+                            <option v-for="pr in providers" :key="pr.id" :value="pr.id">Dr. {{ pr.last_name }} ({{ pr.specialty }})</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="flex:1; min-width:200px">
+                        <label>Location</label>
+                        <select v-model="selectedApptDetail.location_id" style="width:100%; padding:0.5rem; border-radius:6px; border:1px solid #cbd5e0">
+                            <option v-for="loc in locations" :key="loc.id" :value="loc.id">{{ loc.name }}</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row" style="margin-bottom:1rem">
+                    <div class="form-group" style="flex:1; min-width:200px">
+                        <label>Scheduled Date &amp; Time</label>
+                        <input type="datetime-local" v-model="selectedApptDetail.scheduled_at" style="width:100%; padding:0.5rem; border-radius:6px; border:1px solid #cbd5e0">
+                    </div>
+                    <div class="form-group" style="flex:1; min-width:200px">
+                        <label>Duration</label>
+                        <select v-model="selectedApptDetail.duration_minutes" style="width:100%; padding:0.5rem; border-radius:6px; border:1px solid #cbd5e0">
+                            <option :value="15">15 Minutes</option>
+                            <option :value="30">30 Minutes</option>
+                            <option :value="45">45 Minutes</option>
+                            <option :value="60">60 Minutes</option>
+                            <option :value="90">90 Minutes</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row" style="margin-bottom:1rem">
+                    <div class="form-group" style="flex:1; min-width:200px">
+                        <label>Visit Type</label>
+                        <select v-model="selectedApptDetail.appointment_type" style="width:100%; padding:0.5rem; border-radius:6px; border:1px solid #cbd5e0">
+                            <option value="office_visit">Office Visit</option>
+                            <option value="telehealth">Telehealth (Video Visit)</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="flex:1; min-width:200px">
+                        <label>Appointment Status</label>
+                        <select v-model="selectedApptDetail.status" style="width:100%; padding:0.5rem; border-radius:6px; border:1px solid #cbd5e0">
+                            <option value="scheduled">Scheduled</option>
+                            <option value="checked_in">Checked In</option>
+                            <option value="completed">Completed</option>
+                            <option value="cancelled">Cancelled</option>
+                            <option value="no_show">No Show</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom:1.5rem">
+                    <label>Reason / Notes</label>
+                    <textarea v-model="selectedApptDetail.notes" rows="2" style="width:100%; padding:0.5rem; border-radius:6px; border:1px solid #cbd5e0; font-family:inherit"></textarea>
+                </div>
+
+                <!-- Realtime Insurance Eligibility Check Sub-panel -->
+                <div style="background:#ebf8ff; border:1px solid #bee3f8; border-radius:8px; padding:1rem; margin-bottom:1.5rem">
+                    <div style="display:flex; justify-content:space-between; align-items:center">
+                        <span style="font-weight:bold; color:#2b6cb0"><i class="fas fa-shield-alt" style="margin-right:6px"></i>Carrier Realtime Eligibility Check</span>
+                        <button class="btn btn-sm btn-primary" @click="checkEligibility" :disabled="isEligibilityChecking" style="padding:0.25rem 0.5rem; font-size:0.8rem">
+                            <span v-if="isEligibilityChecking">Verifying...</span>
+                            <span v-else>Run 270/271 Check</span>
+                        </button>
+                    </div>
+                    <!-- Result display -->
+                    <div v-if="eligibilityResult" style="margin-top:0.75rem; font-size:0.85rem; border-top:1px solid #bee3f8; padding-top:0.5rem; display:grid; grid-template-columns:1fr 1fr; gap:0.25rem">
+                        <div><strong>Status:</strong> <span style="color:#2f855a; font-weight:bold">{{ eligibilityResult.status }}</span></div>
+                        <div><strong>Payer:</strong> {{ eligibilityResult.payer }}</div>
+                        <div><strong>Copay:</strong> {{ eligibilityResult.copay }}</div>
+                        <div><strong>Deductible:</strong> {{ eligibilityResult.deductible }}</div>
+                        <div style="grid-column: span 2; font-size:0.75rem; color:#718096; margin-top:0.25rem">Checked at: {{ eligibilityResult.verifiedAt }} via Availity Real-time Engine</div>
+                    </div>
+                </div>
+
+                <!-- Footer Action Buttons -->
+                <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid #e2e8f0; padding-top:1rem">
+                    <div style="display:flex; gap:0.5rem">
+                        <button class="btn btn-sm" @click="sendAppointmentReminder" style="background:#edf2f7; color:#4a5568"><i class="fas fa-bell" style="margin-right:4px"></i>Send Reminder</button>
+                        <button v-if="selectedApptDetail.appointment_type==='telehealth' && selectedApptDetail.status==='scheduled'" class="btn btn-sm" style="background:#3182ce; color:white;" @click="selectedApptDetail=null; startTelehealthMeeting(selectedApptDetail)"><i class="fas fa-video" style="margin-right:4px"></i>Launch Video</button>
+                        <button v-if="selectedApptDetail.status==='scheduled'" class="btn btn-sm btn-primary" @click="selectedApptDetail=null; checkInAppt(selectedApptDetail.id)"><i class="fas fa-check" style="margin-right:4px"></i>Check In</button>
+                    </div>
+                    <div style="display:flex; gap:0.5rem">
+                        <button class="btn btn-sm" @click="selectedApptDetail=null" style="background:#edf2f7; color:#4a5568">Close</button>
+                        <button class="btn btn-sm btn-primary" @click="updateApptDetails">Save Changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 @endverbatim
 </div>
