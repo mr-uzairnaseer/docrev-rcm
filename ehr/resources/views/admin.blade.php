@@ -62,20 +62,7 @@
         <main class="main">
             <p v-if="toast" class="toast">{{ toast }}</p>
 
-            <!-- Dynamic Tab Skeleton Loader -->
-            <div v-if="tabLoading" class="card animate-pulse" style="padding: 2rem; margin-bottom: 1.5rem; background: #fff; border-radius: 8px">
-                <div style="height: 24px; background: #e2e8f0; width: 40%; border-radius: 4px; margin-bottom: 1.5rem"></div>
-                <div style="height: 12px; background: #e2e8f0; width: 85%; border-radius: 4px; margin-bottom: 0.75rem"></div>
-                <div style="height: 12px; background: #e2e8f0; width: 70%; border-radius: 4px; margin-bottom: 0.75rem"></div>
-                <div style="height: 12px; background: #e2e8f0; width: 90%; border-radius: 4px; margin-bottom: 1.5rem"></div>
-                <div style="display: flex; gap: 1rem">
-                    <div style="flex:1; height: 80px; background: #edf2f7; border-radius: 6px"></div>
-                    <div style="flex:1; height: 80px; background: #edf2f7; border-radius: 6px"></div>
-                    <div style="flex:1; height: 80px; background: #edf2f7; border-radius: 6px"></div>
-                </div>
-            </div>
-
-            <div v-if="!tabLoading && view==='dashboard'">
+            <div v-if="view==='dashboard'">
                 <div class="stats">
                     <div class="stat"><div class="num">{{ patients.length }}</div><div class="label">Patients</div></div>
                     <div class="stat"><div class="num">{{ encounters.length }}</div><div class="label">Encounters</div></div>

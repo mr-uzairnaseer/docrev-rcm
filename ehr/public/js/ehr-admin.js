@@ -92,14 +92,7 @@ createApp({
             this.loading = false;
         },
         logout() { this.token = ''; localStorage.removeItem(TOKEN_KEY); },
-        setView(v) { 
-            this.tabLoading = true;
-            this.view = v; 
-            setTimeout(async () => {
-                await this.refreshView();
-                this.tabLoading = false;
-            }, 350);
-        },
+        setView(v) { this.view = v; this.refreshView(); },
         async refreshView() {
             if (this.view === 'prescriptions') await this.loadPrescriptions();
             else if (this.view === 'labs') await this.loadLabs();
