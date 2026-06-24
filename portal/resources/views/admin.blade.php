@@ -127,24 +127,66 @@
                 </div>
             </div>
 
-            <div class="card">
-                <h2>Upcoming Appointments</h2>
-                <table v-if="appointments.length">
-                    <thead><tr><th>Provider</th><th>Location</th><th>Date</th><th>Type</th><th>Status</th><th>Actions</th></tr></thead>
-                    <tbody>
-                        <tr v-for="a in appointments" :key="a.id">
-                            <td>{{ a.provider_name }}</td>
-                            <td>{{ a.location_name || '—' }}</td>
-                            <td>{{ formatDate(a.appointment_at) }}</td>
-                            <td><span class="badge" :class="a.appointment_type==='telehealth'?'badge-blue':'badge-secondary'">{{ a.appointment_type }}</span></td>
-                            <td><span class="badge" :class="a.status === 'requested' ? 'badge-blue' : 'badge-green'">{{ a.status }}</span></td>
-                            <td>
-                                <button v-if="a.appointment_type==='telehealth' && a.status==='scheduled'" class="btn btn-sm btn-primary" @click="startTelehealthMeeting(a)" style="background:#38a169; border-color:#38a169">Join Video Room</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <p v-else style="color:#718096">No appointments scheduled.</p>
+            <!-- Interactive Timeline Calendar Grid (Patient View) -->
+            <div class="card" style="margin-bottom:1.5rem; overflow-x:auto">
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #e2e8f0; padding-bottom:0.75rem; margin-bottom:1rem">
+                    <h2 style="margin:0">My Scheduling Agenda Calendar</h2>
+                    <div style="display:flex; gap:0.25rem; font-size:0.75rem">
+                        <span class="badge" style="background:#48bb78; color:white">office_visit</span>
+                        <span class="badge" style="background:#3182ce; color:white">telehealth</span>
+                    </div>
+                </div>
+
+                <div style="min-width:700px">
+                    <!-- Hours Grid Headers -->
+                    <div style="display:flex; background:#edf2f7; font-weight:bold; border-bottom:1px solid #cbd5e0">
+                        <div style="width:150px; padding:0.5rem; border-right:1px solid #cbd5e0">Timeline</div>
+                        <div style="flex:1; padding:0.5rem; border-right:1px solid #cbd5e0; text-align:center">8:00 AM</div>
+                        <div style="flex:1; padding:0.5rem; border-right:1px solid #cbd5e0; text-align:center">9:00 AM</div>
+                        <div style="flex:1; padding:0.5rem; border-right:1px solid #cbd5e0; text-align:center">10:00 AM</div>
+                        <div style="flex:1; padding:0.5rem; border-right:1px solid #cbd5e0; text-align:center">11:00 AM</div>
+                        <div style="flex:1; padding:0.5rem; border-right:1px solid #cbd5e0; text-align:center">12:00 PM</div>
+                        <div style="flex:1; padding:0.5rem; border-right:1px solid #cbd5e0; text-align:center">1:00 PM</div>
+                        <div style="flex:1; padding:0.5rem; border-right:1px solid #cbd5e0; text-align:center">2:00 PM</div>
+                        <div style="flex:1; padding:0.5rem; border-right:1px solid #cbd5e0; text-align:center">3:00 PM</div>
+                        <div style="flex:1; padding:0.5rem; border-right:1px solid #cbd5e0; text-align:center">4:00 PM</div>
+                        <div style="flex:1; padding:0.5rem; text-align:center">5:00 PM</div>
+                    </div>
+
+                    <!-- Agenda Schedule Row -->
+                    <div style="display:flex; border-bottom:1px solid #e2e8f0; height:80px; position:relative; background:#fff">
+                        <div style="width:150px; padding:0.5rem; border-right:1px solid #cbd5e0; display:flex; flex-direction:column; justify-content:center; background:#f7fafc; font-weight:bold; font-size:0.9rem">
+                            <span>My Agenda</span>
+                            <span style="font-weight:normal; font-size:0.75rem; color:#718096">Scheduled Visits</span>
+                        </div>
+
+                        <div style="flex:10; display:flex; position:relative; height:100%">
+                            <div style="flex:1; border-right:1px solid #f0f4f8"></div>
+                            <div style="flex:1; border-right:1px solid #f0f4f8"></div>
+                            <div style="flex:1; border-right:1px solid #f0f4f8"></div>
+                            <div style="flex:1; border-right:1px solid #f0f4f8"></div>
+                            <div style="flex:1; border-right:1px solid #f0f4f8; background:#edf2f7; display:flex; justify-content:center; align-items:center; color:#a0aec0; font-size:0.8rem">Rest Period</div>
+                            <div style="flex:1; border-right:1px solid #f0f4f8"></div>
+                            <div style="flex:1; border-right:1px solid #f0f4f8"></div>
+                            <div style="flex:1; border-right:1px solid #f0f4f8"></div>
+                            <div style="flex:1; border-right:1px solid #f0f4f8"></div>
+                            <div style="flex:1;"></div>
+
+                            <!-- Calendar Appts blocks -->
+                            <div v-for="appt in appointments.filter(a=>a.status!=='requested')" :key="appt.id"
+                                 style="position:absolute; top:10px; height:55px; border-radius:4px; padding:0.4rem; color:white; font-size:0.8rem; overflow:hidden; box-shadow:0 2px 4px rgba(0,0,0,0.1); cursor:pointer; display:flex; flex-direction:column; justify-content:space-between"
+                                 :style="appt.appointment_type === 'telehealth' ? 'left:12%; width:24%; background:#3182ce' : 'left:65%; width:22%; background:#48bb78'">
+                                <div style="font-weight:bold; text-overflow:ellipsis; white-space:nowrap; overflow:hidden">
+                                    {{ appt.provider_name }}
+                                </div>
+                                <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.7rem; opacity:0.9">
+                                    <span>{{ appt.appointment_type }}</span>
+                                    <button v-if="appt.appointment_type==='telehealth' && appt.status==='scheduled'" @click="startTelehealthMeeting(appt)" style="background:#38a169; border:none; color:white; font-size:0.65rem; padding:0.1rem 0.3rem; border-radius:2px; cursor:pointer">Join Room</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="card" style="margin-top:1.5rem">
