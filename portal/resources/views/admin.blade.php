@@ -174,8 +174,8 @@
 
                             <!-- Calendar Appts blocks -->
                             <div v-for="appt in appointments.filter(a=>a.status!=='requested')" :key="appt.id"
-                                 style="position:absolute; top:10px; height:55px; border-radius:4px; padding:0.4rem; color:white; font-size:0.8rem; overflow:hidden; box-shadow:0 2px 4px rgba(0,0,0,0.1); cursor:pointer; display:flex; flex-direction:column; justify-content:space-between"
-                                 :style="appt.appointment_type === 'telehealth' ? 'left:12%; width:24%; background:#3182ce' : 'left:65%; width:22%; background:#48bb78'">
+                                 style="position:absolute; top:10px; height:55px; border-radius:4px; padding:0.4rem; overflow:hidden; box-shadow:0 2px 4px rgba(0,0,0,0.1); cursor:pointer; display:flex; flex-direction:column; justify-content:space-between"
+                                 :style="getApptStyle(appt)">
                                 <div style="font-weight:bold; text-overflow:ellipsis; white-space:nowrap; overflow:hidden">
                                     {{ appt.provider_name }}
                                 </div>

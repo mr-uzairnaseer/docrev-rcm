@@ -475,6 +475,31 @@ createApp({
         },
         formatDate(d) { return d ? new Date(d).toLocaleDateString() : '—'; },
         formatDateTime(d) { return d ? new Date(d).toLocaleString() : '—'; },
+        getApptStyle(appt) {
+            if (!appt || !appt.scheduled_at) return { display: 'none' };
+            const d = new Date(appt.scheduled_at);
+            if (isNaN(d.getTime())) return { display: 'none' };
+            const hours = d.getHours() + d.getMinutes() / 60;
+            const startOffset = 8.0;
+            const totalHours = 10.0;
+            let leftPercent = ((hours - startOffset) / totalHours) * 100;
+            if (leftPercent < 0) leftPercent = 0;
+            if (leftPercent > 90) leftPercent = 90;
+            let bg = '#48bb78';
+            let color = '#fff';
+            if (appt.appointment_type === 'telehealth') {
+                bg = '#3182ce';
+            } else if (appt.status === 'requested') {
+                bg = '#ecc94b';
+                color = '#744210';
+            }
+            return {
+                left: leftPercent + '%',
+                width: '9.5%',
+                background: bg,
+                color: color
+            };
+        },
         billingBadge(s) {
             if (s === 'synced') return 'badge badge-green';
             if (s === 'pending' || s === 'failed') return 'badge badge-yellow';
