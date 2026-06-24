@@ -47,6 +47,14 @@ createApp({
             selectedPatient: null,
             billingTab: 'claims',
             reportTab: 'financial',
+            agingType: 'service',
+            agingFilters: {
+                provider: 'all',
+                payer: 'all',
+                location: 'all',
+                statusGroup: 'all',
+                patientName: ''
+            },
             // Telehealth meeting state
             isMeetingActive: false,
             meetingAppointment: null,

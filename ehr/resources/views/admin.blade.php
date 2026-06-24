@@ -760,9 +760,111 @@
                 </div>
 
                 <div v-if="reportTab==='financial'" class="panel">
-                    <h3>Financial Performance Analytics</h3>
-                    <p>Total Revenue Billed: $1,250.00</p>
-                    <p>Total Payments Collected: $920.00</p>
+                    <h3>Financial Performance Analytics &amp; A/R Aging</h3>
+                    
+                    <!-- Aging Reports Sub-navigation -->
+                    <div style="margin: 0.5rem 0 1.5rem 0; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem">
+                        <button class="btn btn-sm" :class="agingType==='service'?'btn-primary':''" @click="agingType='service'" style="margin-right: 0.5rem">Aging by Service Date</button>
+                        <button class="btn btn-sm" :class="agingType==='submission'?'btn-primary':''" @click="agingType='submission'">Aging by Submission Date</button>
+                    </div>
+
+                    <!-- Recommended Filters Card -->
+                    <div style="background:#f7fafc; border:1px solid #cbd5e0; padding:1rem; border-radius:6px; margin-bottom:1.5rem">
+                        <h4 style="margin:0 0 0.75rem 0; color:#2d3748">🔍 Filters</h4>
+                        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:1rem">
+                            <div class="form-group" style="margin:0">
+                                <label style="font-size:0.8rem">Provider</label>
+                                <select v-model="agingFilters.provider" style="width:100%; padding:0.3rem">
+                                    <option value="all">All Providers</option>
+                                    <option value="1">Dr. David Miller</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="margin:0">
+                                <label style="font-size:0.8rem">Payer / Insurance</label>
+                                <select v-model="agingFilters.payer" style="width:100%; padding:0.3rem">
+                                    <option value="all">All Payers</option>
+                                    <option value="uhc">UnitedHealthcare</option>
+                                    <option value="medicare">Medicare (CMS)</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="margin:0">
+                                <label style="font-size:0.8rem">Location</label>
+                                <select v-model="agingFilters.location" style="width:100%; padding:0.3rem">
+                                    <option value="all">All Facilities</option>
+                                    <option value="1">Main Clinic</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="margin:0">
+                                <label style="font-size:0.8rem">Claim Status Group</label>
+                                <select v-model="agingFilters.statusGroup" style="width:100%; padding:0.3rem">
+                                    <option value="all">All Claims</option>
+                                    <option value="open">Open Claims (Draft, Ready, Submitted, Acknowledged)</option>
+                                    <option value="problem">Problem Claims (Rejected, Denied)</option>
+                                    <option value="action">Action Required (Appeal, Resubmitted, Hold)</option>
+                                    <option value="closed">Closed Claims (Paid, Written Off, Voided)</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="margin:0">
+                                <label style="font-size:0.8rem">Patient Name / Account</label>
+                                <input v-model="agingFilters.patientName" placeholder="Search Patient..." style="width:100%; padding:0.3rem; border:1px solid #cbd5e0; border-radius:4px">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Aging Buckets Output -->
+                    <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:1.5rem">
+                        <div style="flex:1; min-width:130px; background:#ebf8ff; border:1px solid #bee3f8; padding:1rem; border-radius:6px; border-top: 4px solid #3182ce">
+                            <span style="font-size:0.8rem; color:#4a5568; font-weight:bold">0 - 30 Days</span>
+                            <h2 style="margin:0.25rem 0">$1,020.00</h2>
+                            <span style="font-size:0.75rem; color:#718096">Bucket 1</span>
+                        </div>
+                        <div style="flex:1; min-width:130px; background:#fffaf0; border:1px solid #feebc8; padding:1rem; border-radius:6px; border-top: 4px solid #dd6b20">
+                            <span style="font-size:0.8rem; color:#4a5568; font-weight:bold">31 - 60 Days</span>
+                            <h2 style="margin:0.25rem 0">$250.00</h2>
+                            <span style="font-size:0.75rem; color:#718096">Bucket 2</span>
+                        </div>
+                        <div style="flex:1; min-width:130px; background:#fff5f5; border:1px solid #fed7d7; padding:1rem; border-radius:6px; border-top: 4px solid #e53e3e">
+                            <span style="font-size:0.8rem; color:#4a5568; font-weight:bold">61 - 90 Days</span>
+                            <h2 style="margin:0.25rem 0">$180.00</h2>
+                            <span style="font-size:0.75rem; color:#718096">Bucket 3</span>
+                        </div>
+                        <div style="flex:1; min-width:130px; background:#edf2f7; border:1px solid #e2e8f0; padding:1rem; border-radius:6px; border-top: 4px solid #4a5568">
+                            <span style="font-size:0.8rem; color:#4a5568; font-weight:bold">91 - 120 Days</span>
+                            <h2 style="margin:0.25rem 0">$0.00</h2>
+                            <span style="font-size:0.75rem; color:#718096">Bucket 4</span>
+                        </div>
+                        <div style="flex:1; min-width:130px; background:#1a202c; color:white; border:1px solid #2d3748; padding:1rem; border-radius:6px; border-top: 4px solid #cbd5e0">
+                            <span style="font-size:0.8rem; color:#a0aec0; font-weight:bold">120+ Days</span>
+                            <h2 style="margin:0.25rem 0; color:white">$150.00</h2>
+                            <span style="font-size:0.75rem; color:#a0aec0">Bucket 5</span>
+                        </div>
+                    </div>
+
+                    <div class="panel" style="background:#fff">
+                        <h4 style="margin-top:0">Detailed Aging Accounts Receivable List ({{ agingType === 'service' ? 'By Service Date' : 'By Submission Date' }})</h4>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Patient</th>
+                                    <th>Date</th>
+                                    <th>Carrier</th>
+                                    <th>Billed Amt</th>
+                                    <th>Current Status</th>
+                                    <th>Bucket Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="e in encounters.filter(x=>x.billing_sync_status==='synced')" :key="e.id">
+                                    <td>{{ e.patient ? e.patient.full_name : '—' }}</td>
+                                    <td>{{ formatDate(e.encounter_date) }}</td>
+                                    <td>UnitedHealthcare</td>
+                                    <td>$150.00</td>
+                                    <td><span class="badge badge-green">Submitted</span></td>
+                                    <td><span class="badge">0-30 Days</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
                 <div v-if="reportTab==='quality'" class="panel">
