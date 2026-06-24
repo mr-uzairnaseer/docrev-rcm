@@ -35,6 +35,8 @@ createApp({
             dxForm: { icd10_code: 'Z00.00', description: '' },
             chargeForm: { cpt_code: '99213', charge_amount: '150.00', units: 1, diagnosis_pointers: [1] },
             apptTab: 'calendar',
+            calendarDate: new Date().toISOString().slice(0, 10),
+            calendarDateInput: new Date().toISOString().slice(0, 10),
             patientPrescriptions: [],
             patientForms: [],
             selectedFormTemplate: '',
@@ -118,7 +120,7 @@ createApp({
             this.encounters = data.data;
         },
         async loadAppointments() {
-            const { data } = await this.api().get('/appointments?per_page=50&from=' + new Date().toISOString().slice(0, 10));
+            const { data } = await this.api().get('/appointments?per_page=200');
             this.appointments = data.data;
             await this.loadPatients();
             await this.loadProviders();
@@ -564,6 +566,35 @@ createApp({
         },
         sendAppointmentReminder() {
             this.toast = 'Reminder notification queued for email & SMS.';
+        },
+        prevDay() {
+            const d = new Date(this.calendarDate);
+            d.setDate(d.getDate() - 1);
+            this.calendarDate = d.toISOString().slice(0, 10);
+            this.calendarDateInput = this.calendarDate;
+        },
+        nextDay() {
+            const d = new Date(this.calendarDate);
+            d.setDate(d.getDate() + 1);
+            this.calendarDate = d.toISOString().slice(0, 10);
+            this.calendarDateInput = this.calendarDate;
+        },
+        goToToday() {
+            this.calendarDate = new Date().toISOString().slice(0, 10);
+            this.calendarDateInput = this.calendarDate;
+        },
+        formatCalendarHeader() {
+            const d = new Date(this.calendarDate);
+            return d.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        },
+        setDateFromInput() {
+            this.calendarDate = this.calendarDateInput;
+        },
+        getApptsForProviderAndDate(providerId) {
+            const selDate = new Date(this.calendarDate).toDateString();
+            return this.appointments.filter(a => {
+                return a.provider_id === providerId && new Date(a.scheduled_at).toDateString() === selDate;
+            });
         },
         billingBadge(s) {
             if (s === 'synced') return 'badge badge-green';

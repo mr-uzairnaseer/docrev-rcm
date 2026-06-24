@@ -16,6 +16,8 @@ createApp({
             signatureName: '',
             showSignModal: false,
             view: 'dashboard',
+            calendarDate: new Date().toISOString().slice(0, 10),
+            calendarDateInput: new Date().toISOString().slice(0, 10),
             apptForm: { provider_id: '', scheduled_at: '', notes: '' },
             loginForm: { email: 'jane.doe@patient.test', password: 'password' },
             // Telehealth meeting state
@@ -214,6 +216,35 @@ createApp({
                 background: bg,
                 color: color
             };
+        },
+        prevDay() {
+            const d = new Date(this.calendarDate);
+            d.setDate(d.getDate() - 1);
+            this.calendarDate = d.toISOString().slice(0, 10);
+            this.calendarDateInput = this.calendarDate;
+        },
+        nextDay() {
+            const d = new Date(this.calendarDate);
+            d.setDate(d.getDate() + 1);
+            this.calendarDate = d.toISOString().slice(0, 10);
+            this.calendarDateInput = this.calendarDate;
+        },
+        goToToday() {
+            this.calendarDate = new Date().toISOString().slice(0, 10);
+            this.calendarDateInput = this.calendarDate;
+        },
+        formatCalendarHeader() {
+            const d = new Date(this.calendarDate);
+            return d.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        },
+        setDateFromInput() {
+            this.calendarDate = this.calendarDateInput;
+        },
+        getApptsForDate() {
+            const selDate = new Date(this.calendarDate).toDateString();
+            return this.appointments.filter(a => {
+                return a.status !== 'requested' && new Date(a.scheduled_at).toDateString() === selDate;
+            });
         },
     },
 }).mount('#app');

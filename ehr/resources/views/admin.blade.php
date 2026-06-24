@@ -395,13 +395,13 @@
                     <!-- Calendar Header Controls -->
                     <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #e2e8f0; padding-bottom:0.75rem; margin-bottom:1rem">
                         <div style="display:flex; align-items:center; gap:0.5rem">
-                            <button class="btn btn-sm" style="background:#edf2f7"><i class="fas fa-chevron-left"></i></button>
-                            <button class="btn btn-sm" style="background:#edf2f7"><i class="fas fa-chevron-right"></i></button>
-                            <span style="font-weight:bold; font-size:1.1rem; color:#2d3748">June 1 to 30, 2026</span>
+                            <button class="btn btn-sm" style="background:#edf2f7" @click="prevDay()"><i class="fas fa-chevron-left"></i></button>
+                            <button class="btn btn-sm" style="background:#edf2f7" @click="nextDay()"><i class="fas fa-chevron-right"></i></button>
+                            <button class="btn btn-sm" style="background:#edf2f7" @click="goToToday()">Today</button>
+                            <span style="font-weight:bold; font-size:1.1rem; color:#2d3748">@{{ formatCalendarHeader() }}</span>
                         </div>
-                        <div style="display:flex; gap:0.25rem">
-                            <button class="btn btn-sm btn-primary">Timeline Day</button>
-                            <button class="btn btn-sm" style="background:#edf2f7">Timeline Week</button>
+                        <div style="display:flex; gap:0.5rem; align-items:center">
+                            <input type="date" v-model="calendarDateInput" @change="setDateFromInput" style="padding:0.3rem 0.5rem; border-radius:6px; border:1px solid #cbd5e0; font-size:0.9rem">
                         </div>
                     </div>
 
@@ -444,7 +444,7 @@
                                 <div @click="clickGridSlot(pr, 17)" style="flex:1; cursor:pointer" title="Click to schedule at 5:00 PM"></div>
 
                                 <!-- Dynamically Rendered Calendar Blocks -->
-                                <div v-for="appt in appointments.filter(a => a.provider_id === pr.id)" :key="appt.id"
+                                <div v-for="appt in getApptsForProviderAndDate(pr.id)" :key="appt.id"
                                      style="position:absolute; top:10px; height:55px; border-radius:4px; padding:0.4rem; overflow:hidden; box-shadow:0 2px 4px rgba(0,0,0,0.1); cursor:pointer; display:flex; flex-direction:column; justify-content:space-between"
                                      :style="getApptStyle(appt)"
                                      @click.stop="openApptDetails(appt)">

@@ -130,8 +130,14 @@
             <!-- Interactive Timeline Calendar Grid (Patient View) -->
             <div class="card" style="margin-bottom:1.5rem; overflow-x:auto">
                 <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #e2e8f0; padding-bottom:0.75rem; margin-bottom:1rem">
-                    <h2 style="margin:0">My Scheduling Agenda Calendar</h2>
-                    <div style="display:flex; gap:0.25rem; font-size:0.75rem">
+                    <div style="display:flex; align-items:center; gap:0.5rem">
+                        <button class="btn btn-sm" style="background:#edf2f7" @click="prevDay()"><i class="fas fa-chevron-left"></i></button>
+                        <button class="btn btn-sm" style="background:#edf2f7" @click="nextDay()"><i class="fas fa-chevron-right"></i></button>
+                        <button class="btn btn-sm" style="background:#edf2f7" @click="goToToday()">Today</button>
+                        <span style="font-weight:bold; font-size:1.1rem; color:#2d3748">@{{ formatCalendarHeader() }}</span>
+                    </div>
+                    <div style="display:flex; gap:0.5rem; align-items:center">
+                        <input type="date" v-model="calendarDateInput" @change="setDateFromInput" style="padding:0.3rem 0.5rem; border-radius:6px; border:1px solid #cbd5e0; font-size:0.9rem">
                         <span class="badge" style="background:#48bb78; color:white">office_visit</span>
                         <span class="badge" style="background:#3182ce; color:white">telehealth</span>
                     </div>
@@ -173,7 +179,7 @@
                             <div style="flex:1;"></div>
 
                             <!-- Calendar Appts blocks -->
-                            <div v-for="appt in appointments.filter(a=>a.status!=='requested')" :key="appt.id"
+                            <div v-for="appt in getApptsForDate()" :key="appt.id"
                                  style="position:absolute; top:10px; height:55px; border-radius:4px; padding:0.4rem; overflow:hidden; box-shadow:0 2px 4px rgba(0,0,0,0.1); cursor:pointer; display:flex; flex-direction:column; justify-content:space-between"
                                  :style="getApptStyle(appt)">
                                 <div style="font-weight:bold; text-overflow:ellipsis; white-space:nowrap; overflow:hidden">
