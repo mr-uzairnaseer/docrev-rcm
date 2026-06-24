@@ -889,32 +889,63 @@
                         </div>
                     </div>
 
-                    <!-- Aging Buckets Output (Display all the time, click updates selectedAgingBucket filter) -->
-                    <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:1.5rem">
-                        <div @click="selectedAgingBucket='1'" style="flex:1; min-width:130px; background:#ebf8ff; border:1px solid #bee3f8; padding:1rem; border-radius:6px; cursor:pointer; transition: transform 0.2s" :style="selectedAgingBucket==='1' ? 'transform: translateY(-4px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid #3182ce' : 'border-top: 4px solid #3182ce'">
+                    <!-- Aging by Service Date Buckets -->
+                    <h3 style="color:#2d3748; margin-top:1.5rem; font-size:1.1rem; border-bottom:1px solid #edf2f7; padding-bottom:0.4rem"><i class="fas fa-calendar-day" style="color:#3182ce; margin-right:6px"></i>Aging by Service Date</h3>
+                    <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:1.5rem; margin-top:0.75rem">
+                        <div @click="agingType='service'; selectedAgingBucket='1'" style="flex:1; min-width:130px; background:#ebf8ff; border:1px solid #bee3f8; padding:1rem; border-radius:6px; cursor:pointer; transition: transform 0.2s" :style="agingType==='service' && selectedAgingBucket==='1' ? 'transform: translateY(-4px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid #3182ce' : 'border-top: 4px solid #3182ce'">
                             <span style="font-size:0.8rem; color:#4a5568; font-weight:bold">0 - 30 Days</span>
                             <h2 style="margin:0.25rem 0">$1,020.00</h2>
-                            <span style="font-size:0.75rem; color:#718096">Bucket 1 (Click details)</span>
+                            <span style="font-size:0.75rem; color:#718096">Service Date (Click details)</span>
                         </div>
-                        <div @click="selectedAgingBucket='2'" style="flex:1; min-width:130px; background:#fffaf0; border:1px solid #feebc8; padding:1rem; border-radius:6px; cursor:pointer; transition: transform 0.2s" :style="selectedAgingBucket==='2' ? 'transform: translateY(-4px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid #dd6b20' : 'border-top: 4px solid #dd6b20'">
+                        <div @click="agingType='service'; selectedAgingBucket='2'" style="flex:1; min-width:130px; background:#fffaf0; border:1px solid #feebc8; padding:1rem; border-radius:6px; cursor:pointer; transition: transform 0.2s" :style="agingType==='service' && selectedAgingBucket==='2' ? 'transform: translateY(-4px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid #dd6b20' : 'border-top: 4px solid #dd6b20'">
                             <span style="font-size:0.8rem; color:#4a5568; font-weight:bold">31 - 60 Days</span>
                             <h2 style="margin:0.25rem 0">$250.00</h2>
-                            <span style="font-size:0.75rem; color:#718096">Bucket 2 (Click details)</span>
+                            <span style="font-size:0.75rem; color:#718096">Service Date (Click details)</span>
                         </div>
-                        <div @click="selectedAgingBucket='3'" style="flex:1; min-width:130px; background:#fff5f5; border:1px solid #fed7d7; padding:1rem; border-radius:6px; cursor:pointer; transition: transform 0.2s" :style="selectedAgingBucket==='3' ? 'transform: translateY(-4px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid #e53e3e' : 'border-top: 4px solid #e53e3e'">
+                        <div @click="agingType='service'; selectedAgingBucket='3'" style="flex:1; min-width:130px; background:#fff5f5; border:1px solid #fed7d7; padding:1rem; border-radius:6px; cursor:pointer; transition: transform 0.2s" :style="agingType==='service' && selectedAgingBucket==='3' ? 'transform: translateY(-4px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid #e53e3e' : 'border-top: 4px solid #e53e3e'">
                             <span style="font-size:0.8rem; color:#4a5568; font-weight:bold">61 - 90 Days</span>
                             <h2 style="margin:0.25rem 0">$180.00</h2>
-                            <span style="font-size:0.75rem; color:#718096">Bucket 3 (Click details)</span>
+                            <span style="font-size:0.75rem; color:#718096">Service Date (Click details)</span>
                         </div>
-                        <div @click="selectedAgingBucket='4'" style="flex:1; min-width:130px; background:#edf2f7; border:1px solid #e2e8f0; padding:1rem; border-radius:6px; cursor:pointer; transition: transform 0.2s" :style="selectedAgingBucket==='4' ? 'transform: translateY(-4px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid #4a5568' : 'border-top: 4px solid #4a5568'">
+                        <div @click="agingType='service'; selectedAgingBucket='4'" style="flex:1; min-width:130px; background:#edf2f7; border:1px solid #e2e8f0; padding:1rem; border-radius:6px; cursor:pointer; transition: transform 0.2s" :style="agingType==='service' && selectedAgingBucket==='4' ? 'transform: translateY(-4px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid #4a5568' : 'border-top: 4px solid #4a5568'">
                             <span style="font-size:0.8rem; color:#4a5568; font-weight:bold">91 - 120 Days</span>
                             <h2 style="margin:0.25rem 0">$0.00</h2>
-                            <span style="font-size:0.75rem; color:#718096">Bucket 4 (Click details)</span>
+                            <span style="font-size:0.75rem; color:#718096">Service Date (Click details)</span>
                         </div>
-                        <div @click="selectedAgingBucket='5'" style="flex:1; min-width:130px; background:#1a202c; color:white; border:1px solid #2d3748; padding:1rem; border-radius:6px; cursor:pointer; transition: transform 0.2s" :style="selectedAgingBucket==='5' ? 'transform: translateY(-4px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid #cbd5e0' : 'border-top: 4px solid #cbd5e0'">
+                        <div @click="agingType='service'; selectedAgingBucket='5'" style="flex:1; min-width:130px; background:#1a202c; color:white; border:1px solid #2d3748; padding:1rem; border-radius:6px; cursor:pointer; transition: transform 0.2s" :style="agingType==='service' && selectedAgingBucket==='5' ? 'transform: translateY(-4px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid #cbd5e0' : 'border-top: 4px solid #cbd5e0'">
                             <span style="font-size:0.8rem; color:#a0aec0; font-weight:bold">120+ Days</span>
                             <h2 style="margin:0.25rem 0; color:white">$150.00</h2>
-                            <span style="font-size:0.75rem; color:#a0aec0">Bucket 5 (Click details)</span>
+                            <span style="font-size:0.75rem; color:#a0aec0">Service Date (Click details)</span>
+                        </div>
+                    </div>
+
+                    <!-- Aging by Submission Date Buckets -->
+                    <h3 style="color:#2d3748; margin-top:2rem; font-size:1.1rem; border-bottom:1px solid #edf2f7; padding-bottom:0.4rem"><i class="fas fa-paper-plane" style="color:#38a169; margin-right:6px"></i>Aging by Submission Date</h3>
+                    <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:1.5rem; margin-top:0.75rem">
+                        <div @click="agingType='submission'; selectedAgingBucket='1'" style="flex:1; min-width:130px; background:#e6fffa; border:1px solid #b2f5ea; padding:1rem; border-radius:6px; cursor:pointer; transition: transform 0.2s" :style="agingType==='submission' && selectedAgingBucket==='1' ? 'transform: translateY(-4px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid #319795' : 'border-top: 4px solid #319795'">
+                            <span style="font-size:0.8rem; color:#4a5568; font-weight:bold">0 - 30 Days</span>
+                            <h2 style="margin:0.25rem 0">$920.00</h2>
+                            <span style="font-size:0.75rem; color:#718096">Submission Date (Click details)</span>
+                        </div>
+                        <div @click="agingType='submission'; selectedAgingBucket='2'" style="flex:1; min-width:130px; background:#fffaf0; border:1px solid #feebc8; padding:1rem; border-radius:6px; cursor:pointer; transition: transform 0.2s" :style="agingType==='submission' && selectedAgingBucket==='2' ? 'transform: translateY(-4px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid #dd6b20' : 'border-top: 4px solid #dd6b20'">
+                            <span style="font-size:0.8rem; color:#4a5568; font-weight:bold">31 - 60 Days</span>
+                            <h2 style="margin:0.25rem 0">$310.00</h2>
+                            <span style="font-size:0.75rem; color:#718096">Submission Date (Click details)</span>
+                        </div>
+                        <div @click="agingType='submission'; selectedAgingBucket='3'" style="flex:1; min-width:130px; background:#fff5f5; border:1px solid #fed7d7; padding:1rem; border-radius:6px; cursor:pointer; transition: transform 0.2s" :style="agingType==='submission' && selectedAgingBucket==='3' ? 'transform: translateY(-4px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid #e53e3e' : 'border-top: 4px solid #e53e3e'">
+                            <span style="font-size:0.8rem; color:#4a5568; font-weight:bold">61 - 90 Days</span>
+                            <h2 style="margin:0.25rem 0">$120.00</h2>
+                            <span style="font-size:0.75rem; color:#718096">Submission Date (Click details)</span>
+                        </div>
+                        <div @click="agingType='submission'; selectedAgingBucket='4'" style="flex:1; min-width:130px; background:#edf2f7; border:1px solid #e2e8f0; padding:1rem; border-radius:6px; cursor:pointer; transition: transform 0.2s" :style="agingType==='submission' && selectedAgingBucket==='4' ? 'transform: translateY(-4px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid #4a5568' : 'border-top: 4px solid #4a5568'">
+                            <span style="font-size:0.8rem; color:#4a5568; font-weight:bold">91 - 120 Days</span>
+                            <h2 style="margin:0.25rem 0">$50.00</h2>
+                            <span style="font-size:0.75rem; color:#718096">Submission Date (Click details)</span>
+                        </div>
+                        <div @click="agingType='submission'; selectedAgingBucket='5'" style="flex:1; min-width:130px; background:#1a202c; color:white; border:1px solid #2d3748; padding:1rem; border-radius:6px; cursor:pointer; transition: transform 0.2s" :style="agingType==='submission' && selectedAgingBucket==='5' ? 'transform: translateY(-4px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid #cbd5e0' : 'border-top: 4px solid #cbd5e0'">
+                            <span style="font-size:0.8rem; color:#a0aec0; font-weight:bold">120+ Days</span>
+                            <h2 style="margin:0.25rem 0; color:white">$110.00</h2>
+                            <span style="font-size:0.75rem; color:#a0aec0">Submission Date (Click details)</span>
                         </div>
                     </div>
 
