@@ -777,12 +777,6 @@
                 <div v-if="reportTab==='financial'" class="panel">
                     <h3>Financial Performance Analytics &amp; A/R Aging</h3>
                     
-                    <!-- Aging Reports Sub-navigation -->
-                    <div style="margin: 0.5rem 0 1.5rem 0; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem">
-                        <button class="btn btn-sm" :class="agingType==='service'?'btn-primary':''" @click="agingType='service'" style="margin-right: 0.5rem">Aging by Service Date</button>
-                        <button class="btn btn-sm" :class="agingType==='submission'?'btn-primary':''" @click="agingType='submission'">Aging by Submission Date</button>
-                    </div>
-
                     <!-- Recommended Filters Card -->
                     <div style="background:#f7fafc; border:1px solid #cbd5e0; padding:1rem; border-radius:6px; margin-bottom:1.5rem">
                         <h4 style="margin:0 0 0.75rem 0; color:#2d3748">🔍 Filters</h4>
@@ -813,10 +807,10 @@
                                 <label style="font-size:0.8rem">Claim Status Group</label>
                                 <select v-model="agingFilters.statusGroup" style="width:100%; padding:0.3rem">
                                     <option value="all">All Claims</option>
-                                    <option value="open">Open Claims (Draft, Ready, Submitted, Acknowledged)</option>
-                                    <option value="problem">Problem Claims (Rejected, Denied)</option>
-                                    <option value="action">Action Required (Appeal, Resubmitted, Hold)</option>
-                                    <option value="closed">Closed Claims (Paid, Written Off, Voided)</option>
+                                    <option value="open">Open Claims</option>
+                                    <option value="problem">Problem Claims</option>
+                                    <option value="action">Action Required</option>
+                                    <option value="closed">Closed Claims</option>
                                 </select>
                             </div>
                             <div class="form-group" style="margin:0">
@@ -826,37 +820,46 @@
                         </div>
                     </div>
 
-                    <!-- Aging Buckets Output -->
+                    <!-- Aging Buckets Output (Display all the time, click updates selectedAgingBucket filter) -->
                     <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:1.5rem">
-                        <div style="flex:1; min-width:130px; background:#ebf8ff; border:1px solid #bee3f8; padding:1rem; border-radius:6px; border-top: 4px solid #3182ce">
+                        <div @click="selectedAgingBucket='1'" style="flex:1; min-width:130px; background:#ebf8ff; border:1px solid #bee3f8; padding:1rem; border-radius:6px; cursor:pointer; transition: transform 0.2s" :style="selectedAgingBucket==='1' ? 'transform: translateY(-4px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid #3182ce' : 'border-top: 4px solid #3182ce'">
                             <span style="font-size:0.8rem; color:#4a5568; font-weight:bold">0 - 30 Days</span>
                             <h2 style="margin:0.25rem 0">$1,020.00</h2>
-                            <span style="font-size:0.75rem; color:#718096">Bucket 1</span>
+                            <span style="font-size:0.75rem; color:#718096">Bucket 1 (Click details)</span>
                         </div>
-                        <div style="flex:1; min-width:130px; background:#fffaf0; border:1px solid #feebc8; padding:1rem; border-radius:6px; border-top: 4px solid #dd6b20">
+                        <div @click="selectedAgingBucket='2'" style="flex:1; min-width:130px; background:#fffaf0; border:1px solid #feebc8; padding:1rem; border-radius:6px; cursor:pointer; transition: transform 0.2s" :style="selectedAgingBucket==='2' ? 'transform: translateY(-4px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid #dd6b20' : 'border-top: 4px solid #dd6b20'">
                             <span style="font-size:0.8rem; color:#4a5568; font-weight:bold">31 - 60 Days</span>
                             <h2 style="margin:0.25rem 0">$250.00</h2>
-                            <span style="font-size:0.75rem; color:#718096">Bucket 2</span>
+                            <span style="font-size:0.75rem; color:#718096">Bucket 2 (Click details)</span>
                         </div>
-                        <div style="flex:1; min-width:130px; background:#fff5f5; border:1px solid #fed7d7; padding:1rem; border-radius:6px; border-top: 4px solid #e53e3e">
+                        <div @click="selectedAgingBucket='3'" style="flex:1; min-width:130px; background:#fff5f5; border:1px solid #fed7d7; padding:1rem; border-radius:6px; cursor:pointer; transition: transform 0.2s" :style="selectedAgingBucket==='3' ? 'transform: translateY(-4px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid #e53e3e' : 'border-top: 4px solid #e53e3e'">
                             <span style="font-size:0.8rem; color:#4a5568; font-weight:bold">61 - 90 Days</span>
                             <h2 style="margin:0.25rem 0">$180.00</h2>
-                            <span style="font-size:0.75rem; color:#718096">Bucket 3</span>
+                            <span style="font-size:0.75rem; color:#718096">Bucket 3 (Click details)</span>
                         </div>
-                        <div style="flex:1; min-width:130px; background:#edf2f7; border:1px solid #e2e8f0; padding:1rem; border-radius:6px; border-top: 4px solid #4a5568">
+                        <div @click="selectedAgingBucket='4'" style="flex:1; min-width:130px; background:#edf2f7; border:1px solid #e2e8f0; padding:1rem; border-radius:6px; cursor:pointer; transition: transform 0.2s" :style="selectedAgingBucket==='4' ? 'transform: translateY(-4px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid #4a5568' : 'border-top: 4px solid #4a5568'">
                             <span style="font-size:0.8rem; color:#4a5568; font-weight:bold">91 - 120 Days</span>
                             <h2 style="margin:0.25rem 0">$0.00</h2>
-                            <span style="font-size:0.75rem; color:#718096">Bucket 4</span>
+                            <span style="font-size:0.75rem; color:#718096">Bucket 4 (Click details)</span>
                         </div>
-                        <div style="flex:1; min-width:130px; background:#1a202c; color:white; border:1px solid #2d3748; padding:1rem; border-radius:6px; border-top: 4px solid #cbd5e0">
+                        <div @click="selectedAgingBucket='5'" style="flex:1; min-width:130px; background:#1a202c; color:white; border:1px solid #2d3748; padding:1rem; border-radius:6px; cursor:pointer; transition: transform 0.2s" :style="selectedAgingBucket==='5' ? 'transform: translateY(-4px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid #cbd5e0' : 'border-top: 4px solid #cbd5e0'">
                             <span style="font-size:0.8rem; color:#a0aec0; font-weight:bold">120+ Days</span>
                             <h2 style="margin:0.25rem 0; color:white">$150.00</h2>
-                            <span style="font-size:0.75rem; color:#a0aec0">Bucket 5</span>
+                            <span style="font-size:0.75rem; color:#a0aec0">Bucket 5 (Click details)</span>
                         </div>
                     </div>
 
+                    <!-- Aging Reports Sub-navigation (Placed above the detailed table) -->
+                    <div style="margin: 2rem 0 1rem 0; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem; display:flex; justify-content:space-between; align-items:center">
+                        <div style="display:flex; gap:0.5rem">
+                            <button class="btn btn-sm" :class="agingType==='service'?'btn-primary':''" @click="agingType='service'">Aging by Service Date</button>
+                            <button class="btn btn-sm" :class="agingType==='submission'?'btn-primary':''" @click="agingType='submission'">Aging by Submission Date</button>
+                        </div>
+                        <button v-if="selectedAgingBucket" class="btn btn-sm btn-secondary" @click="selectedAgingBucket=null" style="font-size:0.8rem">Clear Bucket Filter (Show All)</button>
+                    </div>
+
                     <div class="panel" style="background:#fff">
-                        <h4 style="margin-top:0">Detailed Aging Accounts Receivable List ({{ agingType === 'service' ? 'By Service Date' : 'By Submission Date' }})</h4>
+                        <h4 style="margin-top:0">Detailed Aging Accounts Receivable List ({{ agingType === 'service' ? 'By Service Date' : 'By Submission Date' }}) <span v-if="selectedAgingBucket" class="badge badge-blue">Filtered: Bucket {{ selectedAgingBucket }}</span></h4>
                         <table>
                             <thead>
                                 <tr>
@@ -869,13 +872,16 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="e in encounters.filter(x=>x.billing_sync_status==='synced')" :key="e.id">
+                                <tr v-for="e in encounters.filter(x=>x.billing_sync_status==='synced' && (!selectedAgingBucket || selectedAgingBucket === '1'))" :key="e.id">
                                     <td>{{ e.patient ? e.patient.full_name : '—' }}</td>
                                     <td>{{ formatDate(e.encounter_date) }}</td>
                                     <td>UnitedHealthcare</td>
                                     <td>$150.00</td>
                                     <td><span class="badge badge-green">Submitted</span></td>
                                     <td><span class="badge">0-30 Days</span></td>
+                                </tr>
+                                <tr v-if="selectedAgingBucket && selectedAgingBucket !== '1'">
+                                    <td colspan="6" style="text-align:center; color:#718096; padding:2rem">No claims in this bucket match the active filter criteria.</td>
                                 </tr>
                             </tbody>
                         </table>

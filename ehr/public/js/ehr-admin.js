@@ -48,6 +48,7 @@ createApp({
             billingTab: 'claims',
             reportTab: 'financial',
             agingType: 'service',
+            selectedAgingBucket: null,
             agingFilters: {
                 provider: 'all',
                 payer: 'all',
