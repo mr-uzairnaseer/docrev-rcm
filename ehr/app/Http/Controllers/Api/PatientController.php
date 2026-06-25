@@ -34,6 +34,23 @@ class PatientController extends ApiController
 
     public function store(StorePatientRequest $request, CrossAppSyncService $syncService): JsonResponse
     {
+        $firstName = $request->input('first_name');
+        $lastName = $request->input('last_name');
+        $dob = $request->input('date_of_birth');
+
+        $exists = Patient::forOrganization($this->organizationId())
+            ->where('first_name', 'like', $firstName)
+            ->where('last_name', 'like', $lastName)
+            ->whereDate('date_of_birth', $dob)
+            ->exists();
+
+        if ($exists && ! $request->boolean('ignore_duplicate')) {
+            return response()->json([
+                'duplicate' => true,
+                'message' => "Warning: A patient named '$firstName $lastName' with Date of Birth '$dob' already exists.",
+            ], 409);
+        }
+
         $patient = Patient::create(array_merge(
             $request->validated(),
             ['organization_id' => $this->organizationId()]

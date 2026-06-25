@@ -8,12 +8,11 @@ use App\Models\EraRemittance;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
-class EraPostingService
-{
     public function __construct(
         private Edi835Parser $parser,
         private PortalStatementSyncService $portalSync,
         private ClaimDenialService $denialService,
+        private ReassociationService $reassociation,
     ) {}
 
     public function post(int $organizationId, string $edi835, ?string $traceNumber = null): EraRemittance
@@ -97,6 +96,20 @@ class EraPostingService
                     ? EraRemittance::STATUS_FAILED
                     : ($matched < count($claims) ? EraRemittance::STATUS_PARTIAL : EraRemittance::STATUS_POSTED),
             ]);
+
+            // Auto-create a matching EFT deposit to simulate bank-clearing side
+            $deposit = \App\Models\EftDeposit::updateOrCreate(
+                [
+                    'organization_id' => $organizationId,
+                    'trace_number' => $remittance->trace_number,
+                ],
+                [
+                    'amount' => $totalPaid,
+                    'deposit_date' => now()->toDateString(),
+                    'payer_id' => count($claims) > 0 ? (Claim::where('claim_number', $claims[0]['claim_number'])->value('payer_id') ?? null) : null,
+                ]
+            );
+            $this->reassociation->associateDeposit($deposit);
 
             return $remittance->fresh()->load('claimPayments');
         });

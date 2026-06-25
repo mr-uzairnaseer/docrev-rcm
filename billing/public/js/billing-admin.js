@@ -87,6 +87,16 @@ createApp({
             error: '',
             toast: '',
             setupReadyDismissed: false,
+            // EFT/ERA Onboarding & Reconciliation Hub state
+            eftEnrollment: null,
+            eftDeposits: [],
+            eftRules: {},
+            eftReconciliation: {},
+            eftSubView: 'dashboard',
+            newDeposit: { trace_number: '', amount: '', deposit_date: new Date().toISOString().slice(0, 10), payer_id: '' },
+            manualReassociateForm: { deposit_id: null, era_remittance_id: null },
+            showAddDeposit: false,
+            savingEft: false,
         };
     },
     computed: {
@@ -262,12 +272,20 @@ createApp({
                 return;
             }
             if (this.view === 'eras') {
-                const [erasRes, paymentsRes] = await Promise.all([
+                const [erasRes, paymentsRes, enrollmentRes, depositsRes, reportRes, payersRes] = await Promise.all([
                     this.api().get('/eras?per_page=50'),
                     this.api().get('/patient-payments?per_page=50'),
+                    this.api().get('/eft/enrollment'),
+                    this.api().get('/eft/deposits'),
+                    this.api().get('/eft/reconciliation-report'),
+                    this.api().get('/payers?per_page=100'),
                 ]);
                 this.eras = this.cmsPaginatedRows(erasRes);
                 this.patientPayments = this.cmsPaginatedRows(paymentsRes);
+                this.eftEnrollment = enrollmentRes.data || null;
+                this.eftDeposits = depositsRes.data || [];
+                this.eftReconciliation = reportRes.data || {};
+                this.payers = this.cmsPaginatedRows(payersRes);
                 return;
             }
             if (this.view === 'eligibility') {
@@ -793,6 +811,57 @@ DocRev Medical Group`;
         },
         closeStateDetail() {
             this.cmsStateDetail = null;
+        },
+        async saveEftEnrollment() {
+            this.savingEft = true;
+            try {
+                const { data } = await this.api().post('/eft/enrollment', this.eftEnrollment);
+                this.eftEnrollment = data.enrollment;
+                this.toast = data.message || 'EFT enrollment profile updated.';
+                await this.refreshViewData();
+            } catch (e) {
+                this.toast = (e.response && e.response.data && e.response.data.message) || 'Failed to update EFT profile.';
+            } finally {
+                this.savingEft = false;
+            }
+        },
+        async toggleOnboardingChecklist(key) {
+            if (!this.eftEnrollment) return;
+            if (!this.eftEnrollment.onboarding_checklist) {
+                this.eftEnrollment.onboarding_checklist = {};
+            }
+            this.eftEnrollment.onboarding_checklist[key] = !this.eftEnrollment.onboarding_checklist[key];
+            await this.saveEftEnrollment();
+        },
+        async addEftDeposit() {
+            try {
+                const { data } = await this.api().post('/eft/deposits', this.newDeposit);
+                this.toast = data.message || 'EFT Deposit added successfully.';
+                this.newDeposit = { trace_number: '', amount: '', deposit_date: new Date().toISOString().slice(0, 10), payer_id: '' };
+                this.showAddDeposit = false;
+                await this.refreshViewData();
+            } catch (e) {
+                this.toast = (e.response && e.response.data && e.response.data.message) || 'Failed to add EFT Deposit.';
+            }
+        },
+        async manualMatchDeposit() {
+            try {
+                const { data } = await this.api().post('/eft/reassociate', this.manualReassociateForm);
+                this.toast = data.message || 'Manual match posted.';
+                this.manualReassociateForm = { deposit_id: null, era_remittance_id: null };
+                await this.refreshViewData();
+            } catch (e) {
+                this.toast = (e.response && e.response.data && e.response.data.message) || 'Failed to match deposit.';
+            }
+        },
+        async updatePayerEftStatus(payerId, field, status) {
+            if (!this.eftEnrollment) return;
+            // Ensure object initialization
+            if (!this.eftEnrollment[field] || typeof this.eftEnrollment[field] !== 'object') {
+                this.eftEnrollment[field] = {};
+            }
+            this.eftEnrollment[field][payerId] = status;
+            await this.saveEftEnrollment();
         },
     },
 }).mount('#app');

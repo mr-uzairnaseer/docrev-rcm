@@ -219,51 +219,276 @@
             </div>
 
             <div v-if="view==='eras'" class="card">
-                <h2>ERA / Payment Posting</h2>
-                <div class="panel">
-                    <h3>Import ERA 835</h3>
-                    <div class="form-group">
-                        <label>Paste EDI 835 content</label>
-                        <textarea v-model="eraImport" rows="6" style="width:100%;font-family:monospace;font-size:0.8rem"></textarea>
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 2px solid #edf2f7; padding-bottom: 0.75rem; margin-bottom: 1.5rem; flex-wrap:wrap; gap:0.5rem">
+                    <h2 style="margin: 0; color: #1e4d6b; display:flex; align-items:center; gap:0.5rem">
+                        <span>💳</span> EFT & ERA Reconciliation Hub
+                    </h2>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap:wrap">
+                        <span class="driver-chip" style="background:#e2e8f0; color:#4a5568; border:none; font-weight:600">
+                            VCC Policy: {{ (eftEnrollment && eftEnrollment.vcc_policy === 'restrict') ? '🚫 Restrict Cards (Steer to ACH)' : '✓ Accept VCC' }}
+                        </span>
                     </div>
-                    <button class="btn btn-primary" @click="importEra">Post ERA</button>
                 </div>
-                
-                <div class="panel">
-                    <h3>Payer ERA Remittances</h3>
-                    <table>
-                        <thead><tr><th>Trace #</th><th>Claims</th><th>Matched</th><th>Total Paid</th><th>Status</th><th>Posted</th></tr></thead>
-                        <tbody>
-                            <tr v-for="era in eras" :key="era.id">
-                                <td>{{ era.trace_number }}</td>
-                                <td>{{ era.claim_count }}</td>
-                                <td>{{ era.matched_count }}</td>
-                                <td>${{ era.total_payment_amount }}</td>
-                                <td><span class="badge">{{ era.status }}</span></td>
-                                <td>{{ formatDate(era.posted_at) }}</td>
+
+                <!-- Sub View Tabs -->
+                <div style="display: flex; gap: 0.5rem; border-bottom: 1px solid #e2e8f0; margin-bottom: 1.5rem; padding-bottom: 0.5rem; overflow-x: auto; white-space: nowrap;">
+                    <button :class="['btn btn-sm', eftSubView === 'dashboard' ? 'btn-primary' : '']" @click="eftSubView = 'dashboard'">📊 Reconciliation Stats</button>
+                    <button :class="['btn btn-sm', eftSubView === 'onboarding' ? 'btn-primary' : '']" @click="eftSubView = 'onboarding'">🏛️ Onboarding & Bank Setup</button>
+                    <button :class="['btn btn-sm', eftSubView === 'enrollment' ? 'btn-primary' : '']" @click="eftSubView = 'enrollment'">📑 Payer Setup Matrix</button>
+                    <button :class="['btn btn-sm', eftSubView === 'reassociation' ? 'btn-primary' : '']" @click="eftSubView = 'reassociation'">🔄 Reassociation Hub</button>
+                    <button :class="['btn btn-sm', eftSubView === 'post' ? 'btn-primary' : '']" @click="eftSubView = 'post'">📥 Import ERA 835</button>
+                </div>
+
+                <!-- TAB 1: DASHBOARD -->
+                <div v-if="eftSubView === 'dashboard'">
+                    <div class="stats" style="margin-bottom:1.5rem">
+                        <div class="stat"><div class="num">${{ eftReconciliation.total_deposits || '0.00' }}</div><div class="label">Total Bank Deposits</div></div>
+                        <div class="stat" style="border-bottom: 4px solid #48bb78"><div class="num" style="color:#2f855a">${{ eftReconciliation.posted_amount || '0.00' }}</div><div class="label">Reconciled / Posted</div></div>
+                        <div class="stat" style="border-bottom: 4px solid #ecc94b"><div class="num" style="color:#b7791f">${{ eftReconciliation.unposted_amount || '0.00' }}</div><div class="label">Unreconciled Deposits</div></div>
+                        <div class="stat" style="border-bottom: 4px solid #f56565"><div class="num" style="color:#c53030">{{ eftReconciliation.exceptions_count || 0 }}</div><div class="label">Exceptions Queue</div></div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem;">
+                        <div class="panel">
+                            <h3>Payer ERA Remittances</h3>
+                            <table style="font-size:0.875rem">
+                                <thead><tr><th>Trace / Check #</th><th>Claims</th><th>Matched</th><th>Paid</th><th>Status</th></tr></thead>
+                                <tbody>
+                                    <tr v-for="era in eras" :key="era.id">
+                                        <td><code>{{ era.trace_number }}</code></td>
+                                        <td>{{ era.claim_count }}</td>
+                                        <td>{{ era.matched_count }}</td>
+                                        <td><strong>${{ era.total_payment_amount }}</strong></td>
+                                        <td><span class="badge" :style="era.status === 'posted' ? 'background:#c6f6d5;color:#22543d' : 'background:#feebc8;color:#744210'">{{ era.status }}</span></td>
+                                    </tr>
+                                    <tr v-if="!eras.length"><td colspan="5" style="text-align:center;color:#718096">No remittances posted.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="panel">
+                            <h3>Patient Portal Self-Pay Receipts</h3>
+                            <table style="font-size:0.875rem">
+                                <thead><tr><th>Date</th><th>Patient</th><th>Ref</th><th>Amount</th><th>Method</th></tr></thead>
+                                <tbody>
+                                    <tr v-for="p in patientPayments" :key="p.id">
+                                        <td>{{ formatDate(p.paid_at || p.created_at) }}</td>
+                                        <td>{{ p.patient ? p.patient.first_name[0] + '. ' + p.patient.last_name : 'Patient' }}</td>
+                                        <td><code>{{ p.reference_number || 'n/a' }}</code></td>
+                                        <td style="color:#2f855a;font-weight:bold">${{ p.amount }}</td>
+                                        <td><span class="badge">{{ p.payment_method }}</span></td>
+                                    </tr>
+                                    <tr v-if="!patientPayments.length"><td colspan="5" style="text-align:center;color:#718096">No patient payments.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 2: ONBOARDING & SECURE BANK SETUP -->
+                <div v-if="eftSubView === 'onboarding' && eftEnrollment">
+                    <p style="font-size: 0.9rem; color: #4a5568; margin-bottom: 1.5rem;">
+                        Complete the clinical practice registration steps to enable secure Electronic Funds Transfer (EFT) and Electronic Remittance Advice (ERA) auto-posting.
+                    </p>
+
+                    <div style="display:grid; grid-template-columns: 1fr 1.5fr; gap: 1.5rem; align-items: start;">
+                        <!-- Checklist side panel -->
+                        <div class="panel" style="background:#f7fafc">
+                            <h3 style="margin-top:0">Client Onboarding SOP Checklist</h3>
+                            <ul style="list-style:none; padding:0; margin:0">
+                                <li style="display:flex; align-items:center; gap:0.5rem; padding: 0.4rem 0; border-bottom:1px solid #edf2f7" v-for="(val, key) in eftEnrollment.onboarding_checklist" :key="key">
+                                    <input type="checkbox" :checked="val" @change="toggleOnboardingChecklist(key)">
+                                    <span style="font-size:0.875rem; text-transform:capitalize">{{ key.replace('_', ' ') }}</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Main profile forms -->
+                        <div style="display:flex; flex-direction:column; gap:1.5rem">
+                            <div class="panel">
+                                <h3>Provider Identity Details</h3>
+                                <div class="form-row">
+                                    <div class="form-group"><label>Legal Practice Name</label><input v-model="eftEnrollment.legal_name" type="text"></div>
+                                    <div class="form-group"><label>DBA (Doing Business As)</label><input v-model="eftEnrollment.dba" type="text"></div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group"><label>Organization NPI</label><input v-model="eftEnrollment.npi" type="text" maxlength="10"></div>
+                                    <div class="form-group"><label>Tax ID (EIN)</label><input v-model="eftEnrollment.tax_id" type="text" placeholder="XX-XXXXXXX"></div>
+                                    <div class="form-group"><label>PTAN (Medicare Provider #)</label><input v-model="eftEnrollment.ptan" type="text"></div>
+                                </div>
+                                <button class="btn btn-primary btn-sm" @click="saveEftEnrollment" :disabled="savingEft">Save Profile</button>
+                            </div>
+
+                            <div class="panel">
+                                <div class="row-between">
+                                    <h3>Secure Bank Information (ACH Enrollment)</h3>
+                                    <span class="badge badge-green" style="font-size:0.7rem">🔒 Encrypted Storage</span>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group"><label>Bank Routing Number</label><input v-model="eftEnrollment.bank_routing" type="password" placeholder="•••••••••"></div>
+                                    <div class="form-group"><label>Bank Account Number</label><input v-model="eftEnrollment.bank_account" type="password" placeholder="••••••••••••"></div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Account Type</label>
+                                        <select v-model="eftEnrollment.bank_account_type">
+                                            <option value="checking">Checking</option>
+                                            <option value="savings">Savings</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group"><label>Authorized Bank Signatory</label><input v-model="eftEnrollment.authorized_signer" type="text"></div>
+                                </div>
+                                <button class="btn btn-primary btn-sm" @click="saveEftEnrollment" :disabled="savingEft">Save Bank Details</button>
+                            </div>
+
+                            <div class="panel">
+                                <h3>Medicare EFT Enrollment & VCC Policy</h3>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Medicare CMS-588 / MAC Status</label>
+                                        <select v-model="eftEnrollment.medicare_eft_status">
+                                            <option value="not_started">Not Started (Needs CMS-588 Packet)</option>
+                                            <option value="processing">Forms Submitted to Medicare MAC</option>
+                                            <option value="enrolled">EFT Approved & Active</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Virtual Credit Card Policy</label>
+                                        <select v-model="eftEnrollment.vcc_policy">
+                                            <option value="accept">Accept VCC payments from commercial payers</option>
+                                            <option value="restrict">🚫 Restrict VCC (Require ACH to avoid 3-5% merchant fees)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button class="btn btn-primary btn-sm" @click="saveEftEnrollment" :disabled="savingEft">Save Preferences</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 3: PAYER SETUP MATRIX -->
+                <div v-if="eftSubView === 'enrollment' && eftEnrollment">
+                    <p style="font-size: 0.9rem; color: #4a5568; margin-bottom: 1rem;">
+                        Enrollment checklist matrix for Medicare Administrative Contractors (MAC) and commercial insurance payers.
+                    </p>
+                    <table style="font-size:0.875rem">
+                        <thead>
+                            <tr>
+                                <th>Payer Name</th>
+                                <th>Electronic ID</th>
+                                <th>EFT Status</th>
+                                <th>ERA 835 Status</th>
+                                <th>Auto-Posting</th>
                             </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="payer in payers" :key="payer.id">
+                                <td><strong>{{ payer.name }}</strong></td>
+                                <td><code>{{ payer.electronic_payer_id || 'n/a' }}</code></td>
+                                <td>
+                                    <select :value="(eftEnrollment.commercial_payer_status && eftEnrollment.commercial_payer_status[payer.id]) || 'not_started'"
+                                            @change="updatePayerEftStatus(payer.id, 'commercial_payer_status', $event.target.value)"
+                                            style="padding:0.2rem;font-size:0.8rem">
+                                        <option value="not_started">Not Started</option>
+                                        <option value="processing">Submitted</option>
+                                        <option value="enrolled">Active (ACH)</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <select :value="(eftEnrollment.era_enrollment_status && eftEnrollment.era_enrollment_status[payer.id]) || 'not_started'"
+                                            @change="updatePayerEftStatus(payer.id, 'era_enrollment_status', $event.target.value)"
+                                            style="padding:0.2rem;font-size:0.8rem">
+                                        <option value="not_started">Not Started</option>
+                                        <option value="processing">Submitted</option>
+                                        <option value="enrolled">Active (835)</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <span class="badge badge-green" v-if="(eftEnrollment.era_enrollment_status && eftEnrollment.era_enrollment_status[payer.id]) === 'enrolled'">✓ Active</span>
+                                    <span class="badge" v-else style="background:#e2e8f0;color:#4a5568">Disabled</span>
+                                </td>
+                            </tr>
+                            <tr v-if="!payers.length"><td colspan="5" style="text-align:center;color:#718096">No payers linked to organization. Add them in the Payers tab.</td></tr>
                         </tbody>
                     </table>
                 </div>
 
-                <div class="panel" style="margin-top:2rem">
-                    <h3>Patient Portal Self-Pay Receipts</h3>
-                    <p style="font-size:0.875rem; color:#4a5568; margin-bottom:1rem">Real-time payments processed online by patients via the Patient self-service Portal.</p>
-                    <table v-if="patientPayments.length">
-                        <thead><tr><th>Payment Date</th><th>Patient</th><th>Claim Reference</th><th>Amount</th><th>Method</th><th>Reference #</th><th>Status</th></tr></thead>
-                        <tbody>
-                            <tr v-for="p in patientPayments" :key="p.id">
-                                <td>{{ formatDate(p.paid_at || p.created_at) }}</td>
-                                <td>{{ p.patient ? (p.patient.first_name + ' ' + p.patient.last_name) : '#' + p.patient_id }}</td>
-                                <td>{{ p.claim ? p.claim.claim_number : '—' }}</td>
-                                <td><strong style="color:#2f855a">${{ p.amount }}</strong></td>
-                                <td><span class="badge badge-green">{{ p.payment_method }}</span></td>
-                                <td><code>{{ p.reference_number || 'n/a' }}</code></td>
-                                <td><span class="badge">{{ p.status }}</span></td>
+                <!-- TAB 4: REASSOCIATION & RECONCILIATION HUB -->
+                <div v-if="eftSubView === 'reassociation'">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem">
+                        <p style="font-size: 0.9rem; color: #4a5568; margin: 0">
+                            ACH EFT deposits are automatically matched to the corresponding EDI 835 ERAs based on the 835 TRN segment.
+                        </p>
+                        <button class="btn btn-sm" @click="showAddDeposit = !showAddDeposit">Simulate Bank EFT</button>
+                    </div>
+
+                    <!-- Add Bank Deposit simulator -->
+                    <div v-if="showAddDeposit" class="panel" style="background:#f7fafc; margin-bottom:1.5rem">
+                        <h3>Simulate ACH Bank Deposit</h3>
+                        <div class="form-row">
+                            <div class="form-group"><label>ACH Trace Number (TRN02)</label><input v-model="newDeposit.trace_number" type="text" placeholder="e.g. SIM-CLM-XXXXXX"></div>
+                            <div class="form-group"><label>Deposit Amount</label><input v-model="newDeposit.amount" type="number" step="0.01"></div>
+                            <div class="form-group"><label>Clearing Date</label><input v-model="newDeposit.deposit_date" type="date"></div>
+                            <div class="form-group">
+                                <label>Payer</label>
+                                <select v-model="newDeposit.payer_id">
+                                    <option value="">Select Payer</option>
+                                    <option v-for="pay in payers" :key="pay.id" :value="pay.id">{{ pay.name }}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary btn-sm" @click="addEftDeposit">Post Bank Deposit</button>
+                    </div>
+
+                    <!-- Deposit list -->
+                    <table style="font-size:0.875rem">
+                        <thead>
+                            <tr>
+                                <th>Deposit Date</th>
+                                <th>Trace Number</th>
+                                <th>Payer</th>
+                                <th>Amount</th>
+                                <th>Reassociation Status</th>
+                                <th>Matched ERA Remittance</th>
                             </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="dep in eftDeposits" :key="dep.id">
+                                <td>{{ formatDate(dep.deposit_date) }}</td>
+                                <td><code>{{ dep.trace_number }}</code></td>
+                                <td>{{ dep.payer ? dep.payer.name : '—' }}</td>
+                                <td><strong>${{ dep.amount }}</strong></td>
+                                <td>
+                                    <span class="badge" :class="{
+                                        'badge-green': dep.matched_status === 'matched',
+                                        'badge-yellow': dep.matched_status === 'unmatched',
+                                        'badge-red': dep.matched_status === 'exception'
+                                    }">{{ dep.matched_status }}</span>
+                                </td>
+                                <td>
+                                    <span v-if="dep.era_remittance">
+                                        Matched Remittance (ID: {{ dep.era_remittance.id }} · ${{ dep.era_remittance.total_payment_amount }})
+                                    </span>
+                                    <span v-else style="color:#718096; font-size:0.8rem">
+                                        No matched ERA. Pasting an ERA with trace <code>{{ dep.trace_number }}</code> will auto-resolve.
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr v-if="!eftDeposits.length"><td colspan="6" style="text-align:center;color:#718096">No EFT deposits on file. Simulate a bank deposit or post a claim to generate one.</td></tr>
                         </tbody>
                     </table>
-                    <p v-else style="color:#718096; margin-top:1rem">No patient self-pay records found.</p>
+                </div>
+
+                <!-- TAB 5: ERA IMPORT -->
+                <div v-if="eftSubView === 'post'">
+                    <div class="panel">
+                        <h3>Import ERA 835</h3>
+                        <div class="form-group">
+                            <label>Paste EDI 835 content</label>
+                            <textarea v-model="eraImport" rows="8" style="width:100%;font-family:monospace;font-size:0.8rem" placeholder="ISA*00*..."></textarea>
+                        </div>
+                        <button class="btn btn-primary" @click="importEra">Post ERA & Reassociate</button>
+                    </div>
                 </div>
             </div>
 

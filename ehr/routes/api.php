@@ -22,6 +22,8 @@ use App\Http\Controllers\Api\ProviderController;
 use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\SurescriptsEnrollmentController;
 use App\Http\Controllers\Api\TrainingController;
+use App\Http\Controllers\Api\InteroperabilityController;
+use App\Http\Controllers\Api\TaskController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', HealthController::class);
@@ -153,4 +155,18 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
         Route::post('hie/connections/{hieConnection}/patients/{patient}/query', [HieController::class, 'queryPatient']);
         Route::post('hie/connections/{hieConnection}/patients/{patient}/push-summary', [HieController::class, 'pushSummary']);
     });
+
+    Route::get('interop/requests', [InteroperabilityController::class, 'getRequests']);
+    Route::post('interop/requests', [InteroperabilityController::class, 'storeRequest']);
+    Route::put('interop/requests/{ehiRequest}', [InteroperabilityController::class, 'updateRequest']);
+    Route::get('interop/exports', [InteroperabilityController::class, 'getExports']);
+    Route::post('interop/exports', [InteroperabilityController::class, 'generateExport']);
+    Route::get('interop/exports/{ehiExport}/download', [InteroperabilityController::class, 'downloadExport'])
+        ->name('interop.exports.download');
+    Route::get('interop/fhir-patient/{patient}', [InteroperabilityController::class, 'viewFhirPatient']);
+
+    Route::get('tasks', [TaskController::class, 'index']);
+    Route::post('tasks', [TaskController::class, 'store']);
+    Route::put('tasks/{task}', [TaskController::class, 'update']);
+    Route::delete('tasks/{task}', [TaskController::class, 'destroy']);
 });

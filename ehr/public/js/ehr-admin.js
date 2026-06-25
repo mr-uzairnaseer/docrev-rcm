@@ -27,12 +27,17 @@ createApp({
             labVendors: [],
             hieConnections: [],
             hieExchanges: [],
+            tasks: [],
+            taskForm: { title: '', description: '', priority: 'normal', due_date: '' },
+            showAddTask: false,
             requirements: null,
             showRxForm: false,
             showLabForm: false,
             integrationTest: '',
             hiePatientId: '',
             dxForm: { icd10_code: 'Z00.00', description: '' },
+            docFilters: { document_type: '', document_date: '', uploaded_by: '' },
+            auditFilters: { user_id: '', event: '', date_from: '', date_to: '' },
             chargeForm: { cpt_code: '99213', charge_amount: '150.00', units: 1, diagnosis_pointers: [1] },
             apptTab: 'calendar',
             calendarDate: new Date().toISOString().slice(0, 10),
@@ -67,6 +72,14 @@ createApp({
                 { id: 'history', label: 'Visit History', needsPatient: true },
             ],
             billingTab: 'claims',
+            adminTab: 'plan',
+            coreLists: {
+                payers: ['Medicare', 'BlueCross BlueShield', 'UnitedHealthcare', 'Aetna', 'Cigna'],
+                docTypes: ['Referral Letter', 'Lab Result', 'Consent Form', 'Clinical Summary', 'Imaging Report'],
+                roles: ['Clinical Provider', 'Medical Assistant', 'Practice Admin', 'Medical Biller'],
+                apptTypes: ['Office Visit', 'Telehealth', 'Procedure', 'Follow-up']
+            },
+            newCoreItem: { payers: '', docTypes: '', roles: '', apptTypes: '' },
             reportTab: 'financial',
             agingType: 'service',
             selectedAgingBucket: null,
@@ -115,6 +128,14 @@ createApp({
             showAppealModal: false,
             generatedAppealLetter: '',
             selectedMailboxThreadId: 1,
+            // ONC Interoperability states
+            interopSubView: 'fhir',
+            interopRequests: [],
+            interopExports: [],
+            newInteropRequest: { patient_id: '', requestor_name: '', requestor_type: 'patient', access_method: 'ehi_export', status: 'pending', exception_reason: 'none', notes: '' },
+            fhirPatientPreview: null,
+            generatingEhi: false,
+            showAddInteropRequest: false,
             mailboxReplyDraft: '',
             mailboxSearch: '',
             mailboxThreads: [
@@ -214,7 +235,7 @@ createApp({
             return this.mailboxThreads.reduce((sum, t) => sum + (t.unread || 0), 0);
         },
     },
-    mounted() { if (this.token) this.load(); },
+    mounted() { if (this.token) { this.load(); this.loadTasks(); } },
     methods: {
         api() { return axios.create({ baseURL: API, headers: { Authorization: 'Bearer ' + this.token } }); },
         async login() {
@@ -240,7 +261,7 @@ createApp({
             else await this.load();
         },
         async load() {
-            await Promise.all([this.loadPatients(), this.loadEncounters(), this.loadAppointments()]);
+            await Promise.all([this.loadPatients(), this.loadEncounters(), this.loadAppointments(), this.loadTasks()]);
         },
         async loadPatients() {
             const { data } = await this.api().get('/patients?per_page=100');
@@ -270,7 +291,12 @@ createApp({
             }
             this.patientChartLoading = true;
             try {
-                const { data } = await this.api().get('/patients/' + this.selectedPatient.id + '/chart');
+                const params = {};
+                if (this.docFilters.document_type) params.document_type = this.docFilters.document_type;
+                if (this.docFilters.document_date) params.document_date = this.docFilters.document_date;
+                if (this.docFilters.uploaded_by) params.uploaded_by = this.docFilters.uploaded_by;
+
+                const { data } = await this.api().get('/patients/' + this.selectedPatient.id + '/chart', { params });
                 this.patientChart = data.data;
             } catch (e) {
                 this.patientChart = null;
@@ -351,12 +377,16 @@ createApp({
         },
         async loadHie() {
             await this.loadPatients();
-            const [conn, ex] = await Promise.all([
+            const [conn, ex, req, exp] = await Promise.all([
                 this.api().get('/hie/connections?per_page=20'),
                 this.api().get('/hie/exchanges?per_page=20'),
+                this.api().get('/interop/requests?per_page=50'),
+                this.api().get('/interop/exports'),
             ]);
             this.hieConnections = conn.data.data;
             this.hieExchanges = ex.data.data;
+            this.interopRequests = req.data.data || [];
+            this.interopExports = exp.data || [];
             if (this.patients.length && !this.hiePatientId) this.hiePatientId = this.patients[0].id;
         },
         async loadIntegrations() {
@@ -381,7 +411,13 @@ createApp({
             this.qualityMetrics = quality.data.data;
             this.productivityMetrics = productivity.data.data;
             try {
-                const logs = await this.api().get('/audit-logs?per_page=15');
+                const params = {};
+                if (this.auditFilters.user_id) params.user_id = this.auditFilters.user_id;
+                if (this.auditFilters.event) params.event = this.auditFilters.event;
+                if (this.auditFilters.date_from) params.date_from = this.auditFilters.date_from;
+                if (this.auditFilters.date_to) params.date_to = this.auditFilters.date_to;
+
+                const logs = await this.api().get('/audit-logs?per_page=15', { params });
                 this.auditLogs = logs.data.data || [];
             } catch (e) {
                 this.auditLogs = [];
@@ -1082,6 +1118,157 @@ createApp({
         },
         mailboxInitials(name) {
             return (name || '?').split(' ').map(p => p[0]).join('').slice(0, 2).toUpperCase();
+        },
+        async addInteropRequest() {
+            try {
+                const { data } = await this.api().post('/interop/requests', this.newInteropRequest);
+                this.toast = data.message || 'Access request logged.';
+                this.newInteropRequest = { patient_id: '', requestor_name: '', requestor_type: 'patient', access_method: 'ehi_export', status: 'pending', exception_reason: 'none', notes: '' };
+                this.showAddInteropRequest = false;
+                await this.loadHie();
+            } catch (e) {
+                this.toast = (e.response && e.response.data && e.response.data.message) || 'Failed to log request.';
+            }
+        },
+        async updateInteropRequestStatus(req, status, exception = 'none') {
+            try {
+                const { data } = await this.api().put('/interop/requests/' + req.id, {
+                    status: status,
+                    exception_reason: exception,
+                    notes: req.notes
+                });
+                this.toast = data.message || 'Status updated.';
+                await this.loadHie();
+            } catch (e) {
+                this.toast = 'Failed to update request status.';
+            }
+        },
+        async generateEhiExport(patientId) {
+            this.generatingEhi = true;
+            try {
+                const { data } = await this.api().post('/interop/exports', { patient_id: parseInt(patientId) });
+                this.toast = data.message || 'EHI export generated successfully.';
+                await this.loadHie();
+            } catch (e) {
+                this.toast = 'Failed to generate EHI export.';
+            } finally {
+                this.generatingEhi = false;
+            }
+        },
+        async downloadEhiExport(exp) {
+            try {
+                const { data } = await this.api().get('/interop/exports/' + exp.id + '/download', { responseType: 'blob' });
+                const url = URL.createObjectURL(data);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'ehi-export-' + (exp.patient ? exp.patient.last_name.toLowerCase() : 'bulk') + '-' + exp.id + '.json';
+                link.click();
+                URL.revokeObjectURL(url);
+                this.toast = 'EHI export downloaded.';
+            } catch (e) {
+                this.toast = 'Failed to download EHI export file.';
+            }
+        },
+        async viewFhirPatientPreview(patientId) {
+            try {
+                const { data } = await this.api().get('/interop/fhir-patient/' + patientId);
+                this.fhirPatientPreview = data;
+            } catch (e) {
+                this.toast = 'Failed to load FHIR patient resource preview.';
+            }
+        },
+        async loadTasks() {
+            try {
+                const { data } = await this.api().get('/tasks');
+                this.tasks = data || [];
+            } catch (e) {
+                this.tasks = [];
+            }
+        },
+        async createTask() {
+            try {
+                await this.api().post('/tasks', this.taskForm);
+                this.toast = 'Task created.';
+                this.taskForm = { title: '', description: '', priority: 'normal', due_date: '' };
+                this.showAddTask = false;
+                await this.loadTasks();
+            } catch (e) {
+                alert('Failed to create task.');
+            }
+        },
+        async toggleTaskComplete(task) {
+            const nextStatus = task.status === 'completed' ? 'pending' : 'completed';
+            try {
+                await this.api().put('/tasks/' + task.id, { status: nextStatus });
+                this.toast = 'Task marked ' + nextStatus;
+                await this.loadTasks();
+            } catch (e) {
+                this.toast = 'Failed to update task.';
+            }
+        },
+        async deleteTask(id) {
+            try {
+                await this.api().delete('/tasks/' + id);
+                this.toast = 'Task deleted.';
+                await this.loadTasks();
+            } catch (e) {
+                this.toast = 'Failed to delete task.';
+            }
+        },
+        getVitalStyle(type, val1, val2 = null) {
+            if (type === 'bp') {
+                const sys = parseInt(val1);
+                const dia = parseInt(val2);
+                if (sys >= 140 || dia >= 90) return 'color: #e53e3e; font-weight: bold; background: #fff5f5; padding: 2px 6px; border-radius: 4px;';
+                if (sys <= 90 || dia <= 60) return 'color: #3182ce; font-weight: bold; background: #ebf8ff; padding: 2px 6px; border-radius: 4px;';
+                return 'color: #2f855a;';
+            }
+            if (type === 'hr') {
+                const hr = parseInt(val1);
+                if (hr > 100) return 'color: #e53e3e; font-weight: bold; background: #fff5f5; padding: 2px 6px; border-radius: 4px;';
+                if (hr < 60) return 'color: #3182ce; font-weight: bold; background: #ebf8ff; padding: 2px 6px; border-radius: 4px;';
+                return 'color: #2d3748;';
+            }
+            if (type === 'temp') {
+                const temp = parseFloat(val1);
+                if (temp >= 100.4) return 'color: #e53e3e; font-weight: bold; background: #fff5f5; padding: 2px 6px; border-radius: 4px;';
+                if (temp < 97.0) return 'color: #3182ce; font-weight: bold; background: #ebf8ff; padding: 2px 6px; border-radius: 4px;';
+                return 'color: #2d3748;';
+            }
+            if (type === 'spo2') {
+                const spo2 = parseInt(val1);
+                if (spo2 < 95) return 'color: #e53e3e; font-weight: bold; background: #fff5f5; padding: 2px 6px; border-radius: 4px;';
+                return 'color: #2f855a; font-weight: bold;';
+            }
+            return 'color: #2d3748;';
+        },
+        getVitalTrend(vitalName, index) {
+            const vitals = this.patientChart?.vitals || [];
+            if (index >= vitals.length - 1) return '→';
+            const currentVal = parseFloat(vitals[index][vitalName]);
+            const prevVal = parseFloat(vitals[index + 1][vitalName]);
+            if (isNaN(currentVal) || isNaN(prevVal)) return '→';
+            if (currentVal > prevVal) return '↑';
+            if (currentVal < prevVal) return '↓';
+            return '→';
+        },
+        getVitalTrendStyle(vitalName, index) {
+            const trend = this.getVitalTrend(vitalName, index);
+            if (trend === '↑') return 'color: #e53e3e; font-weight: bold; margin-left: 4px;';
+            if (trend === '↓') return 'color: #3182ce; font-weight: bold; margin-left: 4px;';
+            return 'color: #718096; margin-left: 4px;';
+        },
+        addCoreItem(type) {
+            const val = this.newCoreItem[type].trim();
+            if (!val) return;
+            this.coreLists[type].push(val);
+            this.newCoreItem[type] = '';
+            this.toast = 'Added core configuration item: ' + val;
+        },
+        removeCoreItem(type, index) {
+            const val = this.coreLists[type][index];
+            this.coreLists[type].splice(index, 1);
+            this.toast = 'Removed core configuration item: ' + val;
         },
     },
 }).mount('#app');

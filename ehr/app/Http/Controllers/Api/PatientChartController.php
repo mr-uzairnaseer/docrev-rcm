@@ -10,11 +10,12 @@ use Illuminate\Http\Request;
 
 class PatientChartController extends ApiController
 {
-    public function show(Patient $patient, PatientChartService $chartService): JsonResponse
+    public function show(Request $request, Patient $patient, PatientChartService $chartService): JsonResponse
     {
         $this->ensurePatient($patient);
+        $filters = $request->only(['document_type', 'document_date', 'uploaded_by']);
 
-        return response()->json(['data' => $chartService->chart($patient)]);
+        return response()->json(['data' => $chartService->chart($patient, $filters)]);
     }
 
     public function storeProblem(Request $request, Patient $patient, PatientChartService $chartService): JsonResponse

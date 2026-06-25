@@ -95,6 +95,74 @@
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Task & Notifications Center -->
+                <div class="card" style="margin-top:1.5rem">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem">
+                        <h2 style="margin:0"><i class="fas fa-tasks" style="color:#3182ce; margin-right:8px"></i>Task Notification Center</h2>
+                        <button class="btn btn-sm btn-primary" @click="showAddTask = !showAddTask">+ Create Task</button>
+                    </div>
+
+                    <!-- Create Task Form Overlay/Modal -->
+                    <div v-if="showAddTask" style="background:#f7fafc; border:1px solid #cbd5e0; padding:1.25rem; border-radius:8px; margin-bottom:1rem">
+                        <h3 style="margin-top:0; font-size:1rem; color:#2d3748">Add New Task</h3>
+                        <div class="form-row">
+                            <div class="form-group" style="flex:2">
+                                <label>Task Title</label>
+                                <input type="text" v-model="taskForm.title" placeholder="e.g. Call patient with CMP lab results" style="width:100%; padding:0.4rem">
+                            </div>
+                            <div class="form-group" style="flex:1">
+                                <label>Priority</label>
+                                <select v-model="taskForm.priority" style="width:100%; padding:0.4rem">
+                                    <option value="low">Low</option>
+                                    <option value="normal">Normal</option>
+                                    <option value="high">High</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="flex:1">
+                                <label>Due Date</label>
+                                <input type="date" v-model="taskForm.due_date" style="width:100%; padding:0.35rem">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Description / Notes</label>
+                            <textarea v-model="taskForm.description" rows="2" style="width:100%; font-family:inherit"></textarea>
+                        </div>
+                        <div style="display:flex; gap:0.5rem; justify-content:flex-end; margin-top:0.75rem">
+                            <button class="btn btn-sm" @click="showAddTask=false">Cancel</button>
+                            <button class="btn btn-sm btn-primary" @click="createTask">Save Task</button>
+                        </div>
+                    </div>
+
+                    <!-- Tasks Table -->
+                    <table v-if="tasks.length">
+                        <thead><tr><th>Task</th><th>Priority</th><th>Due Date</th><th>Status</th><th>Actions</th></tr></thead>
+                        <tbody>
+                            <tr v-for="t in tasks" :key="t.id" :style="t.status==='completed'?'opacity:0.65; background:#f7fafc':''">
+                                <td>
+                                    <strong :style="t.status==='completed'?'text-decoration: line-through':''">{{ t.title }}</strong>
+                                    <p v-if="t.description" style="margin:2px 0 0; font-size:0.8rem; color:#718096">{{ t.description }}</p>
+                                </td>
+                                <td>
+                                    <span class="badge" :class="t.priority==='high'?'badge-red':(t.priority==='low'?'badge-blue':'badge-yellow')">{{ t.priority }}</span>
+                                </td>
+                                <td>{{ t.due_date ? formatDate(t.due_date) : 'No due date' }}</td>
+                                <td>
+                                    <span class="badge" :class="t.status==='completed'?'badge-green':'badge-yellow'">{{ t.status }}</span>
+                                </td>
+                                <td>
+                                    <div style="display:flex; gap:0.25rem">
+                                        <button class="btn btn-xs btn-primary" @click="toggleTaskComplete(t)">
+                                            {{ t.status==='completed'?'Mark Pending':'Mark Complete' }}
+                                        </button>
+                                        <button class="btn btn-xs" @click="deleteTask(t.id)" style="background:#e53e3e; color:white; border:none; padding:0.25rem 0.5rem; border-radius:4px; cursor:pointer">Delete</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p v-else style="color:#718096; text-align:center; padding:1.5rem">All caught up! No active tasks.</p>
+                </div>
             </div>
 
             <div v-if="view==='patients'" class="card">
@@ -158,20 +226,50 @@
                         <table>
                             <thead><tr><th>Recorded</th><th>BP</th><th>HR</th><th>Temp</th><th>Weight</th><th>SpO2</th></tr></thead>
                             <tbody>
-                                <tr v-for="v in patientChart.vitals" :key="v.id">
+                                <tr v-for="(v, idx) in patientChart.vitals" :key="v.id">
                                     <td>{{ formatDate(v.recorded_at) }}</td>
-                                    <td>{{ v.bp_systolic && v.bp_diastolic ? v.bp_systolic + '/' + v.bp_diastolic : '—' }}</td>
-                                    <td>{{ v.heart_rate || '—' }}</td>
-                                    <td>{{ v.temperature_f ? v.temperature_f + ' °F' : '—' }}</td>
-                                    <td>{{ v.weight_lb ? v.weight_lb + ' lb' : '—' }}</td>
-                                    <td>{{ v.spo2 ? v.spo2 + '%' : '—' }}</td>
+                                    <td>
+                                        <span :style="getVitalStyle('bp', v.bp_systolic, v.bp_diastolic)">
+                                            {{ v.bp_systolic && v.bp_diastolic ? v.bp_systolic + '/' + v.bp_diastolic : '—' }}
+                                        </span>
+                                        <span :style="getVitalTrendStyle('bp_systolic', idx)">{{ getVitalTrend('bp_systolic', idx) }}</span>
+                                    </td>
+                                    <td>
+                                        <span :style="getVitalStyle('hr', v.heart_rate)">{{ v.heart_rate || '—' }}</span>
+                                        <span :style="getVitalTrendStyle('heart_rate', idx)">{{ getVitalTrend('heart_rate', idx) }}</span>
+                                    </td>
+                                    <td>
+                                        <span :style="getVitalStyle('temp', v.temperature_f)">{{ v.temperature_f ? v.temperature_f + ' °F' : '—' }}</span>
+                                        <span :style="getVitalTrendStyle('temperature_f', idx)">{{ getVitalTrend('temperature_f', idx) }}</span>
+                                    </td>
+                                    <td>
+                                        <span>{{ v.weight_lb ? v.weight_lb + ' lb' : '—' }}</span>
+                                        <span :style="getVitalTrendStyle('weight_lb', idx)">{{ getVitalTrend('weight_lb', idx) }}</span>
+                                    </td>
+                                    <td>
+                                        <span :style="getVitalStyle('spo2', v.spo2)">{{ v.spo2 ? v.spo2 + '%' : '—' }}</span>
+                                        <span :style="getVitalTrendStyle('spo2', idx)">{{ getVitalTrend('spo2', idx) }}</span>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
-                    <div v-if="patientChart && patientChart.documents && patientChart.documents.length" style="margin-top:1.5rem">
-                        <h4 style="color:#2d3748; margin-bottom:0.5rem">Chart Documents</h4>
-                        <table>
+                    <div v-if="patientChart && patientChart.documents" style="margin-top:1.5rem">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem">
+                            <h4 style="color:#2d3748; margin:0">Chart Documents</h4>
+                            <div style="display:flex; gap:0.5rem; align-items:center">
+                                <select v-model="docFilters.document_type" @change="loadPatientChart" style="padding:0.3rem 0.6rem; border-radius:6px; border:1px solid #cbd5e0; font-size:0.85rem">
+                                    <option value="">All Document Types</option>
+                                    <option value="Referral Letter">Referral Letter</option>
+                                    <option value="Lab Result">Lab Result</option>
+                                    <option value="Consent Form">Consent Form</option>
+                                    <option value="Clinical Summary">Clinical Summary</option>
+                                </select>
+                                <input type="date" v-model="docFilters.document_date" @change="loadPatientChart" style="padding:0.25rem 0.5rem; border-radius:6px; border:1px solid #cbd5e0; font-size:0.85rem">
+                                <button v-if="docFilters.document_type || docFilters.document_date" type="button" class="btn btn-sm btn-secondary" @click="docFilters.document_type=''; docFilters.document_date=''; loadPatientChart()" style="padding:0.25rem 0.5rem; font-size:0.8rem">Clear</button>
+                            </div>
+                        </div>
+                        <table v-if="patientChart.documents.length">
                             <thead><tr><th>Title</th><th>Type</th><th>File</th></tr></thead>
                             <tbody>
                                 <tr v-for="d in patientChart.documents" :key="d.id">
@@ -181,6 +279,7 @@
                                 </tr>
                             </tbody>
                         </table>
+                        <p v-else style="color:#718096; text-align:center; padding:1rem; border:1px dashed #e2e8f0; border-radius:6px">No documents match the filter criteria.</p>
                     </div>
                 </div>
 
@@ -753,116 +852,446 @@
             </div>
 
             <div v-if="view==='hie'" class="card">
-                <h2>HIE / FHIR Exchange</h2>
-                <div class="panel">
-                    <h3>Connections</h3>
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 2px solid #edf2f7; padding-bottom: 0.75rem; margin-bottom: 1.5rem; flex-wrap:wrap; gap:0.5rem">
+                    <h2 style="margin: 0; color: #1e4d6b; display:flex; align-items:center; gap:0.5rem">
+                        <span>🌐</span> Interoperability &amp; ONC Compliance Hub
+                    </h2>
+                    <span class="badge badge-green" style="font-weight:600">US Core v5.0.1 (FHIR R4)</span>
+                </div>
+
+                <!-- Sub View Tabs -->
+                <div style="display: flex; gap: 0.5rem; border-bottom: 1px solid #e2e8f0; margin-bottom: 1.5rem; padding-bottom: 0.5rem; overflow-x: auto; white-space: nowrap;">
+                    <button :class="['btn btn-sm', interopSubView === 'fhir' ? 'btn-primary' : '']" @click="interopSubView = 'fhir'">📶 HIE &amp; FHIR Exchange</button>
+                    <button :class="['btn btn-sm', interopSubView === 'ehi' ? 'btn-primary' : '']" @click="interopSubView = 'ehi'">📦 Computable EHI Export (b10)</button>
+                    <button :class="['btn btn-sm', interopSubView === 'requests' ? 'btn-primary' : '']" @click="interopSubView = 'requests'">📝 Info Blocking Intake Log</button>
+                    <button :class="['btn btn-sm', interopSubView === 'dsi' ? 'btn-primary' : '']" @click="interopSubView = 'dsi'">⚙️ Decision Support &amp; CQMs (b11)</button>
+                </div>
+
+                <!-- TAB 1: FHIR & HIE EXCHANGES -->
+                <div v-if="interopSubView === 'fhir'">
+                    <div style="display:grid; grid-template-columns: 1.5fr 1fr; gap:1.5rem; align-items:start">
+                        <div>
+                            <div class="panel">
+                                <h3>Active HIE Network Connections</h3>
+                                <table>
+                                    <thead><tr><th>Network</th><th>Type</th><th>Status</th><th>Agreement</th><th>Actions</th></tr></thead>
+                                    <tbody>
+                                        <tr v-for="c in hieConnections" :key="c.id">
+                                            <td><strong>{{ c.name }}</strong></td>
+                                            <td>{{ c.network_type }}</td>
+                                            <td><span class="badge">{{ c.status }}</span></td>
+                                            <td>{{ c.agreement_signed_at ? formatDate(c.agreement_signed_at) : 'Pending' }}</td>
+                                            <td>
+                                                <div style="display:flex; gap:0.25rem">
+                                                    <button class="btn btn-xs" @click="queryHie(c.id)">Query</button>
+                                                    <button class="btn btn-xs btn-primary" @click="pushHieSummary(c.id)">Push</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="panel">
+                                <h3>Recent FHIR &amp; HIE Transactions</h3>
+                                <table>
+                                    <thead><tr><th>Timestamp</th><th>Patient</th><th>Direction</th><th>Resource Type</th><th>Status</th></tr></thead>
+                                    <tbody>
+                                        <tr v-for="x in hieExchanges" :key="x.id">
+                                            <td>{{ formatDate(x.created_at) }}</td>
+                                            <td>{{ x.patient ? x.patient.first_name + ' ' + x.patient.last_name : '—' }}</td>
+                                            <td><span class="badge">{{ x.direction }}</span></td>
+                                            <td><code>{{ x.resource_type }}</code></td>
+                                            <td><span class="badge badge-green">{{ x.status }}</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- FHIR JSON Viewer -->
+                        <div class="panel" style="background:#f7fafc">
+                            <h3>FHIR Resource Visualizer</h3>
+                            <p style="font-size:0.8rem; color:#718096; margin-bottom:0.75rem">Inspect live JSON representations of patients mapped to HL7 FHIR US Core profiles.</p>
+                            <div class="form-group">
+                                <label>Select Patient</label>
+                                <select v-model="hiePatientId" @change="viewFhirPatientPreview(hiePatientId)" style="width:100%; padding:0.4rem">
+                                    <option value="">-- Choose Patient --</option>
+                                    <option v-for="p in patients" :key="p.id" :value="p.id">{{ p.first_name }} {{ p.last_name }}</option>
+                                </select>
+                            </div>
+                            <div v-if="fhirPatientPreview" style="margin-top:1rem">
+                                <span class="badge badge-green" style="font-size:0.7rem; margin-bottom:0.5rem; display:inline-block">Live USCDI Core Profile Mapped</span>
+                                <pre style="background:#1a202c; color:#a0aec0; padding:1rem; border-radius:6px; font-size:0.75rem; font-family:monospace; max-height:300px; overflow-y:auto">{{ JSON.stringify(fhirPatientPreview, null, 2) }}</pre>
+                            </div>
+                            <p v-else-if="hiePatientId" style="font-size:0.85rem; color:#718096; text-align:center; padding:1rem">Loading FHIR resource preview...</p>
+                            <p v-else style="font-size:0.85rem; color:#718096; text-align:center; padding:1rem">Select a patient to preview resource</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 2: EHI EXPORT HUB (b10) -->
+                <div v-if="interopSubView === 'ehi'">
+                    <div class="panel" style="background:#ebf8ff; border:1px solid #bee3f8; margin-bottom:1.5rem">
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem">
+                            <div>
+                                <h3 style="margin:0; color:#2b6cb0">Electronic Health Information (EHI) Export</h3>
+                                <p style="margin:0.25rem 0 0; font-size:0.85rem; color:#2b6cb0">Generate complete, computable clinical datasets in zip/json packages conforming to ONC §170.315(b)(10).</p>
+                            </div>
+                            <div style="display:flex; gap:0.5rem; align-items:center">
+                                <select v-model="hiePatientId" style="padding:0.4rem">
+                                    <option value="">Select Patient to Export</option>
+                                    <option v-for="p in patients" :key="p.id" :value="p.id">{{ p.first_name }} {{ p.last_name }}</option>
+                                </select>
+                                <button class="btn btn-primary" @click="generateEhiExport(hiePatientId)" :disabled="generatingEhi || !hiePatientId">
+                                    {{ generatingEhi ? 'Generating...' : 'Trigger EHI Export' }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel">
+                        <h3>Generated EHI Computable Packages</h3>
+                        <table>
+                            <thead><tr><th>Generated At</th><th>Patient</th><th>Requested By</th><th>Format</th><th>Status</th><th>Actions</th></tr></thead>
+                            <tbody>
+                                <tr v-for="exp in interopExports" :key="exp.id">
+                                    <td>{{ formatDate(exp.completed_at || exp.created_at) }}</td>
+                                    <td><strong>{{ exp.patient ? exp.patient.first_name + ' ' + exp.patient.last_name : 'Bulk Export' }}</strong></td>
+                                    <td>{{ exp.requested_by }}</td>
+                                    <td><code>JSON (USCDI v3)</code></td>
+                                    <td><span class="badge badge-green">{{ exp.status }}</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-primary" @click="downloadEhiExport(exp)">
+                                            <i class="fas fa-download" style="margin-right:4px"></i>Download JSON
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr v-if="!interopExports.length"><td colspan="6" style="text-align:center;color:#718096">No EHI export packages generated yet.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- TAB 3: INFO BLOCKING COMPLIANCE LOG -->
+                <div v-if="interopSubView === 'requests'">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem">
+                        <p style="font-size:0.9rem; color:#4a5568; margin:0">
+                            Log patient or third-party app requests for clinical data access to comply with 21st Century Cures Act Information Blocking rules.
+                        </p>
+                        <button class="btn btn-sm" @click="showAddInteropRequest = !showAddInteropRequest">Log Intake Request</button>
+                    </div>
+
+                    <!-- Log Intake Request form -->
+                    <div v-if="showAddInteropRequest" class="panel" style="background:#f7fafc; margin-bottom:1.5rem">
+                        <h3>Log EHI / API Intake Access Request</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Patient</label>
+                                <select v-model="newInteropRequest.patient_id">
+                                    <option value="">Select Patient</option>
+                                    <option v-for="p in patients" :key="p.id" :value="p.id">{{ p.first_name }} {{ p.last_name }}</option>
+                                </select>
+                            </div>
+                            <div class="form-group"><label>Requestor Name</label><input v-model="newInteropRequest.requestor_name" type="text" placeholder="e.g. HealthApp LLC or Patient Name"></div>
+                            <div class="form-group">
+                                <label>Requestor Type</label>
+                                <select v-model="newInteropRequest.requestor_type">
+                                    <option value="patient">Patient</option>
+                                    <option value="provider">Provider / Clinic</option>
+                                    <option value="payer">Insurance Payer</option>
+                                    <option value="third_party_app">Third-party App</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Access Method</label>
+                                <select v-model="newInteropRequest.access_method">
+                                    <option value="fhir_api">Standardized FHIR API</option>
+                                    <option value="ehi_export">Computable EHI Export</option>
+                                    <option value="patient_portal">Patient Portal Access</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Status</label>
+                                <select v-model="newInteropRequest.status">
+                                    <option value="approved">Approved / Connected</option>
+                                    <option value="pending">Under Review</option>
+                                    <option value="denied">Denied / Blocked Exception</option>
+                                </select>
+                            </div>
+                            <div class="form-group" v-if="newInteropRequest.status === 'denied'">
+                                <label>Blocking Exception Reason</label>
+                                <select v-model="newInteropRequest.exception_reason">
+                                    <option value="security">Security Exception</option>
+                                    <option value="privacy">Privacy Exception</option>
+                                    <option value="infeasibility">Infeasibility Exception</option>
+                                    <option value="harm_prevention">Preventing Harm Exception</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Justification / Compliance Notes</label>
+                            <textarea v-model="newInteropRequest.notes" rows="2" style="width:100%; font-family:inherit"></textarea>
+                        </div>
+                        <button class="btn btn-primary btn-sm" @click="addInteropRequest">Save Request Log</button>
+                    </div>
+
+                    <!-- Requests log list -->
                     <table>
-                        <thead><tr><th>Network</th><th>Type</th><th>Status</th><th>Agreement</th><th></th></tr></thead>
+                        <thead>
+                            <tr>
+                                <th>Logged Date</th>
+                                <th>Requestor</th>
+                                <th>Type</th>
+                                <th>Method</th>
+                                <th>Patient</th>
+                                <th>Status</th>
+                                <th>Adjudication / Exception Notes</th>
+                            </tr>
+                        </thead>
                         <tbody>
-                            <tr v-for="c in hieConnections" :key="c.id">
-                                <td>{{ c.name }}</td>
-                                <td>{{ c.network_type }}</td>
-                                <td><span class="badge">{{ c.status }}</span></td>
-                                <td>{{ c.agreement_signed_at ? formatDate(c.agreement_signed_at) : 'Pending' }}</td>
+                            <tr v-for="req in interopRequests" :key="req.id">
+                                <td>{{ formatDate(req.created_at) }}</td>
+                                <td><strong>{{ req.requestor_name }}</strong></td>
+                                <td><span class="badge">{{ req.requestor_type }}</span></td>
+                                <td><code>{{ req.access_method }}</code></td>
+                                <td>{{ req.patient ? req.patient.first_name + ' ' + req.patient.last_name : 'All Patients' }}</td>
                                 <td>
-                                    <button class="btn btn-sm" @click="queryHie(c.id)">Query Patient</button>
-                                    <button class="btn btn-sm btn-primary" @click="pushHieSummary(c.id)">Push Summary</button>
+                                    <span class="badge" :class="{
+                                        'badge-green': req.status === 'approved',
+                                        'badge-yellow': req.status === 'pending',
+                                        'badge-red': req.status === 'denied'
+                                    }">{{ req.status }}</span>
+                                </td>
+                                <td style="font-size:0.8rem">
+                                    <div v-if="req.status === 'denied'">
+                                        <strong style="color:#c53030">Exception: {{ req.exception_reason }}</strong>
+                                        <p style="margin:2px 0 0; color:#718096">{{ req.notes }}</p>
+                                    </div>
+                                    <div v-else-if="req.status === 'pending'" style="display:flex; gap:0.25rem">
+                                        <button class="btn btn-xs btn-primary" @click="updateInteropRequestStatus(req, 'approved')">Approve</button>
+                                        <button class="btn btn-xs" @click="updateInteropRequestStatus(req, 'denied', 'security')">Deny (Security)</button>
+                                    </div>
+                                    <span v-else>{{ req.notes || 'Access provisioned successfully.' }}</span>
                                 </td>
                             </tr>
+                            <tr v-if="!interopRequests.length"><td colspan="7" style="text-align:center;color:#718096">No compliance access requests logged.</td></tr>
                         </tbody>
                     </table>
                 </div>
-                <h3>Recent Exchanges</h3>
-                <table>
-                    <thead><tr><th>Network</th><th>Patient</th><th>Direction</th><th>Resource</th><th>Status</th></tr></thead>
-                    <tbody>
-                        <tr v-for="x in hieExchanges" :key="x.id">
-                            <td>{{ x.hie_connection ? x.hie_connection.name : '—' }}</td>
-                            <td>{{ x.patient ? x.patient.first_name+' '+x.patient.last_name : '—' }}</td>
-                            <td>{{ x.direction }}</td>
-                            <td>{{ x.resource_type }}</td>
-                            <td><span class="badge badge-green">{{ x.status }}</span></td>
-                        </tr>
-                    </tbody>
-                </table>
+
+                <!-- TAB 4: DECISION SUPPORT & QUALITY RULES (b11) -->
+                <div v-if="interopSubView === 'dsi'">
+                    <div style="display:grid; grid-template-columns: 1fr 1.2fr; gap:1.5rem">
+                        <div class="panel">
+                            <h3>Clinical Decision Support Interventions (DSI)</h3>
+                            <p style="font-size:0.85rem; color:#4a5568">ONC §170.315(b)(11) requires transparency regarding clinical rule sources, developers, and funding.</p>
+                            
+                            <div style="background:#fff; border:1px solid #cbd5e0; border-radius:6px; padding:0.75rem; margin-top:1rem">
+                                <h4 style="margin:0 0 0.5rem; color:#2b6cb0">⚡ Rule: Severe Hypertension Warning</h4>
+                                <ul style="font-size:0.8rem; list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.25rem">
+                                    <li><strong>Condition:</strong> BP Systolic &gt;= 160 or Diastolic &gt;= 100</li>
+                                    <li><strong>Developer:</strong> American College of Cardiology</li>
+                                    <li><strong>Funding Source:</strong> Federal Grant ACC-30012</li>
+                                    <li><strong>Evidence/Standard:</strong> 2017 ACC/AHA Guideline for Prevention, Detection, Evaluation and Management of High Blood Pressure.</li>
+                                </ul>
+                            </div>
+
+                            <div style="background:#fff; border:1px solid #cbd5e0; border-radius:6px; padding:0.75rem; margin-top:1rem">
+                                <h4 style="margin:0 0 0.5rem; color:#2b6cb0">⚡ Rule: Pediatric Asthma Care Action Plan</h4>
+                                <ul style="font-size:0.8rem; list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.25rem">
+                                    <li><strong>Condition:</strong> Age &lt;= 12 and Diagnosis Asthma</li>
+                                    <li><strong>Developer:</strong> National Heart, Lung, and Blood Institute (NHLBI)</li>
+                                    <li><strong>Evidence/Standard:</strong> EPR-3 Guidelines for the Diagnosis and Management of Asthma.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="panel">
+                            <h3>Clinical Quality Measure (eCQM) Calculation Engine</h3>
+                            <p style="font-size:0.85rem; color:#4a5568">Track practice compliance performance against CMS Quality Payment Program (MIPS/Quality) definitions.</p>
+                            <table style="font-size:0.85rem; margin-top:1rem">
+                                <thead><tr><th>Measure ID</th><th>CMS Quality Title</th><th>Status</th><th>Calculation Framework</th></tr></thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>CMS122v11</strong></td>
+                                        <td>Diabetes: Hemoglobin A1c Poor Control</td>
+                                        <td><span class="badge badge-green">eCQM Compliant</span></td>
+                                        <td>Denominator: patients 18-75 with Diabetes. Numerator: HbA1c &gt; 9.0%.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>CMS165v11</strong></td>
+                                        <td>Controlling High Blood Pressure</td>
+                                        <td><span class="badge badge-green">eCQM Compliant</span></td>
+                                        <td>Denominator: patients 18-85 with Hypertension. Numerator: BP &lt; 140/90 mmHg.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>CMS138v11</strong></td>
+                                        <td>Preventive Care &amp; Screening: Tobacco Use</td>
+                                        <td><span class="badge">Draft Calculation</span></td>
+                                        <td>Screening and cessation intervention.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div v-if="view==='integrations'" class="card">
                 <div class="row-between">
-                    <h2>Integration Setup &amp; Project Plan</h2>
+                    <h2>System Administration &amp; Integrations</h2>
                     <div>
-                        <button class="btn" @click="testSurescripts">Test Surescripts</button>
+                        <button class="btn" @click="testSurescripts" style="margin-right:0.25rem">Test Surescripts</button>
                         <button class="btn" @click="testLab">Test Lab</button>
                     </div>
                 </div>
-                <div v-if="opsStatus" class="panel" style="margin-bottom:1rem">
-                    <h3>Operations &amp; HIPAA Readiness</h3>
-                    <div class="stats" style="margin:0.75rem 0">
-                        <div class="stat"><div class="num">{{ opsStatus.queue.driver }}</div><div class="label">Queue Driver</div></div>
-                        <div class="stat"><div class="num">{{ opsStatus.database.connected ? 'OK' : '—' }}</div><div class="label">Database</div></div>
-                        <div class="stat"><div class="num">{{ opsStatus.mfa.enabled ? 'On' : 'Ready' }}</div><div class="label">MFA</div></div>
-                        <div class="stat"><div class="num">{{ opsStatus.hipaa_controls.rbac_enforced ? 'Yes' : '—' }}</div><div class="label">RBAC Enforced</div></div>
+
+                <div class="portal-nav" style="margin:1rem 0; display:flex; gap:0.5rem; flex-wrap:wrap; background:#f7fafc; padding:0.5rem; border-radius:6px; border:1px solid #e2e8f0">
+                    <button class="btn btn-sm" :class="adminTab==='plan'?'btn-primary':''" @click="adminTab='plan'">Project Plan &amp; HIPAA Readiness</button>
+                    <button class="btn btn-sm" :class="adminTab==='config'?'btn-primary':''" @click="adminTab='config'">Configure Core Lists</button>
+                </div>
+
+                <div v-if="adminTab==='plan'">
+                    <div v-if="opsStatus" class="panel" style="margin-bottom:1rem">
+                        <h3>Operations &amp; HIPAA Readiness</h3>
+                        <div class="stats" style="margin:0.75rem 0">
+                            <div class="stat"><div class="num">{{ opsStatus.queue.driver }}</div><div class="label">Queue Driver</div></div>
+                            <div class="stat"><div class="num">{{ opsStatus.database.connected ? 'OK' : '—' }}</div><div class="label">Database</div></div>
+                            <div class="stat"><div class="num">{{ opsStatus.mfa.enabled ? 'On' : 'Ready' }}</div><div class="label">MFA</div></div>
+                            <div class="stat"><div class="num">{{ opsStatus.hipaa_controls.rbac_enforced ? 'Yes' : '—' }}</div><div class="label">RBAC Enforced</div></div>
+                        </div>
+                        <p style="font-size:0.875rem;color:#4a5568">{{ opsStatus.backup_dr.recommendation }}</p>
                     </div>
-                    <p style="font-size:0.875rem;color:#4a5568">{{ opsStatus.backup_dr.recommendation }}</p>
-                </div>
-                <div v-if="trainingModules.length" class="panel" style="margin-bottom:1rem">
-                    <h3>Staff Training Modules</h3>
-                    <table>
-                        <thead><tr><th>Module</th><th>Audience</th><th>Duration</th><th>Topics</th></tr></thead>
-                        <tbody>
-                            <tr v-for="mod in trainingModules" :key="mod.id">
-                                <td><strong>{{ mod.title }}</strong></td>
-                                <td>{{ mod.audience }}</td>
-                                <td>{{ mod.duration_minutes }} min</td>
-                                <td>{{ mod.topics.join('; ') }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div v-if="projectPlan" class="panel" style="margin-bottom:1rem">
-                    <h3>{{ projectPlan.title }}</h3>
-                    <div class="stats" style="margin:1rem 0">
-                        <div class="stat"><div class="num">{{ projectPlan.metrics.functional_requirements }}</div><div class="label">Functional Reqs</div></div>
-                        <div class="stat"><div class="num">{{ projectPlan.metrics.technical_requirements }}</div><div class="label">Technical Reqs</div></div>
-                        <div class="stat"><div class="num">{{ projectPlan.metrics.compliance_controls }}</div><div class="label">Compliance</div></div>
-                        <div class="stat"><div class="num">{{ projectPlan.completion.functional }}%</div><div class="label">MVP Functional</div></div>
+                    <div v-if="trainingModules.length" class="panel" style="margin-bottom:1rem">
+                        <h3>Staff Training Modules</h3>
+                        <table>
+                            <thead><tr><th>Module</th><th>Audience</th><th>Duration</th><th>Topics</th></tr></thead>
+                            <tbody>
+                                <tr v-for="mod in trainingModules" :key="mod.id">
+                                    <td><strong>{{ mod.title }}</strong></td>
+                                    <td>{{ mod.audience }}</td>
+                                    <td>{{ mod.duration_minutes }} min</td>
+                                    <td>{{ mod.topics.join('; ') }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
-                    <table>
-                        <thead><tr><th>Phase</th><th>Start Week</th><th>Status</th></tr></thead>
-                        <tbody>
-                            <tr v-for="phase in projectPlan.phases" :key="phase.name">
-                                <td>{{ phase.name }}</td>
-                                <td>{{ phase.start_week }}</td>
-                                <td><span class="badge" :class="phase.status==='complete'?'badge-green':(phase.status==='in_progress'?'badge-blue':'badge-yellow')">{{ phase.status }}</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <h4 style="margin-top:1.25rem">Functional requirements</h4>
-                    <table>
-                        <thead><tr><th>ID</th><th>Requirement</th><th>Priority</th><th>Status</th></tr></thead>
-                        <tbody>
-                            <tr v-for="req in projectPlan.functional_requirements" :key="req.id">
-                                <td>{{ req.id }}</td>
-                                <td>{{ req.name }}</td>
-                                <td>{{ req.priority }}</td>
-                                <td><span class="badge" :class="req.status==='complete'?'badge-green':(req.status==='partial'?'badge-blue':'badge-yellow')">{{ req.status }}</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div v-if="integrationTest" class="toast" role="status">
-                    <span class="toast__text">{{ integrationTest }}</span>
-                    <button type="button" class="toast__close" @click="integrationTest = ''" aria-label="Dismiss notification">&times;</button>
-                </div>
-                <div v-for="(section, key) in (requirements && requirements.sections) || {}" :key="key" class="panel">
-                    <div class="row-between">
-                        <h3>{{ section.label }}</h3>
-                        <span class="badge">{{ section.ready ? 'Ready' : 'Needs setup' }}</span>
+                    <div v-if="projectPlan" class="panel" style="margin-bottom:1rem">
+                        <h3>{{ projectPlan.title }}</h3>
+                        <div class="stats" style="margin:1rem 0">
+                            <div class="stat"><div class="num">{{ projectPlan.metrics.functional_requirements }}</div><div class="label">Functional Reqs</div></div>
+                            <div class="stat"><div class="num">{{ projectPlan.metrics.technical_requirements }}</div><div class="label">Technical Reqs</div></div>
+                            <div class="stat"><div class="num">{{ projectPlan.metrics.compliance_controls }}</div><div class="label">Compliance</div></div>
+                            <div class="stat"><div class="num">{{ projectPlan.completion.functional }}%</div><div class="label">MVP Functional</div></div>
+                        </div>
+                        <table>
+                            <thead><tr><th>Phase</th><th>Start Week</th><th>Status</th></tr></thead>
+                            <tbody>
+                                <tr v-for="phase in projectPlan.phases" :key="phase.name">
+                                    <td>{{ phase.name }}</td>
+                                    <td>{{ phase.start_week }}</td>
+                                    <td><span class="badge" :class="phase.status==='complete'?'badge-green':(phase.status==='in_progress'?'badge-blue':'badge-yellow')">{{ phase.status }}</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h4 style="margin-top:1.25rem">Functional requirements</h4>
+                        <table>
+                            <thead><tr><th>ID</th><th>Requirement</th><th>Priority</th><th>Status</th></tr></thead>
+                            <tbody>
+                                <tr v-for="req in projectPlan.functional_requirements" :key="req.id">
+                                    <td>{{ req.id }}</td>
+                                    <td>{{ req.name }}</td>
+                                    <td>{{ req.priority }}</td>
+                                    <td><span class="badge" :class="req.status==='complete'?'badge-green':(req.status==='partial'?'badge-blue':'badge-yellow')">{{ req.status }}</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
-                    <p v-if="section.note" style="font-size:0.875rem;color:#4a5568">{{ section.note }}</p>
-                    <ul v-if="section.you_provide && section.you_provide.length" style="margin-top:0.5rem;padding-left:1.25rem;font-size:0.875rem">
-                        <li v-for="item in section.you_provide" :key="item">{{ item }}</li>
-                    </ul>
+                    <div v-if="integrationTest" class="toast" role="status">
+                        <span class="toast__text">{{ integrationTest }}</span>
+                        <button type="button" class="toast__close" @click="integrationTest = ''" aria-label="Dismiss notification">&times;</button>
+                    </div>
+                    <div v-for="(section, key) in (requirements && requirements.sections) || {}" :key="key" class="panel">
+                        <div class="row-between">
+                            <h3>{{ section.label }}</h3>
+                            <span class="badge">{{ section.ready ? 'Ready' : 'Needs setup' }}</span>
+                        </div>
+                        <p v-if="section.note" style="font-size:0.875rem;color:#4a5568">{{ section.note }}</p>
+                        <ul v-if="section.you_provide && section.you_provide.length" style="margin-top:0.5rem;padding-left:1.25rem;font-size:0.875rem">
+                            <li v-for="item in section.you_provide" :key="item">{{ item }}</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div v-if="adminTab==='config'">
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:1.5rem">
+                        <!-- Payer List configuration -->
+                        <div class="panel">
+                            <h3>Practice Payer List</h3>
+                            <p style="font-size:0.8rem; color:#718096; margin-bottom:0.75rem">Manage insurance companies accepted by the practice.</p>
+                            <div style="display:flex; gap:0.25rem; margin-bottom:1rem">
+                                <input v-model="newCoreItem.payers" placeholder="e.g. Humana" style="flex:1; padding:0.35rem" @keyup.enter="addCoreItem('payers')">
+                                <button class="btn btn-sm btn-primary" @click="addCoreItem('payers')">Add</button>
+                            </div>
+                            <ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.5rem">
+                                <li v-for="(payer, idx) in coreLists.payers" :key="payer" style="display:flex; justify-content:space-between; align-items:center; background:#f7fafc; padding:0.4rem 0.6rem; border-radius:4px; border:1px solid #e2e8f0">
+                                    <span>{{ payer }}</span>
+                                    <button class="btn btn-xs" @click="removeCoreItem('payers', idx)" style="background:#e53e3e; color:white; border:none; padding:0.15rem 0.35rem; border-radius:2px; cursor:pointer">&times;</button>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Document Types Configuration -->
+                        <div class="panel">
+                            <h3>Document Types</h3>
+                            <p style="font-size:0.8rem; color:#718096; margin-bottom:0.75rem">Configure categorizations for uploaded charts files.</p>
+                            <div style="display:flex; gap:0.25rem; margin-bottom:1rem">
+                                <input v-model="newCoreItem.docTypes" placeholder="e.g. Pathology Report" style="flex:1; padding:0.35rem" @keyup.enter="addCoreItem('docTypes')">
+                                <button class="btn btn-sm btn-primary" @click="addCoreItem('docTypes')">Add</button>
+                            </div>
+                            <ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.5rem">
+                                <li v-for="(type, idx) in coreLists.docTypes" :key="type" style="display:flex; justify-content:space-between; align-items:center; background:#f7fafc; padding:0.4rem 0.6rem; border-radius:4px; border:1px solid #e2e8f0">
+                                    <span>{{ type }}</span>
+                                    <button class="btn btn-xs" @click="removeCoreItem('docTypes', idx)" style="background:#e53e3e; color:white; border:none; padding:0.15rem 0.35rem; border-radius:2px; cursor:pointer">&times;</button>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Roles Configuration -->
+                        <div class="panel">
+                            <h3>User Roles &amp; Permissions</h3>
+                            <p style="font-size:0.8rem; color:#718096; margin-bottom:0.75rem">Define job functions and operational titles.</p>
+                            <div style="display:flex; gap:0.25rem; margin-bottom:1rem">
+                                <input v-model="newCoreItem.roles" placeholder="e.g. Front Desk Staff" style="flex:1; padding:0.35rem" @keyup.enter="addCoreItem('roles')">
+                                <button class="btn btn-sm btn-primary" @click="addCoreItem('roles')">Add</button>
+                            </div>
+                            <ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.5rem">
+                                <li v-for="(role, idx) in coreLists.roles" :key="role" style="display:flex; justify-content:space-between; align-items:center; background:#f7fafc; padding:0.4rem 0.6rem; border-radius:4px; border:1px solid #e2e8f0">
+                                    <span>{{ role }}</span>
+                                    <button class="btn btn-xs" @click="removeCoreItem('roles', idx)" style="background:#e53e3e; color:white; border:none; padding:0.15rem 0.35rem; border-radius:2px; cursor:pointer">&times;</button>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Appointment Types Configuration -->
+                        <div class="panel">
+                            <h3>Appointment Visit Types</h3>
+                            <p style="font-size:0.8rem; color:#718096; margin-bottom:0.75rem">Manage available clinical encounter classifications.</p>
+                            <div style="display:flex; gap:0.25rem; margin-bottom:1rem">
+                                <input v-model="newCoreItem.apptTypes" placeholder="e.g. Diagnostic Scan" style="flex:1; padding:0.35rem" @keyup.enter="addCoreItem('apptTypes')">
+                                <button class="btn btn-sm btn-primary" @click="addCoreItem('apptTypes')">Add</button>
+                            </div>
+                            <ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.5rem">
+                                <li v-for="(type, idx) in coreLists.apptTypes" :key="type" style="display:flex; justify-content:space-between; align-items:center; background:#f7fafc; padding:0.4rem 0.6rem; border-radius:4px; border:1px solid #e2e8f0">
+                                    <span>{{ type }}</span>
+                                    <button class="btn btn-xs" @click="removeCoreItem('apptTypes', idx)" style="background:#e53e3e; color:white; border:none; padding:0.15rem 0.35rem; border-radius:2px; cursor:pointer">&times;</button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -1315,7 +1744,15 @@
                 </div>
 
                 <div v-if="reportTab==='custom'" class="panel">
-                    <h3>PHI Audit Log (recent activity)</h3>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem">
+                        <h3 style="margin:0">PHI Audit Log (recent activity)</h3>
+                        <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap">
+                            <input v-model="auditFilters.event" @input="loadReports" placeholder="Filter by event/action..." style="padding:0.3rem 0.5rem; border-radius:6px; border:1px solid #cbd5e0; font-size:0.85rem">
+                            <input type="date" v-model="auditFilters.date_from" @change="loadReports" style="padding:0.25rem 0.5rem; border-radius:6px; border:1px solid #cbd5e0; font-size:0.85rem">
+                            <input type="date" v-model="auditFilters.date_to" @change="loadReports" style="padding:0.25rem 0.5rem; border-radius:6px; border:1px solid #cbd5e0; font-size:0.85rem">
+                            <button v-if="auditFilters.event || auditFilters.date_from || auditFilters.date_to" type="button" class="btn btn-sm btn-secondary" @click="auditFilters.event=''; auditFilters.date_from=''; auditFilters.date_to=''; loadReports()" style="padding:0.25rem 0.5rem; font-size:0.8rem">Clear</button>
+                        </div>
+                    </div>
                     <table v-if="auditLogs.length">
                         <thead><tr><th>When</th><th>User</th><th>Action</th><th>Resource</th><th>IP</th></tr></thead>
                         <tbody>

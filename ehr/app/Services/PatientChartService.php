@@ -15,14 +15,25 @@ use App\Models\Provider;
 
 class PatientChartService
 {
-    public function chart(Patient $patient): array
+    public function chart(Patient $patient, array $filters = []): array
     {
         $patient->load([
             'problems' => fn ($q) => $q->orderBy('rank'),
             'insurances',
             'careTeamMembers',
             'vitals' => fn ($q) => $q->orderByDesc('recorded_at')->limit(20),
-            'documents' => fn ($q) => $q->orderByDesc('created_at'),
+            'documents' => function ($q) use ($filters) {
+                $q->orderByDesc('created_at');
+                if (! empty($filters['document_type'])) {
+                    $q->where('document_type', $filters['document_type']);
+                }
+                if (! empty($filters['document_date'])) {
+                    $q->whereDate('created_at', $filters['document_date']);
+                }
+                if (! empty($filters['uploaded_by'])) {
+                    $q->where('uploaded_by', $filters['uploaded_by']);
+                }
+            },
             'allergyItems',
         ]);
 

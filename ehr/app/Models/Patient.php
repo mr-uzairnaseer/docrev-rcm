@@ -91,6 +91,16 @@ class Patient extends Model
         return $this->hasMany(Prescription::class);
     }
 
+    public function labOrders(): HasMany
+    {
+        return $this->hasMany(LabOrder::class);
+    }
+
+    public function patientForms(): HasMany
+    {
+        return $this->hasMany(PatientForm::class);
+    }
+
     public function getFullNameAttribute(): string
     {
         return trim("{$this->first_name} {$this->middle_name} {$this->last_name}");

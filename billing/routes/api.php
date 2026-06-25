@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\Internal\EncounterSyncController;
 use App\Http\Controllers\Api\Internal\PatientPaymentController;
 use App\Http\Controllers\Api\PayerController;
 use App\Http\Controllers\Api\QaTrackerController;
+use App\Http\Controllers\Api\EftController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', HealthController::class);
@@ -102,4 +103,13 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
     Route::get('patient-payments', [\App\Http\Controllers\Api\PatientPaymentController::class, 'index']);
     Route::post('eras/import', [EraController::class, 'import']);
     Route::get('eras/{era}', [EraController::class, 'show']);
+
+    Route::get('eft/enrollment', [EftController::class, 'getEnrollment']);
+    Route::post('eft/enrollment', [EftController::class, 'updateEnrollment']);
+    Route::get('eft/deposits', [EftController::class, 'getDeposits']);
+    Route::post('eft/deposits', [EftController::class, 'createDeposit']);
+    Route::post('eft/reassociate', [EftController::class, 'manualReassociate']);
+    Route::get('eft/rules', [EftController::class, 'getRules']);
+    Route::post('eft/rules', [EftController::class, 'saveRules']);
+    Route::get('eft/reconciliation-report', [EftController::class, 'getReconciliationReport']);
 });
